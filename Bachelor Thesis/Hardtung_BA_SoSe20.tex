@@ -1,0 +1,64 @@
+%\immediate\write18{makeindex Hardtung_BA_SoSe20.nlo -s nomencl.ist -o Hardtung_BA_SoSe20.nls} IF I WANT TO INDEX THE GLOSSARY
+\include{header}
+\graphicspath{ {./images/} }
+
+
+\begin{document}
+
+%===== PREAMBLE ====================
+\setcounter{page}{3}
+\pagenumbering{arabic}
+
+\include{chapter/0.Titlepage}
+\onehalfspacing
+\tableofcontents
+
+
+%===== MAIN =======================
+\setcounter{page}{3}
+
+\setcounter{table}{1}
+\setcounter{figure}{1}
+	\include{chapter/1.Abstract}
+
+\setcounter{table}{1}
+\setcounter{figure}{1}
+	\include{chapter/2.Introduction}
+	
+\setcounter{table}{1}
+\setcounter{figure}{1}
+	\include{chapter/3.EvaluationMethods}	
+	
+\setcounter{table}{1}
+\setcounter{figure}{1}
+	\include{chapter/4.Evaluation}	
+	
+\setcounter{table}{1}
+\setcounter{figure}{1}
+	\include{chapter/flaws}
+	
+\setcounter{table}{1}
+\setcounter{figure}{1}
+	\include{chapter/6.Solutions}
+	
+\setcounter{table}{1}
+\setcounter{table}{2}
+	\include{chapter/7.EvaluatingSolutions}
+
+\setcounter{table}{1}
+\setcounter{table}{2}
+	\include{chapter/8.Problems}
+	
+\setcounter{table}{1}
+\setcounter{table}{2}
+	\include{chapter/9.Prospect}
+	
+\singlespacing
+
+
+\printnoidxglossaries
+\listoffigures
+%\listoftables
+\bibliography{literature}
+
+\end{document}
