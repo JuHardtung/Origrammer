@@ -5,6 +5,7 @@ public class Constants {
 	public static enum LineInputMode {
 		INPUT_LINE,
 		ANGLE_BISECTOR,
+		PERPENDICULAR,
 		TRIANGLE_INSECTOR,
 		BY_LENGTH_AND_ANGLE
 	}
@@ -78,5 +79,6 @@ public class Constants {
 	}
 	
 	final public static double DEFAULT_PAPER_SIZE = 600;
+	final public static double EPSILON = 0.00000000001;
 
 }

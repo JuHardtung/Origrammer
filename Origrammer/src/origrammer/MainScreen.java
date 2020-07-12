@@ -126,6 +126,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderRectSelection();
 		renderTempOriGeomSymbol();
 		renderTmpLengthAngleLine();
+		renderTmpPerpendicular();
 
 		//show coordinates of selected Vertex
 		if (selectedCandidateV != null ) {
@@ -227,6 +228,42 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 	}
 	
+	/**
+	 * Renders a preview of the perpendicular input Line. <br>
+	 * Hold {@code CTRL} pressed to reverse the direction.
+	 */
+	private void renderTmpPerpendicular() {
+		if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE) {
+			if (Globals.lineEditMode == Constants.LineInputMode.PERPENDICULAR) {
+				OriLine l = pickLine(currentMousePointLogic);
+
+				if (l != null) {
+					Vector2d uv = GeometryUtil.getUnitVector(l.getP0(), l.getP1());
+					Vector2d nv = GeometryUtil.getNormalVector(uv);
+					Vector2d v = pickVertex(currentMousePointLogic);
+					Vector2d v2 = null;
+					//get point on OriLine that is closest to currentMousePointLogic, 
+					//if currentMousePointLogic is not close to a vertex
+					if (v == null) {
+						v = new Vector2d();
+						Vector2d cp = new Vector2d(currentMousePointLogic.x, currentMousePointLogic.y);
+						GeometryUtil.DistancePointToSegment(cp,  l.getP0(), l.getP1(), v);
+					}
+					//get crossingPoint in order to get inputLine.P1
+					//if there is no crossing point -> reverse inputLine direction
+					v2 = getEarlierstCrossPoint(v, nv);
+					if (v2 == null) {
+						v2 = getEarlierstCrossPoint(v, new Vector2d(-nv.x, -nv.y));
+					}
+					if (v != null && v2 != null) {
+						setColorStrokeByLineType(Globals.inputLineType);
+						g2d.draw(new Line2D.Double(v.x,v.y,v2.x,v2.y));
+					}
+				}
+			}
+		}
+	}
+	
 	private void renderAllArrows() {
 		for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
 			ArrayList<Shape> shapes = a.getShapesForDrawing();
@@ -272,19 +309,31 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 		}
 	}
-
+	
+	/**
+	 * Sets the {@code Graphics2D Color} and {@code Stroke} depending on {@code type} <br>
+	 * (which is the {@code OriLine.type})
+	 * @param type
+	 */
 	private void setColorStrokeByLineType(int type) {
+		setLineStrokeByLineType(type);
+		setLineColorByLineType(type);
+	}
+
+	/**
+	 * Sets the {@code Graphics2D Stroke} depending on {@code type} <br>
+	 * (which is the {@code OriLine.type}
+	 * @param type
+	 */
+	private void setLineStrokeByLineType(int type) {
 		switch (type) {
 		case OriLine.TYPE_NONE:
-			g2d.setColor(Config.LINE_COLOR_SELECTED);//TODO: TYPE_NONE COLOR
 			g2d.setStroke(Config.STROKE_SELECTED);
 			break;
 		case OriLine.TYPE_VALLEY:
-			g2d.setColor(Config.LINE_COLOR_VALLEY);
 			g2d.setStroke(Config.STROKE_VALLEY);
 			break;
 		case OriLine.TYPE_MOUNTAIN:
-			g2d.setColor(Config.LINE_COLOR_MOUNTAIN);
 			if (Globals.mountainFoldStyle == Constants.MountainFoldStyle.DASH_DOT) {
 				g2d.setStroke(Config.STROKE_MOUNTAIN_DASH_DOT);
 			} else if (Globals.mountainFoldStyle == Constants.MountainFoldStyle.DASH_DOT_DOT) {
@@ -292,16 +341,43 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 			break;
 		case OriLine.TYPE_XRAY:
-			g2d.setColor(Config.LINE_COLOR_XRAY);
 			g2d.setStroke(Config.STROKE_XRAY);
 			break;
 		case OriLine.TYPE_EDGE:
-			g2d.setColor(Config.LINE_COLOR_EDGE);
 			g2d.setStroke(Config.STROKE_EDGE);
 			break;
 		case OriLine.TYPE_CREASE:
-			g2d.setColor(Config.LINE_COLOR_CREASE);
 			g2d.setStroke(Config.STROKE_CREASE);
+		}
+	}
+	
+	/**
+	 * Sets the {@code Graphics2D Color} depending on {@code type} <br>
+	 * (which is the {@code OriLine.type}) <br>
+	 * and if {@code Globals.dispColoredLines} is {@code true}
+	 * @param type
+	 */
+	private void setLineColorByLineType(int type) {
+		if (Globals.dispColoredLines) {
+			switch (type) {
+			case OriLine.TYPE_NONE:
+				g2d.setColor(Config.LINE_COLOR_SELECTED);//TODO: TYPE_NONE COLOR
+				break;
+			case OriLine.TYPE_VALLEY:
+				g2d.setColor(Config.LINE_COLOR_VALLEY);
+				break;
+			case OriLine.TYPE_MOUNTAIN:
+				g2d.setColor(Config.LINE_COLOR_MOUNTAIN);
+				break;
+			case OriLine.TYPE_XRAY:
+				g2d.setColor(Config.LINE_COLOR_XRAY);
+			case OriLine.TYPE_EDGE:
+				g2d.setColor(Config.LINE_COLOR_EDGE);
+			case OriLine.TYPE_CREASE:
+				g2d.setColor(Config.LINE_COLOR_CREASE);
+			}
+		} else {
+			g2d.setColor(Config.LINE_COLOR_EDGE);
 		}
 	}
 
@@ -1075,14 +1151,16 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					Vector2d uv2 = null;
 
 					//check if the crossPoint is firstSelectedL.P1 or firstSelected.P2 and get it's UV
-					if (crossPoint.x == firstSelectedL.getP0().x && crossPoint.y == firstSelectedL.getP0().y) {
+					if (GeometryUtil.closeCompare(crossPoint.x, firstSelectedL.getP0().x, Constants.EPSILON) 
+							&& GeometryUtil.closeCompare(crossPoint.y, firstSelectedL.getP0().y, Constants.EPSILON)) {
 						uv1 = GeometryUtil.getUnitVector(firstSelectedL.getP0(), firstSelectedL.getP1());
 					} else {
 						uv1 = GeometryUtil.getUnitVector(firstSelectedL.getP1(), firstSelectedL.getP0());
 					}
 
 					//check if the crossPoint is secondSelectedL.P1 or secondSelectedL.P2 and get it's UV
-					if (crossPoint.x == secondSelectedL.getP0().x && crossPoint.y == secondSelectedL.getP0().y) {
+					if (GeometryUtil.closeCompare(crossPoint.x, secondSelectedL.getP0().x, Constants.EPSILON) 
+							&& GeometryUtil.closeCompare(crossPoint.y, secondSelectedL.getP0().y, Constants.EPSILON)) {
 						uv2 = GeometryUtil.getUnitVector(secondSelectedL.getP0(), secondSelectedL.getP1());
 					} else {
 						uv2 = GeometryUtil.getUnitVector(secondSelectedL.getP1(), secondSelectedL.getP0());
@@ -1090,31 +1168,79 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 					Vector2d combinedL1L2Vector = new Vector2d(crossPoint.x + uv1.x + uv2.x, crossPoint.y + uv1.y + uv2.y);
 					Vector2d newUV = GeometryUtil.getUnitVector(crossPoint, combinedL1L2Vector);
-					double dist = 0;
-					double smallestDist = 1000; //TODO: make it more elegant and not with fixed value
-					Vector2d bestCrossPoint = null;
-
-					//check all OriLines for the earliest intersection with the new AngleBisectorLine
-					//set the first intersection as P2 of the AngleBisectorLine
-					for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-
-						Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(crossPoint, new Vector2d(crossPoint.x + newUV.x * 900, crossPoint.y + newUV.y * 900), Globals.inputLineType));
-						if (crossPoint2 != null) {
-							if (!crossPoint2.equals(crossPoint)) {
-								dist = GeometryUtil.Distance(crossPoint, crossPoint2);
-								if (dist < smallestDist) {
-									smallestDist = dist;
-									bestCrossPoint = crossPoint2;
-								}
-							}
-						}
-					}					
-					createOriLine(crossPoint, bestCrossPoint, OriLine.TYPE_NONE);
+					Vector2d bestCrossPoint = getEarlierstCrossPoint(crossPoint, newUV);
+					if (bestCrossPoint == null) {
+						JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoCrossPointFound"),
+								"Error_NoCrossPointFound", JOptionPane.ERROR_MESSAGE);
+					} else {
+						createOriLine(crossPoint, bestCrossPoint, OriLine.TYPE_NONE);
+					}
 				}
 				firstSelectedL = null;
 				secondSelectedL = null;
 			}
 		}
+	}
+	
+	/**
+	 * Returns the closest {@code crossingPoint} of a line with origin on {@code p1} and direction {@code uv}
+	 * @param p1
+	 * @param uv
+	 * @return
+	 */
+	private Vector2d getEarlierstCrossPoint(Vector2d p1, Vector2d uv) {
+		double dist = 0;
+		double smallestDist = 1000; //TODO: make it more elegant and not with fixed value
+		Vector2d bestCrossPoint = null;
+
+		//check all OriLines for the earliest intersection with the new AngleBisectorLine
+		//set the first intersection as P2 of the AngleBisectorLine
+		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+
+			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(p1, new Vector2d(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+			if (crossPoint2 != null) {
+				if (!crossPoint2.equals(p1)) {
+					//check if crossPoint2 is too close to crossPoint
+					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
+							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+						dist = GeometryUtil.Distance(p1, crossPoint2);
+						if (dist < smallestDist) {
+							smallestDist = dist;
+							bestCrossPoint = crossPoint2;
+						}
+					}
+				}
+			}
+		}
+		return bestCrossPoint;
+	}
+	
+	public void createOriLinePerpendicular(Point2D.Double clickPoint) {
+		OriLine l = pickLine(clickPoint);
+
+		if (l != null) {
+			Vector2d uv = GeometryUtil.getUnitVector(l.getP0(), l.getP1());
+			Vector2d nv = GeometryUtil.getNormalVector(uv);
+			Vector2d v = pickVertex(clickPoint);
+			Vector2d v2 = null;
+			//get point on OriLine that is closest to currentMousePointLogic, 
+			//if currentMousePointLogic is not close to a vertex
+			if (v == null) {
+				v = new Vector2d();
+				Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+				GeometryUtil.DistancePointToSegment(cp,  l.getP0(), l.getP1(), v);
+			}
+			//get crossingPoint in order to get inputLine.P1
+			//if there is no crossing point -> reverse inputLine direction
+			v2 = getEarlierstCrossPoint(v, nv);
+			if (v2 == null) {
+				v2 = getEarlierstCrossPoint(v, new Vector2d(-nv.x, -nv.y));
+			}
+			if (v != null && v2 != null) {
+				createOriLine(v, v2, OriLine.TYPE_NONE);
+			}
+		}
+
 	}
 	
 	public void createTriangleInsector(Vector2d v1, Vector2d v2, Vector2d v3) {
@@ -1729,6 +1855,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				//createTwoLineInput(e, clickPoint, "createOriLineAngleBisector");
 				createOriLineAngleBisector(clickPoint);
 				break;
+			case PERPENDICULAR:
+				//createOneVertexInput(e, clickPoint, "createOriLinePerpendicular");
+				createOriLinePerpendicular(clickPoint);
+				break;
 			case TRIANGLE_INSECTOR:
 				createThreeVertexInput(e, clickPoint, "createTriangleInsector");
 				//createTriangleInsector(clickPoint);
@@ -1990,7 +2120,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			return;
 		}
 
-		if ((Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE && Globals.lineEditMode != Constants.LineInputMode.ANGLE_BISECTOR)
+		if ((Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE && Globals.lineEditMode != Constants.LineInputMode.ANGLE_BISECTOR && Globals.lineEditMode != Constants.LineInputMode.PERPENDICULAR)
 				|| Globals.toolbarMode == Constants.ToolbarMode.INPUT_ARROW
 				|| Globals.toolbarMode == Constants.ToolbarMode.INPUT_SYMBOL
 				|| (Globals.toolbarMode == Constants.ToolbarMode.INPUT_VERTEX && Globals.vertexInputMode == Constants.VertexInputMode.ABSOLUTE)	//TODO: maybe just for everything except Selection tool?
@@ -2102,7 +2232,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		} else if ((Globals.toolbarMode == Constants.ToolbarMode.INPUT_VERTEX 
 				&& Globals.vertexInputMode == Constants.VertexInputMode.FRACTION_OF_LINE)
 				|| (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE 
-						&& Globals.lineEditMode == Constants.LineInputMode.ANGLE_BISECTOR)) {
+						&& Globals.lineEditMode == Constants.LineInputMode.ANGLE_BISECTOR)
+				|| (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE
+						&& Globals.lineEditMode == Constants.LineInputMode.PERPENDICULAR)) {
 			//highlighting when moving over a line
 			selectedCandidateL = this.pickLine(currentMousePointLogic);
 			repaint();

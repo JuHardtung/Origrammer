@@ -18,6 +18,7 @@ public class StringResource_en extends ListResourceBundle {
 			{"UI_measureAngle", "Angle"},
 			{"UI_lineInputTwoVertices", "2 Endpoints"},
 			{"UI_lineInputAngleBisector", "Angle Bisector"},
+			{"UI_lineInputPerpendicular", "Perpendicular"},
 			{"UI_lineInputIncenter", "Rabbit Ear (Triangle Incenter)"},
 			{"UI_lineInputLengthAngle", "Length & Angle"},
 			{"UI_vertexInputAbsolute", "Absolute Position"},

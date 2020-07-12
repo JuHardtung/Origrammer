@@ -499,4 +499,19 @@ public class GeometryUtil {
 		return nv;
 	}
 	
+	/**
+	 * Returns {@code true} if {@code a} and {@code b} are within {@code tolerance} of each other
+	 * @param a
+	 * @param b
+	 * @param tolerance
+	 * @return
+	 */
+	public static boolean closeCompare(double a, double b, double tolerance) {
+		if (Math.abs(a-b) <= tolerance) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 }
