@@ -1656,8 +1656,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			if (firstSelectedL == null) {
 				firstSelectedL = l;
 			} else {
-				double angle = GeometryUtil.measureAngle(firstSelectedL, l);
-				Origrammer.mainFrame.uiSidePanel.measureAngleTF.setValue(angle);
+				//double angle = GeometryUtil.measureAngle(firstSelectedL, l); //use for measuring the spanning angles between 2 lines
+				double angle = GeometryUtil.measureAngleToXAxis(GeometryUtil.getUnitVector(firstSelectedL.getP0(), firstSelectedL.getP1()));
+				Origrammer.mainFrame.uiSidePanel.measureAngleTF.setValue(Math.toDegrees(angle));
 				firstSelectedL = null;
 			}
 		}
@@ -1667,8 +1668,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	//############################################
 	//############## MOUSE LISTENER ##############
 	//############################################
-
-
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		//if right clicked, remove any selected vertices
@@ -2355,7 +2354,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 		//updateAffineTransform(g2d);
 		repaint();
-
 	}
 
 	@Override

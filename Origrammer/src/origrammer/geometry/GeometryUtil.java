@@ -291,24 +291,24 @@ public class GeometryUtil {
 	}
 	
 	/**
-	 * Calculates the angle between a line(x,y) and the x-axis
+	 * Calculates the angle between a unitVector and the x-axis
 	 * @param x
 	 * @param y
 	 * @return The angle in Radians
 	 */
-	public static double calcAngleToXAxis(double x, double y) {
+	public static double measureAngleToXAxis(Vector2d v) {
 		double alpha = 0;
-		if (x > 0) {
-			alpha = Math.atan(y / x);
-		} else if (y >= 0 && x < 0) {
-			alpha = Math.atan(y / x) + Math.PI;
-		} else if (y < 0 && x < 0) {
-			alpha = Math.atan(y / x) - Math.PI;
-		} else if (y > 0 && x == 0) {
+		if (v.x > 0) {
+			alpha = Math.atan(v.y / v.x);
+		} else if (v.y >= 0 && v.x < 0) {
+			alpha = Math.atan(v.y / v.x) + Math.PI;
+		} else if (v.y < 0 && v.x < 0) {
+			alpha = Math.atan(v.y / v.x) - Math.PI;
+		} else if (v.y > 0 && v.x == 0) {
 			alpha = Math.PI / 2;
-		} else if (y < 0 && x == 0) {
+		} else if (v.y < 0 && v.x == 0) {
 			alpha = - (Math.PI / 2);
-		} else if (y == 0 && x == 0) {
+		} else if (v.y == 0 && v.x == 0) {
 		}
 		return alpha;
 	}
