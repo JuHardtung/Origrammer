@@ -538,7 +538,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	
 	private void addNextViewPanel() {
 		nextViewSlider.setMajorTickSpacing(90);
-		nextViewSlider.setSnapToTicks(true);
+		nextViewSlider.setMinorTickSpacing(45);
 		nextViewSlider.setPaintTicks(true);
 		
 		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
