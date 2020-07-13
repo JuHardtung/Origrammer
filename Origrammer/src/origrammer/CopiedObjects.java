@@ -9,7 +9,6 @@ import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
 import origrammer.geometry.OriLeaderBox;
 import origrammer.geometry.OriLine;
-import origrammer.geometry.OriPicSymbol;
 import origrammer.geometry.OriPleatCrimpSymbol;
 import origrammer.geometry.OriVertex;
 
@@ -20,7 +19,6 @@ public class CopiedObjects {
 	public ArrayList<OriArrow> arrows = new ArrayList<>();
 	public ArrayList<OriFace> filledFaces = new ArrayList<>();
 	public ArrayList<OriLeaderBox> leaderBoxSymbols = new ArrayList<>();
-	public ArrayList<OriPicSymbol> picSymbols = new ArrayList<>();
 	public ArrayList<OriGeomSymbol> geomSymbols = new ArrayList<>();
 	public ArrayList<OriEqualDistSymbol> equalDistSymbols = new ArrayList<>();
 	public ArrayList<OriEqualAnglSymbol> equalAnglSymbols = new ArrayList<>();
@@ -37,7 +35,6 @@ public class CopiedObjects {
 		arrows.clear();
 		filledFaces.clear();
 		leaderBoxSymbols.clear();
-		picSymbols.clear();
 		geomSymbols.clear();
 		equalDistSymbols.clear();
 		equalAnglSymbols.clear();
@@ -51,7 +48,6 @@ public class CopiedObjects {
 		count += arrows.size();
 		count += filledFaces.size();
 		count += leaderBoxSymbols.size();
-		count += picSymbols.size();
 		count += geomSymbols.size();
 		count += equalDistSymbols.size();
 		count += equalAnglSymbols.size();
@@ -59,13 +55,12 @@ public class CopiedObjects {
 
 		return count;
 	}
-	
-	
+
 	@Override
 	public String toString() {
 		return "CopiedObjects [lines=" + lines + ", vertices=" + vertices + ", arrows=" + arrows + ", filledFaces="
-				+ filledFaces + ", leaderBoxSymbols=" + leaderBoxSymbols + ", picSymbols=" + picSymbols
-				+ ", geomSymbols=" + geomSymbols + ", equalDistSymbols=" + equalDistSymbols + ", equalAnglSymbols="
-				+ equalAnglSymbols + ", pleatCrimpSymbols=" + pleatCrimpSymbols + "]";
+				+ filledFaces + ", leaderBoxSymbols=" + leaderBoxSymbols + ", geomSymbols=" + geomSymbols
+				+ ", equalDistSymbols=" + equalDistSymbols + ", equalAnglSymbols=" + equalAnglSymbols
+				+ ", pleatCrimpSymbols=" + pleatCrimpSymbols + "]";
 	}
 }

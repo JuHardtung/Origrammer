@@ -1,6 +1,5 @@
 package origrammer;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,7 +15,6 @@ import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
 import origrammer.geometry.OriLeaderBox;
 import origrammer.geometry.OriLine;
-import origrammer.geometry.OriPicSymbol;
 import origrammer.geometry.OriPleatCrimpSymbol;
 import origrammer.geometry.OriVertex;
 
@@ -52,7 +50,6 @@ class UndoInfo {
 	public ArrayList<OriArrow> arrows = new ArrayList<>();
 	public ArrayList<OriFace> filledFaces = new ArrayList<>();
 	public ArrayList<OriLeaderBox> leaderBoxSymbols = new ArrayList<>();
-	public ArrayList<OriPicSymbol> picSymbols = new ArrayList<>();
 	public ArrayList<OriGeomSymbol> geomSymbols = new ArrayList<>();
 	public ArrayList<OriEqualDistSymbol> equalDistSymbols = new ArrayList<>();
 	public ArrayList<OriEqualAnglSymbol> equalAnglSymbols = new ArrayList<>();
@@ -67,7 +64,6 @@ public class Step {
 	public ArrayList<OriArrow> arrows = new ArrayList<>();
 	public ArrayList<OriFace> filledFaces = new ArrayList<>();
 	public ArrayList<OriLeaderBox> leaderBoxSymbols = new ArrayList<>();
-	public ArrayList<OriPicSymbol> picSymbols = new ArrayList<>();
 	public ArrayList<OriGeomSymbol> geomSymbols = new ArrayList<>();
 	public ArrayList<OriEqualDistSymbol> equalDistSymbols = new ArrayList<>();
 	public ArrayList<OriEqualAnglSymbol> equalAnglSymbols = new ArrayList<>();
@@ -101,7 +97,6 @@ public class Step {
 		deleteSelectedArrows();
 		deleteSelectedFaces();
 		deleteSelectedLeaderBoxes();
-		deleteSelectedPicSymbols();
 		deleteSelectedGeomSymbols();
 		deleteSelectedEqualDistSymbols();
 		deleteSelectedEqualAnglSymbols();
@@ -117,7 +112,6 @@ public class Step {
 		copiedObjects.arrows = getSelectedArrows();
 		copiedObjects.filledFaces = getSelectedFaces();
 		copiedObjects.leaderBoxSymbols = getSelectedLeaderBoxes();
-		copiedObjects.picSymbols = getSelectedPicSymbols();
 		copiedObjects.geomSymbols = getSelectedGeomSymbols();
 		copiedObjects.equalDistSymbols = getSelectedEqualDistSymbols();
 		copiedObjects.equalAnglSymbols = getSelectedEqualAnglSymbols();
@@ -150,13 +144,6 @@ public class Step {
 			OriLeaderBox inLb = new OriLeaderBox(lb);
 			inLb.moveBy(20, 20);
 			addLeader(inLb);
-		}
-		for (OriPicSymbol ps : copiedObjects.picSymbols) {
-			OriPicSymbol inPs = new OriPicSymbol(ps);
-			Rectangle oldBounds = ps.label.getBounds();
-			inPs.label.setBounds(oldBounds.x + 20, oldBounds.y + 20, oldBounds.width + 20, oldBounds.height + 20);
-			inPs.setPosition(new Vector2d(inPs.getPosition().x + 20, inPs.getPosition().y + 20));
-			addPicSymbol(inPs);
 		}
 		for (OriGeomSymbol gs : copiedObjects.geomSymbols) {
 			OriGeomSymbol inGs = new OriGeomSymbol(gs);
@@ -201,9 +188,6 @@ public class Step {
 		for (OriLeaderBox lb : Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols) {
 			ui.leaderBoxSymbols.add(new OriLeaderBox(lb));
 		}
-		for (OriPicSymbol ps : Origrammer.diagram.steps.get(Globals.currentStep).picSymbols) {
-			ui.picSymbols.add(new OriPicSymbol(ps));
-		}
 		for (OriGeomSymbol gs : Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols) {
 			ui.geomSymbols.add(new OriGeomSymbol(gs));
 		}
@@ -235,8 +219,6 @@ public class Step {
 		Origrammer.diagram.steps.get(Globals.currentStep).filledFaces.addAll(ui.filledFaces);
 		Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols.clear();
 		Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols.addAll(ui.leaderBoxSymbols);
-		Origrammer.diagram.steps.get(Globals.currentStep).picSymbols.clear();
-		Origrammer.diagram.steps.get(Globals.currentStep).picSymbols.addAll(ui.picSymbols);
 		Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols.clear();
 		Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols.addAll(ui.geomSymbols);
 		Origrammer.diagram.steps.get(Globals.currentStep).equalDistSymbols.clear();
@@ -491,14 +473,6 @@ public class Step {
 	}
 
 	/**
-	 * Adds a new OriPicSymbol to the current diagram step
-	 * @param inputSymbol
-	 */
-	public void addPicSymbol(OriPicSymbol inputSymbol) {
-		picSymbols.add(inputSymbol);
-	}
-
-	/**
 	 * Adds a new OriGeomSymbol to the current diagram step
 	 * @param inputSymbol
 	 */
@@ -540,7 +514,6 @@ public class Step {
 		selectAllArrows();
 		selectAllFaces();
 		selectAllLeaders();
-		selectAllPicSymbols();
 		selectAllGeomSymbols();
 		selectAllEqualDistSymbols();
 		selectAllEqualAnglSymbols();
@@ -574,12 +547,6 @@ public class Step {
 	public void selectAllLeaders() {
 		for (OriLeaderBox l : leaderBoxSymbols) {
 			l.setSelected(true);
-		}
-	}	
-
-	public void selectAllPicSymbols() {
-		for (OriPicSymbol s : picSymbols) {
-			s.setSelected(true);
 		}
 	}
 
@@ -635,11 +602,6 @@ public class Step {
 				count++;
 			}
 		}
-		for (OriPicSymbol ps : picSymbols) {
-			if (ps.isSelected() == true) {
-				count++;
-			}
-		}
 		for (OriGeomSymbol gs : geomSymbols) {
 			if (gs.isSelected() == true) {
 				count++;
@@ -670,7 +632,6 @@ public class Step {
 		unselectAllArrows();
 		unselectAllFaces();
 		unselectAllLeaders();
-		unselectAllPicSymbols();
 		unselectAllGeomSymbols();
 		unselectAllEqualDistSymbols();
 		unselectAllEqualAnglSymbols();
@@ -704,12 +665,6 @@ public class Step {
 	public void unselectAllLeaders() {
 		for (OriLeaderBox l : leaderBoxSymbols) {
 			l.setSelected(false);
-		}
-	}
-
-	public void unselectAllPicSymbols() {
-		for (OriPicSymbol s : picSymbols) {
-			s.setSelected(false);
 		}
 	}
 
@@ -798,17 +753,6 @@ public class Step {
 		return selectedLeader;
 	}
 	
-	public ArrayList<OriPicSymbol> getSelectedPicSymbols() {
-		ArrayList<OriPicSymbol> selectedPicS = new ArrayList<>();
-
-		for (OriPicSymbol ps : picSymbols) {
-			if (ps.isSelected()) {
-				selectedPicS.add(ps);
-			}
-		}
-		return selectedPicS;
-	}
-	
 	public ArrayList<OriGeomSymbol> getSelectedGeomSymbols() {
 		ArrayList<OriGeomSymbol> selectedGeomS = new ArrayList<>();
 
@@ -860,7 +804,6 @@ public class Step {
 		deleteSelectedArrows();
 		deleteSelectedFaces();
 		deleteSelectedLeaderBoxes();
-		deleteSelectedPicSymbols();
 		deleteSelectedGeomSymbols();
 		deleteSelectedEqualDistSymbols();
 		deleteSelectedEqualAnglSymbols();
@@ -933,20 +876,6 @@ public class Step {
 			Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
 			for (OriLeaderBox l : selectedLeader) {
 				leaderBoxSymbols.remove(l);
-			}
-		}
-	}
-
-	/**
-	 * Deletes all selected OriPicSymbols of the current diagram step
-	 */
-	public void deleteSelectedPicSymbols() {
-		ArrayList<OriPicSymbol> selectedPicS = getSelectedPicSymbols();
-
-		if (selectedPicS.size() != 0) {
-			Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-			for (OriPicSymbol ps : selectedPicS) {
-				picSymbols.remove(ps);
 			}
 		}
 	}

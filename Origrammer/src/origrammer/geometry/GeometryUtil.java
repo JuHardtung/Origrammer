@@ -109,26 +109,6 @@ public class GeometryUtil {
 	
 	/**
 	 * 
-	 * @param p Mouse position
-	 * @param s OriSymbol that is tested for selection
-	 * @return true if mouse is over OriSymbol and false if it isn't
-	 */
-	public static boolean isMouseOverSymbol(Point2D.Double p, OriPicSymbol s) {
-		double sX = s.getPosition().x;
-		double sY = s.getPosition().y;
-		double sXEnd = sX + (s.getLabel().getWidth());
-		double sYEnd = sY + (s.getLabel().getHeight());
-
-		if (p.x > sX && p.x < sXEnd) {
-			if (p.y > sY && p.y < sYEnd) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * 
 	 * @param p Mouse Position
 	 * @param s OriEqualDistSymbol that is tested for selection
 	 * @return returns true if mouse is over OriEqualDistSymbol and false if it isn't

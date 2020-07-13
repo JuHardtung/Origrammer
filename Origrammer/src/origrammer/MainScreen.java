@@ -59,7 +59,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private OriLine selectedCandidateL = null;
 	private OriArrow selectedCandidateA = null;
 	private OriFace selectedCandidateF = null;
-	private OriPicSymbol selectedCandidatePS = null;
 	private OriGeomSymbol selectedCandidateGS = null;
 	private OriEqualDistSymbol selectedCandidateEDS = null;
 	private OriEqualAnglSymbol selectedCandidateEAS = null;
@@ -628,7 +627,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		selectedCandidateL = null;
 		selectedCandidateA = null;
 		selectedCandidateLeader = null;
-		selectedCandidatePS = null;
 	}
 
 	//update the AffineTransform
@@ -787,22 +785,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 		if (minDistance / Globals.SCALE < 10) {
 			return bestLeader;
-		} else {
-			return null;
-		}
-	}
-
-	private OriPicSymbol  pickPicSymbol(Point2D.Double p) {
-		OriPicSymbol bestSymbol = null;
-
-		for(OriPicSymbol symbol : Origrammer.diagram.steps.get(Globals.currentStep).picSymbols) {
-			boolean pickedS = GeometryUtil.isMouseOverSymbol(p, symbol);
-			if (pickedS) {
-				bestSymbol = symbol;
-			}
-		}
-		if (bestSymbol != null) {
-			return bestSymbol;
 		} else {
 			return null;
 		}
@@ -1568,7 +1550,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		selectOriArrow(clickPoint);
 		selectOriFace(clickPoint);
 		selectOriLeaderBox(clickPoint);
-		selectOriPicSymbol(clickPoint);
 		selectOriGeomSymbol(clickPoint);
 		selectOriEqualDistSymbol(clickPoint);
 		selectOriEqualSymbol(clickPoint);
@@ -1667,20 +1648,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 		} else {
 			Origrammer.diagram.steps.get(Globals.currentStep).unselectAllLeaders();
-		}
-	}
-	
-	private void selectOriPicSymbol(Point2D.Double clickPoint) {
-		//select OriPicSymbol or unselect all OriPicSymbols if clicked on nothing
-		OriPicSymbol s = pickPicSymbol(clickPoint);
-		if (s != null) {
-			if (!s.isSelected()) {
-				s.setSelected(true);
-			} else if (!isPressedOverSymbol) {
-				s.setSelected(false);
-			}
-		} else {
-			Origrammer.diagram.steps.get(Globals.currentStep).unselectAllPicSymbols();
 		}
 	}
 	
@@ -2019,20 +1986,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				}
 			}
 
-			OriPicSymbol pickedSymbol = pickPicSymbol(affineMouseDraggingPoint);
-			if (pickPicSymbol(currentMousePointLogic) != null && isPressedOverSymbol || isMovingSymbols) {
-				isMovingSymbols = true;
-				if (pickedSymbol != null) {
-					preMousePoint = e.getPoint();
-					for (OriPicSymbol ps : Origrammer.diagram.steps.get(Globals.currentStep).picSymbols) {
-						//if selected, move to new position
-						if (ps.isSelected()) {
-							ps.moveBy(xTrans, yTrans);
-						}
-					}
-				}
-			}
-
 			OriGeomSymbol pickedGeomSymbol = pickGeomSymbol(affineMouseDraggingPoint);
 			if (pickGeomSymbol(currentMousePointLogic) != null && isPressedOverSymbol || isMovingSymbols) {
 				isMovingSymbols = true;
@@ -2174,12 +2127,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				repaint();
 			}
 
-			OriPicSymbol prePicSymbol = selectedCandidatePS;
-			selectedCandidatePS = pickPicSymbol(currentMousePointLogic);
-			if (prePicSymbol != selectedCandidatePS) {
-				repaint();
-			}
-
 			OriGeomSymbol preGeomSymbol = selectedCandidateGS;
 			selectedCandidateGS = pickGeomSymbol(currentMousePointLogic);
 			if (preGeomSymbol != selectedCandidateGS) {
@@ -2258,13 +2205,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			OriLeaderBox pickedLeader = pickLeader(currentMousePointLogic);
 			if (pickedLeader != null) {
 				pickedLeader.setSelected(true);
-				isPressedOverSymbol = true;
-				repaint();
-			}
-
-			OriPicSymbol pickedPicSymbol = pickPicSymbol(currentMousePointLogic);
-			if (pickedPicSymbol != null) {
-				pickedPicSymbol.setSelected(true);
 				isPressedOverSymbol = true;
 				repaint();
 			}
@@ -2365,17 +2305,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 						f.setSelected(false);
 					}
 				}	
-			}
-
-			//Check if there is a symbol in the selection rectangle
-			for (OriPicSymbol s : Origrammer.diagram.steps.get(Globals.currentStep).picSymbols) {
-				Rectangle tmpR2 = new Rectangle((int) Math.round(s.getPosition().x), 
-						(int) Math.round(s.getPosition().y), s.getLabel().getWidth(), s.getLabel().getHeight());
-				if (tmpR2.intersects(selectRect)) {
-					s.setSelected(true);
-				} else {
-					s.setSelected(false);
-				}
 			}
 
 			//Check if there is a symbol in the selection rectangle

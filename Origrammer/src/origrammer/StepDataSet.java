@@ -13,7 +13,6 @@ public class StepDataSet {
 	public OriPleatCrimpProxy[] pleatCrimpSymbols;
 	public OriEqualDistProxy[] equalDistSymbols;
 	public OriEqualAnglProxy[] equalAnglSymbols;
-	public OriPicSymbolProxy[] picSymbols;
 	public OriLeaderBoxProxy[] leaderBoxSymbols;
 	public String stepDescription;
 	public int stepNumber;
@@ -71,12 +70,6 @@ public class StepDataSet {
 			equalAnglSymbols[i] = new OriEqualAnglProxy(s.equalAnglSymbols.get(i));
 		}
 
-		int picSymbolCount = s.picSymbols.size();
-		picSymbols = new OriPicSymbolProxy[picSymbolCount];
-		for (int i = 0; i < picSymbolCount; i++) {
-			picSymbols[i] = new OriPicSymbolProxy(s.picSymbols.get(i));
-		}
-
 		int leaderBoxCount = s.leaderBoxSymbols.size();
 		leaderBoxSymbols = new OriLeaderBoxProxy[leaderBoxCount];
 		for (int i = 0; i < leaderBoxCount; i++) {
@@ -119,10 +112,6 @@ public class StepDataSet {
 		for (int i = 0; i < equalAnglSymbols.length; i++) {
 			s.equalAnglSymbols.add(equalAnglSymbols[i].getSymbol());
 		}
-		s.picSymbols.clear();
-		for (int i = 0; i < picSymbols.length; i++) {
-			s.picSymbols.add(picSymbols[i].getSymbol());
-		}
 		s.leaderBoxSymbols.clear();
 		for (int i = 0; i < leaderBoxSymbols.length; i++) {
 			s.leaderBoxSymbols.add(leaderBoxSymbols[i].getSymbol());
@@ -158,9 +147,6 @@ public class StepDataSet {
 		}
 		for (int i = 0; i < equalAnglSymbols.length; i++) {
 			tmpStep.equalAnglSymbols.add(equalAnglSymbols[i].getSymbol());
-		}
-		for (int i = 0; i < picSymbols.length; i++) {
-			tmpStep.picSymbols.add(picSymbols[i].getSymbol());
 		}
 		for (int i = 0; i < leaderBoxSymbols.length; i++) {
 			tmpStep.leaderBoxSymbols.add(leaderBoxSymbols[i].getSymbol());

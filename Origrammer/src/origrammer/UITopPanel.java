@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Hashtable;
@@ -40,7 +39,6 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.text.PlainDocument;
 import javax.vecmath.Vector2d;
 
-import origrammer.geometry.GeometryUtil;
 import origrammer.geometry.OriArrow;
 import origrammer.geometry.OriEqualAnglSymbol;
 import origrammer.geometry.OriEqualDistSymbol;
@@ -48,7 +46,6 @@ import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
 import origrammer.geometry.OriLeaderBox;
 import origrammer.geometry.OriLine;
-import origrammer.geometry.OriPicSymbol;
 import origrammer.geometry.OriPleatCrimpSymbol;
 
 public class UITopPanel extends JPanel implements ActionListener, PropertyChangeListener, KeyListener {
@@ -153,11 +150,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	private JPanel nextViewPanel = new JPanel();
 	private JSlider nextViewSlider = new JSlider(0, 360);
 
-	//ROTATE/SCALE ORI_PIC_SYMBOLS
-	private JPanel picSymbolPanel = new JPanel();
-	private JSlider picSymbolScaleSlider = new JSlider(0, 100);
-	private JSlider picSymbolRotSlider = new JSlider(0, 3600);
-
 	MainScreen screen;
 
 
@@ -181,7 +173,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		addSymbolInputPanel();
 		addSymbolLeaderPanel();
 		addSymbolLeaderChangePanel();
-		addOriPicSymbolPanel();
 		addEqualDistSymbolPanel();
 		addEqualAnglSymbolPanel();
 		addPleatCrimpSymbolPanel();
@@ -202,7 +193,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		add(inputVertexFractionPanel);
 		add(inputArrowPanel);
 		add(inputSymbolsPanel);
-		add(picSymbolPanel);
 		add(inputSymbolLeaderPanel);
 		add(changeSymbolLeaderPanel);
 		add(equalDistPanel);
@@ -353,35 +343,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void addArrowSettingsPanel() {
-//		arrowScaleSlider.setMajorTickSpacing(20);
-//		arrowScaleSlider.setMinorTickSpacing(10);
-//		arrowScaleSlider.setPaintTicks(true);
-//		arrowScaleSlider.setPaintLabels(true);
-//		arrowScaleSlider.addChangeListener(e -> sliderArrowScale());
-//		arrowScaleSlider.setBorder(new TitledBorder(
-//				new EtchedBorder(BevelBorder.RAISED, 
-//						getBackground().darker(), 
-//						getBackground().brighter()), "Scale Arrow"));
-//
-//		Hashtable<Integer, JLabel> labels = new Hashtable<>();
-//		labels.put(0,  new JLabel("0"));
-//		labels.put(900, new JLabel("90°"));
-//		labels.put(1800, new JLabel("180°"));
-//		labels.put(2700, new JLabel("270°"));
-//		labels.put(3600, new JLabel("360°"));
-//		arrowRotSlider.setLabelTable(labels);
-//		arrowRotSlider.setMajorTickSpacing(900);
-//		arrowRotSlider.setMinorTickSpacing(225);
-//		arrowRotSlider.setPaintTicks(true);
-//		arrowRotSlider.setPaintLabels(true);
-//		arrowRotSlider.setSnapToTicks(true);
-//		arrowRotSlider.addChangeListener(e -> sliderArrowRotChanged());
-//		arrowRotSlider.setBorder(new TitledBorder(
-//				new EtchedBorder(BevelBorder.RAISED, 
-//						getBackground().darker(), 
-//						getBackground().brighter()), "Rotate Arrow"));
-//		sliderPanel.add(arrowScaleSlider);
-//		sliderPanel.add(arrowRotSlider);
 		arrowIsMirrored.addActionListener(this);
 		sliderPanel.add(arrowIsMirrored);
 		arrowIsUnfolded.addActionListener(this);
@@ -422,29 +383,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 						getBackground().darker(), 
 						getBackground().brighter()), "Change Text"));
 		changeSymbolLeaderPanel.setVisible(false);
-	}
-
-	private void addOriPicSymbolPanel() {
-		picSymbolScaleSlider.setMajorTickSpacing(10);
-		picSymbolScaleSlider.setPaintTicks(true);
-		//picSymbolScaleSlider.setPaintLabels(true);
-		picSymbolScaleSlider.addChangeListener(e -> sliderPicSymbolScale());
-		picSymbolScaleSlider.setBorder(new TitledBorder(
-				new EtchedBorder(BevelBorder.RAISED, 
-						getBackground().darker(), 
-						getBackground().brighter()), "Scale Symbol"));
-		picSymbolRotSlider.setMajorTickSpacing(225);
-		picSymbolRotSlider.setPaintTicks(true);
-		//sliderRotIcon.setPaintLabels(true);
-		picSymbolRotSlider.setSnapToTicks(true);
-		picSymbolRotSlider.addChangeListener(e -> sliderPicSymbolRot());
-		picSymbolRotSlider.setBorder(new TitledBorder(
-				new EtchedBorder(BevelBorder.RAISED, 
-						getBackground().darker(), 
-						getBackground().brighter()), "Rotate Symbol"));
-		picSymbolPanel.add(picSymbolScaleSlider);
-		picSymbolPanel.add(picSymbolRotSlider);
-		picSymbolPanel.setVisible(false);
 	}
 
 	private void addEqualDistSymbolPanel() {
@@ -652,17 +590,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		screen.repaint();
 	}
 	
-	/**
-	 * Sets the scale for all selected OriArrows
-	 */
-	private void sliderArrowScale() {
-		for (OriArrow arrow : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
-			if (arrow.isSelected()) {
-
-			}
-		}
-	}
-	
 	private void mirrorAllSelectedArrows() {
 		for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
 			if (a.isSelected()) {
@@ -675,51 +602,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
 			if (a.isSelected()) {
 					a.setUnfold(arrowIsUnfolded.isSelected());
-			}
-		}
-	}
-
-
-	/**
-	 * changes the scale for all selected OriPicSymbol
-	 */
-	private void sliderPicSymbolScale() {
-		for (OriPicSymbol symbol : Origrammer.diagram.steps.get(Globals.currentStep).picSymbols) {
-			if (symbol.isSelected()) {
-				symbol.setScale((double) picSymbolScaleSlider.getValue()/100);
-				screen.repaint();
-
-				//TODO: add preview pictures of arrow types
-				symbol.getLabel().setBounds((int) symbol.getPosition().x, (int) symbol.getPosition().y, 
-						(int) Math.round(symbol.getLabel().getWidth() * symbol.getAdjustedScale()), 
-						(int) Math.round(symbol.getLabel().getHeight() * symbol.getAdjustedScale()));
-			}
-		}
-	}	
-
-	/**
-	 * Sets the rotation of all selected OriArrows
-	 */
-	private void sliderArrowRotChanged() {
-		for (OriArrow arrow : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
-			if (arrow.isSelected()) {
-
-			}
-		}
-	}
-
-	/**
-	 * Sets the rotation of all selected OriPicSymbols
-	 */
-	private void sliderPicSymbolRot() {
-		for (OriPicSymbol symbol : Origrammer.diagram.steps.get(Globals.currentStep).picSymbols) {
-			if (symbol.isSelected()) {
-				symbol.setDegrees(picSymbolRotSlider.getValue()/10);
-				screen.repaint();
-
-				Rectangle2D rect = GeometryUtil.calcRotatedBox(symbol.getPosition().x, symbol.getPosition().y, symbol.getLabel().getWidth(), symbol.getLabel().getHeight(), symbol.getDegrees());
-
-				symbol.getLabel().setBounds((int)symbol.getPosition().x, (int)symbol.getPosition().y, (int)rect.getWidth(), (int)rect.getHeight());
 			}
 		}
 	}
@@ -1001,14 +883,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 					break;
 				} else {
 					changeSymbolLeaderPanel.setVisible(false);
-				}
-			}
-			for (OriPicSymbol ps : Origrammer.diagram.steps.get(Globals.currentStep).picSymbols) {
-				if (ps.isSelected()) {
-					picSymbolPanel.setVisible(true);
-					break;
-				} else {
-					picSymbolPanel.setVisible(false);
 				}
 			}
 			for (OriGeomSymbol gs : Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols) {
