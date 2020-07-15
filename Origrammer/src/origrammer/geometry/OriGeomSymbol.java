@@ -185,9 +185,9 @@ public class OriGeomSymbol {
 		double start = angle + 90 + 27;
 		Arc2D.Double iris = new Arc2D.Double(irisStart.x - size/8, irisStart.y - size/8, size/4, size/4, start, 124, Arc2D.OPEN);
 
+		shapes.add(eyeOutline);
 		shapes.add(iris);
 		shapes.add(eyeball);
-		shapes.add(eyeOutline);
 		return shapes;
 	}
 	

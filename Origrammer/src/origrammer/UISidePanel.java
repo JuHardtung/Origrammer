@@ -99,8 +99,59 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		addGridPanel();
 		addScalingPanel();
 		addButtonsPanel();
+		
+		//addTestPanel();
 
 		modeChanged();
+	}
+	
+	private void addTestPanel() {
+		
+		JPanel testPanel = new JPanel();
+		JPanel rbPanel = new JPanel();
+		JRadioButton radioButton = new JRadioButton("RB 1");
+		JRadioButton radioButton2 = new JRadioButton("RB 2");
+		rbPanel.add(radioButton);
+		rbPanel.add(radioButton2);
+		rbPanel.setLayout(new GridLayout(2, 1, 10, 1));
+
+		JPanel tfPanel = new JPanel();
+		JTextField textField = new JTextField("TextField");
+		JTextField textField2 = new JTextField("TextField");
+		textField.setPreferredSize(new Dimension(50, 25));
+		textField2.setPreferredSize(new Dimension(50, 25));
+		tfPanel.add(textField);
+		tfPanel.add(textField2);
+		tfPanel.setLayout(new GridLayout(2, 1, 10, 1));
+
+		
+		JPanel buttonPanel = new JPanel();
+		JButton button = new JButton("Set");
+		JButton button2 = new JButton("Set");
+		button.setPreferredSize(new Dimension(30, 25));
+		button2.setPreferredSize(new Dimension(30, 25));
+
+		buttonPanel.add(button);
+		buttonPanel.add(button2);
+		buttonPanel.setLayout(new GridLayout(2, 1, 10, 1));
+
+		
+		JPanel cbPanel = new JPanel();
+		JCheckBox checkBox = new JCheckBox("CheckBox");
+		JCheckBox checkBox2 = new JCheckBox("CheckBox");
+		cbPanel.add(checkBox);
+		cbPanel.add(checkBox2);
+		cbPanel.setLayout(new GridLayout(2, 1, 10, 1));
+
+		testPanel.add(rbPanel);
+		testPanel.add(tfPanel);
+		testPanel.add(buttonPanel);
+		testPanel.add(cbPanel);
+		testPanel.setLayout(new GridLayout(1, 1, 10, 4));
+
+		testPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, 
+						getBackground().darker(), getBackground().brighter()), "Test Panel"));
+		add(testPanel);
 	}
 	
 	private void addToolbarPanel() {

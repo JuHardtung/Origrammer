@@ -120,7 +120,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderAllVertices();
 
 		//temporary stuff
-		renderAllTempLines();
+		renderTempLine();
+		renderTempArrow();
+		renderTempLeaderSymbol();
 		renderSelectedVertices();
 		renderRectSelection();
 		renderTempOriGeomSymbol();
@@ -287,9 +289,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	}
 
 	/**
-	 * Renders the preview line while inputting
+	 * Renders the preview OriLine while inputting
 	 */
-	private void renderAllTempLines() {
+	private void renderTempLine() {
 		if (firstSelectedV != null) {
 			setColorStrokeByLineType(Globals.inputLineType);
 			if (!Globals.dispColoredLines) {
@@ -305,6 +307,82 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 							? new Vector2d(currentMousePointLogic.getX(), currentMousePointLogic.getY()) : selectedCandidateV;
 							g2d.draw(new Line2D.Double(firstSelectedV.x, firstSelectedV.y, cv.x, cv.y));
 				}
+			}
+		}
+	}
+	
+	/**
+	 * Renders the preview OriArrow while inputting
+	 */
+	private void renderTempArrow() {
+		if (firstSelectedV != null) {
+			g2d.fill(new Rectangle2D.Double(firstSelectedV.x - 5.0 / Globals.SCALE,
+					firstSelectedV.y - 5.0 / Globals.SCALE, 10.0 / Globals.SCALE, 10.0 / Globals.SCALE));
+			
+			if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_ARROW) {
+				Vector2d cv = selectedCandidateV == null
+						? new Vector2d(currentMousePointLogic.getX(), currentMousePointLogic.getY()) : selectedCandidateV;
+	
+						OriArrow a = new OriArrow();
+						a.setP0(firstSelectedV);
+						a.setP1(cv);
+						a.setType(Globals.inputArrowType);
+						a.setMirrored(Origrammer.mainFrame.uiTopPanel.arrowIsMirrored.isSelected());
+						a.setUnfold(Origrammer.mainFrame.uiTopPanel.arrowIsUnfolded.isSelected());
+						ArrayList<Shape> shapes = a.getShapesForDrawing();
+						for (Shape s : shapes) {
+							g2d.draw(s);
+						}					
+			}
+		}
+	}
+	
+	private void renderTempLeaderSymbol() {
+		if (firstSelectedV != null) {
+			g2d.fill(new Rectangle2D.Double(firstSelectedV.x - 5.0 / Globals.SCALE,
+					firstSelectedV.y - 5.0 / Globals.SCALE, 10.0 / Globals.SCALE, 10.0 / Globals.SCALE));
+			g2d.setStroke(Config.STROKE_EDGE);
+			if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_SYMBOL) {
+				Vector2d cv = selectedCandidateV == null
+						? new Vector2d(currentMousePointLogic.getX(), currentMousePointLogic.getY()) : selectedCandidateV;
+												
+						switch (Globals.inputSymbolMode) {	//TODO: render temp methods for all symbols
+						case LEADER:
+							break;
+						case CRIMPING_PLEATING:
+							break;
+						case EQUAL_ANGL:
+							break;
+						case EQUAL_DIST:
+							break;
+						case FOLD_OVER_AND_OVER:
+							break;
+						case HOLD_HERE:
+							break;
+						case HOLD_HERE_AND_PULL:
+							break;
+						case NEXT_VIEW:
+							OriGeomSymbol gs = new OriGeomSymbol();
+							gs.setPosition(firstSelectedV);
+							gs.setDirection(GeometryUtil.getUnitVector(firstSelectedV, cv));
+							gs.setType(OriGeomSymbol.TYPE_NEXT_VIEW_HERE);
+							gs.setSize(100);
+							ArrayList<Shape> shapes = gs.getShapesForDrawing();
+							for (Shape s : shapes) {
+								g2d.draw(s);
+							}	
+							break;
+						case REPETITION_BOX:
+							break;
+						case ROTATIONS:
+							break;
+						case SINKS:
+							break;
+						case X_RAY_CIRCLE:
+							break;
+						default:
+							break;
+						}
 			}
 		}
 	}
@@ -463,6 +541,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 
 			ArrayList<Shape> shapes = gs.getShapesForDrawing();
+			System.out.println("SHAPES END: " + shapes.toString());
 
 			if (gs.getType() == OriGeomSymbol.TYPE_ROTATION) {
 				Font oldFont = getFont();

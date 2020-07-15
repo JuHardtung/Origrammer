@@ -136,8 +136,8 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	private JPanel sliderPanel = new JPanel();
 //	private JSlider arrowScaleSlider = new JSlider(0, 100);
 //	private JSlider arrowRotSlider = new JSlider(0, 3600);
-	private JCheckBox arrowIsMirrored = new JCheckBox("Is Mirrored");
-	private JCheckBox arrowIsUnfolded = new JCheckBox("Is Unfolded");
+	public JCheckBox arrowIsMirrored = new JCheckBox("Is Mirrored");
+	public JCheckBox arrowIsUnfolded = new JCheckBox("Is Unfolded");
 	
 	//ROTATION SETTINGS
 	private JPanel rotationPanel = new JPanel();
