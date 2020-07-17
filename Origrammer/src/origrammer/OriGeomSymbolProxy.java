@@ -6,8 +6,8 @@ import origrammer.geometry.OriGeomSymbol;
 
 public class OriGeomSymbolProxy {
 	
-	private Vector2d position;
-	private Vector2d direction;
+	private Vector2d p1;
+	private Vector2d p2;
 	private double size;
 	private int type;
 
@@ -16,30 +16,30 @@ public class OriGeomSymbolProxy {
 	}
 	
 	public OriGeomSymbolProxy (OriGeomSymbol g) {
-		this.position = g.getPosition();
-		this.direction = g.getDirection();
+		this.p1 = g.getP1();
+		this.p2 = g.getP2();
 		this.size = g.getSize();
 		this.type = g.getType();
 	}
 	
 	public OriGeomSymbol getSymbol() {
-		return new OriGeomSymbol(position, direction, size, type);
+		return new OriGeomSymbol(p1, p2, size, type);
 	}
 
-	public Vector2d getPosition() {
-		return position;
+	public Vector2d getP1() {
+		return p1;
 	}
 
-	public void setPosition(Vector2d position) {
-		this.position = position;
+	public void setP1(Vector2d p1) {
+		this.p1 = p1;
 	}
 
-	public Vector2d getDirection() {
-		return direction;
+	public Vector2d getP2() {
+		return p2;
 	}
 
-	public void setDirection(Vector2d direction) {
-		this.direction = direction;
+	public void setP2(Vector2d p2) {
+		this.p2 = p2;
 	}
 
 	public int getType() {

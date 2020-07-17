@@ -13,7 +13,6 @@ import origrammer.geometry.OriEqualAnglSymbol;
 import origrammer.geometry.OriEqualDistSymbol;
 import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
-import origrammer.geometry.OriLeaderBox;
 import origrammer.geometry.OriLine;
 import origrammer.geometry.OriPleatCrimpSymbol;
 import origrammer.geometry.OriVertex;
@@ -49,7 +48,6 @@ class UndoInfo {
 	public ArrayList<OriVertex> vertices = new ArrayList<>();
 	public ArrayList<OriArrow> arrows = new ArrayList<>();
 	public ArrayList<OriFace> filledFaces = new ArrayList<>();
-	public ArrayList<OriLeaderBox> leaderBoxSymbols = new ArrayList<>();
 	public ArrayList<OriGeomSymbol> geomSymbols = new ArrayList<>();
 	public ArrayList<OriEqualDistSymbol> equalDistSymbols = new ArrayList<>();
 	public ArrayList<OriEqualAnglSymbol> equalAnglSymbols = new ArrayList<>();
@@ -63,7 +61,6 @@ public class Step {
 	public ArrayList<OriVertex> vertices = new ArrayList<>();
 	public ArrayList<OriArrow> arrows = new ArrayList<>();
 	public ArrayList<OriFace> filledFaces = new ArrayList<>();
-	public ArrayList<OriLeaderBox> leaderBoxSymbols = new ArrayList<>();
 	public ArrayList<OriGeomSymbol> geomSymbols = new ArrayList<>();
 	public ArrayList<OriEqualDistSymbol> equalDistSymbols = new ArrayList<>();
 	public ArrayList<OriEqualAnglSymbol> equalAnglSymbols = new ArrayList<>();
@@ -96,7 +93,6 @@ public class Step {
 		deleteSelectedVertices();
 		deleteSelectedArrows();
 		deleteSelectedFaces();
-		deleteSelectedLeaderBoxes();
 		deleteSelectedGeomSymbols();
 		deleteSelectedEqualDistSymbols();
 		deleteSelectedEqualAnglSymbols();
@@ -111,7 +107,6 @@ public class Step {
 		copiedObjects.vertices = getSelectedVertices();
 		copiedObjects.arrows = getSelectedArrows();
 		copiedObjects.filledFaces = getSelectedFaces();
-		copiedObjects.leaderBoxSymbols = getSelectedLeaderBoxes();
 		copiedObjects.geomSymbols = getSelectedGeomSymbols();
 		copiedObjects.equalDistSymbols = getSelectedEqualDistSymbols();
 		copiedObjects.equalAnglSymbols = getSelectedEqualAnglSymbols();
@@ -140,14 +135,9 @@ public class Step {
 //															//TODO: doesn't make sense as FilledFaces are not movable?  --> don't include them
 //			addFilledFace(inF);
 //		}
-		for (OriLeaderBox lb : copiedObjects.leaderBoxSymbols) {
-			OriLeaderBox inLb = new OriLeaderBox(lb);
-			inLb.moveBy(20, 20);
-			addLeader(inLb);
-		}
 		for (OriGeomSymbol gs : copiedObjects.geomSymbols) {
 			OriGeomSymbol inGs = new OriGeomSymbol(gs);
-			inGs.setPosition(new Vector2d(gs.getPosition().x + 20, gs.getPosition().y + 20));
+			inGs.setP1(new Vector2d(gs.getP1().x + 20, gs.getP1().y + 20));
 			addGeomSymbol(inGs);
 		}
 		for (OriEqualDistSymbol eds : copiedObjects.equalDistSymbols) {
@@ -185,9 +175,6 @@ public class Step {
 		for (OriFace f : Origrammer.diagram.steps.get(Globals.currentStep).filledFaces) {
 			ui.filledFaces.add(new OriFace(f));
 		}
-		for (OriLeaderBox lb : Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols) {
-			ui.leaderBoxSymbols.add(new OriLeaderBox(lb));
-		}
 		for (OriGeomSymbol gs : Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols) {
 			ui.geomSymbols.add(new OriGeomSymbol(gs));
 		}
@@ -217,8 +204,6 @@ public class Step {
 		Origrammer.diagram.steps.get(Globals.currentStep).arrows.addAll(ui.arrows);
 		Origrammer.diagram.steps.get(Globals.currentStep).filledFaces.clear();
 		Origrammer.diagram.steps.get(Globals.currentStep).filledFaces.addAll(ui.filledFaces);
-		Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols.clear();
-		Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols.addAll(ui.leaderBoxSymbols);
 		Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols.clear();
 		Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols.addAll(ui.geomSymbols);
 		Origrammer.diagram.steps.get(Globals.currentStep).equalDistSymbols.clear();
@@ -465,14 +450,6 @@ public class Step {
 	}
 
 	/**
-	 * Adds a new Leader to the current diagram step
-	 * @param inputLeader
-	 */
-	public void addLeader(OriLeaderBox inputLeader) {
-		leaderBoxSymbols.add(inputLeader);
-	}
-
-	/**
 	 * Adds a new OriGeomSymbol to the current diagram step
 	 * @param inputSymbol
 	 */
@@ -513,7 +490,6 @@ public class Step {
 		selectAllVertices();
 		selectAllArrows();
 		selectAllFaces();
-		selectAllLeaders();
 		selectAllGeomSymbols();
 		selectAllEqualDistSymbols();
 		selectAllEqualAnglSymbols();
@@ -541,12 +517,6 @@ public class Step {
 	public void selectAllFaces() {
 		for (OriArrow a : arrows) {
 			a.setSelected(true);
-		}
-	}
-	
-	public void selectAllLeaders() {
-		for (OriLeaderBox l : leaderBoxSymbols) {
-			l.setSelected(true);
 		}
 	}
 
@@ -597,11 +567,6 @@ public class Step {
 				count++;
 			}
 		}
-		for (OriLeaderBox lb : leaderBoxSymbols) {
-			if (lb.isSelected() == true) {
-				count++;
-			}
-		}
 		for (OriGeomSymbol gs : geomSymbols) {
 			if (gs.isSelected() == true) {
 				count++;
@@ -631,7 +596,6 @@ public class Step {
 		unselectAllVertices();
 		unselectAllArrows();
 		unselectAllFaces();
-		unselectAllLeaders();
 		unselectAllGeomSymbols();
 		unselectAllEqualDistSymbols();
 		unselectAllEqualAnglSymbols();
@@ -659,12 +623,6 @@ public class Step {
 	public void unselectAllFaces() {
 		for (OriFace f : filledFaces) {
 			f.setSelected(false);
-		}
-	}
-
-	public void unselectAllLeaders() {
-		for (OriLeaderBox l : leaderBoxSymbols) {
-			l.setSelected(false);
 		}
 	}
 
@@ -742,17 +700,6 @@ public class Step {
 		return selectedFaces;
 	}
 	
-	public ArrayList<OriLeaderBox> getSelectedLeaderBoxes() {
-		ArrayList<OriLeaderBox> selectedLeader = new ArrayList<>();
-
-		for (OriLeaderBox l : leaderBoxSymbols) {
-			if (l.isSelected()) {
-				selectedLeader.add(l);
-			}
-		}
-		return selectedLeader;
-	}
-	
 	public ArrayList<OriGeomSymbol> getSelectedGeomSymbols() {
 		ArrayList<OriGeomSymbol> selectedGeomS = new ArrayList<>();
 
@@ -803,7 +750,6 @@ public class Step {
 		deleteSelectedVertices();
 		deleteSelectedArrows();
 		deleteSelectedFaces();
-		deleteSelectedLeaderBoxes();
 		deleteSelectedGeomSymbols();
 		deleteSelectedEqualDistSymbols();
 		deleteSelectedEqualAnglSymbols();
@@ -862,20 +808,6 @@ public class Step {
 			Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
 			for (OriFace face : selectedFaces)  {
 				filledFaces.remove(face);
-			}
-		}
-	}
-
-	/**
-	 * Deletes all selected leaders of the current diagram step
-	 */
-	public void deleteSelectedLeaderBoxes() {
-		ArrayList<OriLeaderBox> selectedLeader = getSelectedLeaderBoxes();
-		
-		if (selectedLeader.size() != 0) {
-			Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-			for (OriLeaderBox l : selectedLeader) {
-				leaderBoxSymbols.remove(l);
 			}
 		}
 	}

@@ -10,6 +10,10 @@ import java.util.ArrayList;
 
 import javax.vecmath.Vector2d;
 
+import origrammer.Constants;
+import origrammer.Globals;
+import origrammer.Origrammer;
+
 public class GeometryUtil {
 
 	public final static double POINT_SNAP_VALUE = 0.00001f;
@@ -477,6 +481,40 @@ public class GeometryUtil {
 		Vector2d nv = new Vector2d(rx, ry);
 
 		return nv;
+	}
+	
+	
+	/**
+	 * Returns the closest {@code crossingPoint} of a line with origin on {@code p1} and direction {@code uv}
+	 * @param p1
+	 * @param uv
+	 * @return
+	 */
+	public static Vector2d getEarlierstCrossPoint(Vector2d p1, Vector2d uv) {
+		double dist = 0;
+		double smallestDist = 1000; //TODO: make it more elegant and not with fixed value
+		Vector2d bestCrossPoint = null;
+
+		//check all OriLines for the earliest intersection with the new AngleBisectorLine
+		//set the first intersection as P2 of the AngleBisectorLine
+		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+
+			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(p1, new Vector2d(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+			if (crossPoint2 != null) {
+				if (!crossPoint2.equals(p1)) {
+					//check if crossPoint2 is too close to crossPoint
+					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
+							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+						dist = GeometryUtil.Distance(p1, crossPoint2);
+						if (dist < smallestDist) {
+							smallestDist = dist;
+							bestCrossPoint = crossPoint2;
+						}
+					}
+				}
+			}
+		}
+		return bestCrossPoint;
 	}
 	
 	/**

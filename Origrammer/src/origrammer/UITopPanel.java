@@ -3,7 +3,6 @@ package origrammer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -44,7 +43,6 @@ import origrammer.geometry.OriEqualAnglSymbol;
 import origrammer.geometry.OriEqualDistSymbol;
 import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
-import origrammer.geometry.OriLeaderBox;
 import origrammer.geometry.OriLine;
 import origrammer.geometry.OriPleatCrimpSymbol;
 
@@ -499,11 +497,11 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 
 
 
-	private void changeOriLeaderBoxText() {
-		for (OriLeaderBox s : Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols) {
-			if (s.isSelected()) {
-				s.getLabel().setText(changeLeaderTextTF.getText());
-				s.setLabelBounds(s.getLabelBounds((Graphics2D) screen.getGraphics()));
+	private void changeLeaderRepetitionText() {
+		for (OriGeomSymbol s : Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols) {
+			if (s.isSelected() && (s.getType() == OriGeomSymbol.TYPE_LEADER 
+					|| s.getType() == OriGeomSymbol.TYPE_REPETITION)) {
+				s.setText(changeLeaderTextTF.getText());
 			}
 		}
 	}
@@ -638,7 +636,8 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 				double angleX = uv.x * Math.cos(angle) - uv.y * Math.sin(angle);
 				double angleY = uv.x * Math.sin(angle) + uv.y * Math.cos(angle);
 				Vector2d direction = new Vector2d(angleX, angleY);
-				s.setDirection(direction);
+				s.setP2(new Vector2d(s.getP1().x + direction.x * 50, s.getP1().y + direction.y * 50));
+			
 				screen.repaint();
 			}
 		}
@@ -712,7 +711,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		} else if (e.getSource() == arrowIsUnfolded) {
 			addUnfoldToAllSelectedArrows();
 		} else if (e.getSource() == changeSymbolLeaderButton) {
-			changeOriLeaderBoxText();
+			changeLeaderRepetitionText();
 		} else if (e.getSource() == faceUpInput) {
 			Globals.faceInputDirection = Constants.FaceInputDirection.FACE_UP;
 		} else if (e.getSource() == faceDownInput) {
@@ -877,14 +876,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 					faceDirectionPanel.setVisible(false);
 				}
 			}
-			for (OriLeaderBox lb : Origrammer.diagram.steps.get(Globals.currentStep).leaderBoxSymbols) {
-				if (lb.isSelected()) {
-					changeSymbolLeaderPanel.setVisible(true);
-					break;
-				} else {
-					changeSymbolLeaderPanel.setVisible(false);
-				}
-			}
 			for (OriGeomSymbol gs : Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols) {
 				if (gs.isSelected()) {
 					if (gs.getType() == OriGeomSymbol.TYPE_ROTATION) {
@@ -904,12 +895,17 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 					} else if (gs.getType() == OriGeomSymbol.TYPE_CLOSED_SINK) {
 						//TODO: show editingOptions for OriGeomSymbol.TYPE_CLOSED_SINK
 						break;
+					} else if (gs.getType() == OriGeomSymbol.TYPE_LEADER
+							|| gs.getType() == OriGeomSymbol.TYPE_REPETITION) {
+						changeSymbolLeaderPanel.setVisible(true);
+						break;
 					}
 					
 				} else {
 					rotationPanel.setVisible(false);
 					setRotationTextButton.setVisible(false);
 					nextViewPanel.setVisible(false);
+					changeSymbolLeaderPanel.setVisible(false);
 				}
 			}
 			for (OriEqualDistSymbol eds : Origrammer.diagram.steps.get(Globals.currentStep).equalDistSymbols) {

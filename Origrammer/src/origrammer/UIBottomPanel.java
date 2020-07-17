@@ -168,10 +168,6 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 						newStep.filledFaces.add(Origrammer.diagram.steps.get(prevStep).filledFaces.get(i));
 					}
 
-					for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).leaderBoxSymbols.size(); i++) {
-						newStep.leaderBoxSymbols.add(Origrammer.diagram.steps.get(prevStep).leaderBoxSymbols.get(i));
-					}
-
 					for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).geomSymbols.size(); i++) {
 						newStep.geomSymbols.add(Origrammer.diagram.steps.get(prevStep).geomSymbols.get(i));
 					}
