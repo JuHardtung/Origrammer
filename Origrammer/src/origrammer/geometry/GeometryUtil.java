@@ -282,6 +282,7 @@ public class GeometryUtil {
 	 */
 	public static double measureAngleToXAxis(Vector2d v) {
 		double alpha = 0;
+				
 		if (v.x > 0) {
 			alpha = Math.atan(v.y / v.x);
 		} else if (v.y >= 0 && v.x < 0) {

@@ -17,8 +17,8 @@ public class OriEqualAnglProxy {
 	
 	public OriEqualAnglProxy(OriEqualAnglSymbol s) {
 		this.v = s.getV();
-		this.a = s.getA();
-		this.b = s.getB();
+		this.a = s.getP1();
+		this.b = s.getP2();
 		this.dividerCount = s.getDividerCount();
 	}
 	

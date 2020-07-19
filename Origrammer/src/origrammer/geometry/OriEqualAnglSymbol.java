@@ -3,6 +3,7 @@ package origrammer.geometry;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import javax.vecmath.Vector2d;
@@ -10,9 +11,10 @@ import javax.vecmath.Vector2d;
 public class OriEqualAnglSymbol {
 	
 	private Vector2d v = new Vector2d();
-	private Vector2d a = new Vector2d();
-	private Vector2d b = new Vector2d();
+	private Vector2d p1 = new Vector2d();
+	private Vector2d p2 = new Vector2d();
 	private int dividerCount;
+	private double length = 0;
 	private boolean isSelected;
 	
 	
@@ -21,22 +23,23 @@ public class OriEqualAnglSymbol {
 	
 	public OriEqualAnglSymbol(OriEqualAnglSymbol eas) {
 		this.v = eas.v;
-		this.a = eas.a;
-		this.b = eas.b;
+		this.p1 = eas.p1;
+		this.p2 = eas.p2;
 		this.dividerCount = eas.dividerCount;
+		this.length = eas.length;
 		this.isSelected = eas.isSelected;
 	}
 	
-	public OriEqualAnglSymbol(Vector2d v, Vector2d a, Vector2d b) {
+	public OriEqualAnglSymbol(Vector2d v, Vector2d p1, Vector2d p2) {
 		this.v = v;
-		this.a = a;
-		this.b = b;
+		this.p1 = p1;
+		this.p2 = p2;
 	}
 	
-	public OriEqualAnglSymbol(Vector2d v, Vector2d a, Vector2d b, int dividerCount) {
+	public OriEqualAnglSymbol(Vector2d v, Vector2d p1, Vector2d p2, int dividerCount) {
 		this.v = v;
-		this.a = a;
-		this.b = b;
+		this.p1 = p1;
+		this.p2 = p2;
 		this.dividerCount = dividerCount;
 	}
 	
@@ -47,96 +50,112 @@ public class OriEqualAnglSymbol {
 	public ArrayList<Shape> getShapesForDrawing() {
 
 		ArrayList<Shape> shapes = new ArrayList<>();
-		double angle = GeometryUtil.measureAngle(v, a, b);
-		double singleAngle = angle / getDividerCount();		   
-		double length = GeometryUtil.Distance(v, a);
+		Vector2d uv1 = GeometryUtil.getUnitVector(v, p1);
+		Vector2d uv2 = GeometryUtil.getUnitVector(v, p2);
+		uv1.y = -uv1.y;
+		uv2.y = -uv2.y;
+		double dist1 = GeometryUtil.Distance(v, p1);
+		double dist2 = GeometryUtil.Distance(v, p2);
 
-		Vector2d arcStart;
-		Vector2d arcEnd = new Vector2d(0, 0);
-
-		//big divider line
-		Line2D startLine = new Line2D.Double(v.x, v.y, b.x, b.y);
-		shapes.add(startLine);
-		for (int i = 1; i <= dividerCount; i++) {
-			double endX;
-			double endY;
-
-			if (a.x < b.x) {
-				endX = v.x + length * Math.cos(Math.toRadians(singleAngle * i));
-				if (a.y < b.y) {
-					endY = v.y + length * Math.sin(-Math.toRadians(singleAngle * i));
-				} else {
-					endY = v.y + length * Math.sin(Math.toRadians(singleAngle * i));
-				}
+		//set length to the smallest dist between Dist(v,p1) and Dist(v,p2)
+		if (length == 0) {
+			if (dist1 < dist2) {
+				length = dist1;
+			} else if (dist2 < dist1) {
+				length = dist2;
 			} else {
-				endX = v.x - length * Math.cos(Math.toRadians(singleAngle * i));
-
-				if(a.y > b.y) {
-					endY = v.y + length * Math.sin(Math.toRadians(singleAngle * i));
-				} else {
-					endY = v.y + length * Math.sin(-Math.toRadians(singleAngle * i));
-				}
+				length = dist1;
 			}
-			Line2D tmpLine = new Line2D.Double(v.x, v.y, endX, endY);
-			shapes.add(tmpLine);
-
-			if (i == 1) {
-				arcStart = b;
-				arcEnd = new Vector2d(endX, endY);
-			} else {
-				arcStart = arcEnd;
-				arcEnd = new Vector2d(endX, endY);
-			}
-
-			//small arcs
-			//     ____________________
-			//	\/(x1-x0)² + (y1-y0)²
-			double r = Math.sqrt(Math.pow(arcEnd.x - v.x, 2) + Math.pow(arcEnd.y - v.y, 2));
-			r = r - 0.05*r;
-			double x = v.x - r;
-			double y = v.y - r;
-			double width = 2 * r;
-			double height = 2 * r;
-			double startAngle;
-			double endAngle;
-
-			startAngle = -Math.toDegrees(Math.atan2(arcStart.y - v.y, arcStart.x - v.x));
-			endAngle = -Math.toDegrees(Math.atan2(arcEnd.y - v.y, arcEnd.x - v.x));
-
-			if (arcEnd.x < arcStart.x) {
-				if (arcEnd.y < arcStart.y) {
-					startAngle += 2;
-					endAngle = endAngle - startAngle-2;
-				} else {
-					startAngle -= 2;
-					endAngle = endAngle - startAngle + 2;
-				}
-			} else {
-				if (arcEnd.y > arcStart.y) {
-					startAngle += 2;
-					endAngle = endAngle - startAngle -2;
-				} else {
-					if (i == 1) {
-						startAngle *= -1;
-					}
-					startAngle -= 2;
-					endAngle = endAngle - startAngle + 2;
-				}
-			}
-
-			Arc2D.Double arc = new Arc2D.Double(x, y, width, height, startAngle, endAngle, Arc2D.OPEN);
-			shapes.add(arc);
 		}
+		
+		double angle1 =  Math.toDegrees(GeometryUtil.measureAngleToXAxis(uv1));
+		double angle2 = Math.toDegrees(GeometryUtil.measureAngleToXAxis(uv2));
+		//making sure that only positive angles are being used
+		if (angle1 < 0 ) {
+			angle1 += 360;
+		}
+		if (angle2 < 0 ) {
+			angle2 += 360;
+		}
+		
+		double angleExtend = 0;
+		double angleStart = 0;
+		//check which is the smaller angle and use it as the startAngle
+		if (angle1 < angle2) {
+			//check if smallest angle is 0 and if other angle is bigger than 180
+			//if so --> use bigger angle as start
+			if (angle1 == -0.0 && angle2 > 180) {
+				angleStart = angle2;
+				angleExtend = 360 - angle2;
+			} else {
+				angleStart = angle1;
+				angleExtend = Math.abs(Math.abs(angle2) - Math.abs(angle1));
+			}
+			
+		} else {
+			//check if smallest angle is 0 ang if other angle is bigger than 180
+			//if so --> use bigger angle as start
+			if (angle2 == -0.0 && angle1 > 180) {
+				angleStart = angle1;
+				angleExtend = 360 - angle1;
+			} else {
+				angleStart = angle2;
+				angleExtend = Math.abs(Math.abs(angle1) - Math.abs(angle2));
+			}
+		}
+		
+		double eachDivider = angleExtend / (dividerCount);
+		double offset = (eachDivider/100*25)/2;
+		eachDivider -= offset*2;
+		Vector2d arcTopLeft = new Vector2d(v.x - length, v.y - length);
+		Vector2d dividerUV = null;
+		double dividerLength = length + 10; //add +10 to have longer dividerLines compared to the arcs
+
+		
+		/**
+		 * | + offset/2 | + eachDivider | + offset/2 | + offset/2 | + eachDivider | + offset/2 | + offset/2 | + eachDivider | + offset/2 |
+		 * |                                         |  								       |									     |
+		 * | {    1    } {      2      } {    3.1         3.2    } {      2      } {    3.1         3.2    } {		2	   }		     |
+		 */
+		for (int i = 0; i < dividerCount; i++) {
+			if (i == 0) {
+				angleStart += offset;   //1
+			} else {
+				angleStart += offset;   //3.1
+
+				double angle = Math.toRadians(angleStart);
+				double angleX = 1 * Math.cos(angle) - 0 * Math.sin(angle);
+				double angleY = 1 * Math.sin(angle) + 0 * Math.cos(angle);
+				dividerUV = new Vector2d(angleX, angleY); //get uv for the current dividerLine
+				
+				angleStart += offset;   //3.2
+				
+				Line2D dividerLine = new Line2D.Double(v.x, v.y, v.x + dividerUV.x * dividerLength, v.y - dividerUV.y * dividerLength);
+				shapes.add(dividerLine);
+			}
+			
+			Arc2D.Double smallArc = new Arc2D.Double(arcTopLeft.x, arcTopLeft.y, length*2, length*2, angleStart, eachDivider, Arc2D.OPEN);
+			
+			angleStart += eachDivider;   //2
+			shapes.add(smallArc);
+		}
+		
+		
+		Line2D lineV1 = new Line2D.Double(v.x, v.y, v.x + uv1.x * dividerLength, v.y - uv1.y * dividerLength);
+		Line2D lineV2 = new Line2D.Double(v.x, v.y, v.x + uv2.x * dividerLength, v.y  - uv2.y * dividerLength);
+	
+		shapes.add(lineV1);
+		shapes.add(lineV2);
 		return shapes;
 	}
 	
 	public void moveBy(double xTrans, double yTrans) {
 		v.x += xTrans;
 		v.y += yTrans;
-		a.x += xTrans;
-		a.y += yTrans;
-		b.x += xTrans;
-		b.y += yTrans;
+		p1.x += xTrans;
+		p1.y += yTrans;
+		p2.x += xTrans;
+		p2.y += yTrans;
 	}
 	
 	/** Sets the positions of Vector2d a and Vector2d b,<br> 
@@ -144,14 +163,14 @@ public class OriEqualAnglSymbol {
 	 * @param lineLength
 	 */
 	public void setLineLength(double lineLength) {
-		Vector2d uvA = GeometryUtil.getUnitVector(v, a);
-		Vector2d uvB = GeometryUtil.getUnitVector(v, b);
+		Vector2d uv1 = GeometryUtil.getUnitVector(v, p1);
+		Vector2d uv2 = GeometryUtil.getUnitVector(v, p2);
 		
-		a.x = v.x + uvA.x * lineLength;
-		a.y = v.y + uvA.y * lineLength;
+		p1.x = v.x + uv1.x * lineLength;
+		p1.y = v.y + uv1.y * lineLength;
 		
-		b.x = v.x + uvB.x * lineLength;
-		b.y = v.y + uvB.y * lineLength;
+		p2.x = v.x + uv2.x * lineLength;
+		p2.y = v.y + uv2.y * lineLength;
 	}
 
 	public Vector2d getV() {
@@ -162,20 +181,20 @@ public class OriEqualAnglSymbol {
 		this.v = v;
 	}
 
-	public Vector2d getA() {
-		return a;
+	public Vector2d getP1() {
+		return p1;
 	}
 
-	public void setA(Vector2d a) {
-		this.a = a;
+	public void setP1(Vector2d p1) {
+		this.p1 = p1;
 	}
 
-	public Vector2d getB() {
-		return b;
+	public Vector2d getP2() {
+		return p2;
 	}
 
-	public void setB(Vector2d b) {
-		this.b = b;
+	public void setP2(Vector2d p2) {
+		this.p2 = p2;
 	}
 
 	public int getDividerCount() {
@@ -185,7 +204,15 @@ public class OriEqualAnglSymbol {
 	public void setDividerCount(int dividerCount) {
 		this.dividerCount = dividerCount;
 	}
-	
+
+	public double getLength() {
+		return length;
+	}
+
+	public void setLength(double length) {
+		this.length = length;
+	}
+
 	public boolean isSelected() {
 		return isSelected;
 	}
@@ -193,4 +220,11 @@ public class OriEqualAnglSymbol {
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
+
+	@Override
+	public String toString() {
+		return "OriEqualAnglSymbol [v=" + v + ", p1=" + p1 + ", p2=" + p2 + ", dividerCount=" + dividerCount
+				+ ", isSelected=" + isSelected + "]";
+	}
+	
 }

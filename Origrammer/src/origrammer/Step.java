@@ -149,8 +149,8 @@ public class Step {
 		for (OriEqualAnglSymbol eas : copiedObjects.equalAnglSymbols) {
 			OriEqualAnglSymbol inEas = new OriEqualAnglSymbol(eas);
 			inEas.setV(new Vector2d(eas.getV().x + 20, eas.getV().y + 20));
-			inEas.setA(new Vector2d(eas.getA().x + 20, eas.getA().y + 20));
-			inEas.setB(new Vector2d(eas.getB().x + 20, eas.getB().y + 20));
+			inEas.setP1(new Vector2d(eas.getP1().x + 20, eas.getP1().y + 20));
+			inEas.setP2(new Vector2d(eas.getP2().x + 20, eas.getP2().y + 20));
 
 			addEqualAngleSymbol(inEas);
 		}

@@ -132,7 +132,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderTmpXRayCircleSymbol();
 		renderTmpClosedSinkSymbol();
 		
-		renderTmpEqualAnglSymbol();
+		//renderTmpEqualAnglSymbol();
 		renderTmpCrimpPleatSymbol();
 		
 		//show coordinates of selected Vertex
@@ -671,8 +671,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 			OriEqualAnglSymbol eas = new OriEqualAnglSymbol();
 			eas.setV(v1);
-			eas.setA(v2);
-			eas.setB(v3);
+			eas.setP1(v2);
+			eas.setP2(v3);
 			
 			eas.setDividerCount(Integer.parseInt(Origrammer.mainFrame.uiTopPanel.equalAnglDividerTF.getText()));
 			
@@ -1713,19 +1713,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		Vector2d uv1 = GeometryUtil.getUnitVector(v1, v2);
 		Vector2d uv2 = GeometryUtil.getUnitVector(v1, v3);
 
-		double dist1 = GeometryUtil.Distance(v1, v2);
-		double dist2 = GeometryUtil.Distance(v1, v3);
-
-		//if Distance(v,a) and Distance(v,b) are not equal --> set both to the lower value
-		if (dist1 < dist2) {
-			v3.x = v1.x + uv2.x * dist1;
-			v3.y = v1.y + uv2.y * dist1;
-
-		} else if (dist2 < dist1) {
-			v2.x = v1.x + uv1.x * dist2;
-			v2.y = v1.y + uv1.y * dist2;
-		}
-
 		OriEqualAnglSymbol tmpEquAnglSymbol = new OriEqualAnglSymbol(v1, v2, v3);
 		tmpEquAnglSymbol.setDividerCount(Integer.parseInt(Origrammer.mainFrame.uiTopPanel.equalAnglDividerTF.getText()));
 
@@ -2191,29 +2178,31 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				}
 			}
 			
-			OriEqualAnglSymbol pickedEas = pickEqualAnglSymbol(affineMouseDraggingPoint);
-			if (pickEqualAnglSymbol(currentMousePointLogic) != null && isPressedOverSymbol || isMovingSymbols) {
-				isMovingSymbols = true;
-				if (pickedEas != null) {
-
-					Vector2d pickV = pickVertex(normMousePointLogic);
-
-					if (pickV != null) {
-						xTrans = pickV.x - pickedEas.getV().x; 
-						yTrans = pickV.y - pickedEas.getV().y;
-					} else {
-						xTrans = currentMousePointLogic.x - pickedEas.getV().x;
-						yTrans = currentMousePointLogic.y - pickedEas.getV().y;
-					}
-
-					preMousePoint = e.getPoint();
-					for (OriEqualAnglSymbol eas : Origrammer.diagram.steps.get(Globals.currentStep).equalAnglSymbols) {
-						if (eas.isSelected()) {
-							eas.moveBy(xTrans, yTrans);
-						}
-					}
-				}
-			}
+//			OriEqualAnglSymbol pickedEas = pickEqualAnglSymbol(affineMouseDraggingPoint);
+//			if (pickEqualAnglSymbol(currentMousePointLogic) != null && isPressedOverSymbol || isMovingSymbols) { //TODO: moving EqualAngleSymbol
+//				isMovingSymbols = true;
+//				if (pickedEas != null) {
+//
+//					Vector2d pickV = pickVertex(normMousePointLogic);
+//
+//					if (pickV != null) {
+//						xTrans = pickV.x - pickedEas.getV().x; 
+//						yTrans = pickV.y - pickedEas.getV().y;
+//						
+//					} else {
+//
+//						xTrans = currentMousePointLogic.x - pickedEas.getV().x;
+//						yTrans = currentMousePointLogic.y - pickedEas.getV().y;
+//					}
+//
+//					preMousePoint = e.getPoint();
+//					for (OriEqualAnglSymbol eas : Origrammer.diagram.steps.get(Globals.currentStep).equalAnglSymbols) {
+//						if (eas.isSelected()) {
+//							eas.moveBy(xTrans, yTrans);
+//						}
+//					}
+//				}
+//			}
 
 			OriPleatCrimpSymbol pickedPleatSymbol = pickPleatCrimpSymbol(affineMouseDraggingPoint);
 			if (pickPleatCrimpSymbol(currentMousePointLogic) != null && isPressedOverSymbol || isMovingSymbols) {

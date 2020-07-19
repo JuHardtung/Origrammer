@@ -117,7 +117,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 
 	//EQUAL ANGLE SETTINGS
 	private JPanel equalAnglPanel = new JPanel();
-	private JSlider sliderEqualAngl = new JSlider(50,600);
+	private JSlider equalAnglSlider = new JSlider(50, 400);
 	public JTextField equalAnglDividerTF = new JTextField();
 	private JButton equalAnglButton = new JButton("Set");
 
@@ -403,17 +403,17 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void addEqualAnglSymbolPanel() {
-		sliderEqualAngl.setMajorTickSpacing(50);
-		sliderEqualAngl.setSnapToTicks(true);
-		sliderEqualAngl.setPaintTicks(true);
-		sliderEqualAngl.addChangeListener(e -> sliderEqualAnglChanged());
+		equalAnglSlider.setMajorTickSpacing(50);
+		equalAnglSlider.setSnapToTicks(true);
+		equalAnglSlider.setPaintTicks(true);
+		equalAnglSlider.addChangeListener(e -> sliderEqualAnglChanged());
 		equalAnglDividerTF.setPreferredSize(new Dimension(20,20));
 		PlainDocument docEqualAnglDivider = (PlainDocument) equalDistDividerTF.getDocument();
 		docEqualAnglDivider.setDocumentFilter(new IntFilter());
 		equalAnglDividerTF.setText(Integer.toString(Globals.gridDivNum));
 		equalAnglButton.addActionListener(this);
-		equalAnglPanel.add(sliderEqualAngl);
-		sliderEqualAngl.setVisible(false);
+		equalAnglPanel.add(equalAnglSlider);
+		equalAnglSlider.setVisible(false);
 		equalAnglPanel.add(equalAnglDividerTF);
 		equalAnglPanel.add(equalAnglButton);
 		equalAnglPanel.setBorder(new TitledBorder(
@@ -521,7 +521,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 				eas.setDividerCount(Integer.parseInt(equalAnglDividerTF.getText()));
 			}
 			screen.repaint();
-
 		}
 	}
 
@@ -622,7 +621,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	private void sliderEqualAnglChanged() {		
 		for (OriEqualAnglSymbol eas : Origrammer.diagram.steps.get(Globals.currentStep).equalAnglSymbols) {
 			if (eas.isSelected()) {
-				eas.setLineLength(sliderEqualAngl.getValue());
+				eas.setLength(equalAnglSlider.getValue());
 				screen.repaint();
 			}
 		}
@@ -720,7 +719,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 			setEqualDistanceDividerCount();
 		} else if (e.getSource() == equalAnglButton) {
 			setEqualAngleDividerCount();
-		} else if (e.getSource() == pleatButton) {
+ 		} else if (e.getSource() == pleatButton) {
 			setPleatLayerCount();
 		} else if (e.getSource() == pleatCB) {
 			setPleatIsSwitchedDir();
@@ -919,9 +918,11 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 			for (OriEqualAnglSymbol eas : Origrammer.diagram.steps.get(Globals.currentStep).equalAnglSymbols) {
 				if (eas.isSelected()) {
 					equalAnglPanel.setVisible(true);
+					equalAnglSlider.setVisible(true);
 					break;
 				} else {
 					equalAnglPanel.setVisible(false);
+					equalAnglSlider.setVisible(false);
 				}
 			}
 			for (OriPleatCrimpSymbol pcs : Origrammer.diagram.steps.get(Globals.currentStep).pleatCrimpSymbols) {
