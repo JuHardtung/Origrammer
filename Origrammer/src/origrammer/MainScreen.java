@@ -28,13 +28,11 @@ import java.awt.geom.Rectangle2D;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import javax.swing.BorderFactory;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.EtchedBorder;
 import javax.vecmath.Vector2d;
 import origrammer.geometry.*;
 
@@ -69,7 +67,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private Dimension preSize;
 	private AffineTransform affineTransform = new AffineTransform();
 
-	private Graphics2D g2d;
+	public Graphics2D g2d;
 
 	public ArrayList<JLabel> arrowLabelList = new ArrayList<>();
 	private boolean isMovingSymbols = false;
@@ -84,9 +82,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		addComponentListener(this);
 
 		Globals.SCALE = 1.0;
-		setBackground(Color.white);
-		setPreferredSize(new Dimension(800, 800));
+		
+		setPreferredSize(Constants.MAINSCREEN_SIZE);
 		setLayout(null);
+
 
 		preSize = getSize();
 	}
@@ -96,15 +95,37 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		super.paintComponent(g);
 
 		removeAll();
+		
+		setBackground(Color.white);
 		g2d = (Graphics2D) g;
-
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		updateAffineTransform(g2d);
+		
+		
 
-		if (dispGrid) {
-			renderGrid(g2d);
+		//only render the grid and current selected 
+		//coordinate if it's not a step preview
+		if (!Globals.renderStepPreview) {
+			updateAffineTransform(g2d);
+
+			if (dispGrid) {
+				renderGrid(g2d);
+			}
+
+			//show coordinates of selected Vertex
+			if (selectedCandidateV != null ) {
+				g.setColor(Color.BLACK);
+				g.drawString("(" + selectedCandidateV.x + ", " + selectedCandidateV.y + ")", -325, -325);
+			}
+		} else {
+			affineTransform.setToTranslation(getWidth() * 0.5, getHeight() * 0.5);
+			affineTransform.scale(Globals.SCALE, Globals.SCALE);
+			g2d.transform(affineTransform);
 		}
 
+		renderEverything();
+	}
+	
+	private void renderEverything() {
 		renderAllFilledFaces();
 		renderAllLines();
 		renderAllArrows();
@@ -134,12 +155,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		
 		//renderTmpEqualAnglSymbol();
 		renderTmpCrimpPleatSymbol();
-		
-		//show coordinates of selected Vertex
-		if (selectedCandidateV != null ) {
-			g.setColor(Color.BLACK);
-			g.drawString("(" + selectedCandidateV.x + ", " + selectedCandidateV.y + ")", -325, -325);
-		}
 	}
 	
 	private void renderGrid(Graphics2D g2d) {
@@ -1143,8 +1158,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				if (l != null) {
 					v = new Vector2d();
 					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
-					double okay = GeometryUtil.DistancePointToSegment(cp, l.getP0(), l.getP1(), v);
-					System.out.println("okay: " + okay);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0(), l.getP1(), v);
 				}
 			}
 		}
@@ -1978,6 +1992,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				createFilledFace(clickPoint);
 		}
 		repaint();
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 	}
 	
 	private void inputVertexMode(MouseEvent e, Point2D.Double clickPoint) {
@@ -2386,6 +2401,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				repaint();
 			}
 		}
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 	}
 
 	@Override
@@ -2535,6 +2551,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		currentMouseDraggingPoint = null;
 		isMovingSymbols = false;
 		repaint();
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 	}
 
 	@Override

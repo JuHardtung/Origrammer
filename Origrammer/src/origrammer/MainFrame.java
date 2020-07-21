@@ -29,6 +29,7 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 	public MainScreen mainScreen;
 	public UITopPanel uiTopPanel;
 	public UISidePanel uiSidePanel;
+	public UIStepOverviewPanel uiStepOverviewPanel;
 	public UIBottomPanel uiBottomPanel;
 	
 	private JMenu menuFile = new JMenu("File");
@@ -68,6 +69,7 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 
 		uiTopPanel = new UITopPanel(mainScreen);
 		uiSidePanel = new UISidePanel(mainScreen, uiTopPanel);
+		uiStepOverviewPanel = new UIStepOverviewPanel();
 		uiBottomPanel = new UIBottomPanel(mainScreen);
 
 		try {
@@ -81,6 +83,7 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 		getContentPane().add(uiTopPanel, BorderLayout.PAGE_START);
 		getContentPane().add(uiSidePanel, BorderLayout.LINE_START);
 		getContentPane().add(mainScreen, BorderLayout.CENTER);
+		getContentPane().add(uiStepOverviewPanel, BorderLayout.LINE_END);
 		getContentPane().add(uiBottomPanel, BorderLayout.PAGE_END);
 
 		pack();

@@ -31,6 +31,7 @@ public class Globals {
 	public static boolean automatedLinePlacement = false;
 	public static int inputLineType = OriLine.TYPE_VALLEY;
 	public static int inputArrowType = OriArrow.TYPE_VALLEY;
+	public static boolean renderStepPreview = false;
 	
 	public static int currentStep = 0;
 	public static double SCALE = 1.0;

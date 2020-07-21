@@ -3,7 +3,8 @@
 \section{Introduction}
 \label{sec:introduction}
 
-\gls{origami} is the Japanese art of folding paper into models of animals, people or other objects. Creating instructions for folding these Origami models is a tedious and time consuming task. These so called origami diagrams (see Figure \ref{fig:craneDiagram}) have to be accurate representations of the paper for every folding step, in order to unambiguously explain how to fold the model. Every flap, crease and edge has to be drawn (see Section \ref{sec:generalRules} for exceptions), which makes the process slow and especially error-prone for complex models. While for example the crane model in Figure \ref{fig:craneDiagram} can be folded in 17 steps, more complex models can take hundreds of steps to complete.
+\gls{origami} is the Japanese art of folding paper into models of animals, people or other objects. These so called origami diagrams (see Figure \ref{fig:craneDiagram}) have to be accurate representations of the paper for every folding step, in order to unambiguously explain how to fold the model. Every flap, crease and edge has to be drawn, which makes the process slow and especially error-prone for complex models. While for example the crane model in Figure \ref{fig:craneDiagram} can be folded in 17 steps, more complex models can take hundreds of steps to complete. 
+
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.6\textwidth]{Crane}
@@ -11,12 +12,16 @@
 	\label{fig:craneDiagram}
 \end{figure}
 
-\noindent Historically, diagrams got either drawn by hand or created with the help of digital vector programs like Inkscape\footnote{\url{https://inkscape.org/}} or Adobe Illustrator\footnote{\url{https://www.adobe.com/de/products/illustrator.html}}. Even though the digital diagramming improved the accuracy of the finished instructions, the task itself was still quite time consuming especially for models with hundreds of steps.
+In order to help artists during the creation process for origami diagrams, the \gls{origrammer} \cite{origrammer} was developed.
 
-In contrast to diagramming programs there have been several attempts at creating programs that virtually fold the paper in order to create models. These include amongst others eGami by Jack Fastag \cite{eGami}, Origami Simulation by Robert J. Lang \cite{origamiSimulation} and the Foldinator Project by John Szinger \cite{foldinator}. However none of these projects ever got outside the prototype phase and they haven't been updated in years.
+The Origrammer is a desktop application, developed by the author, which offers specific features for creating such diagrams (see Fig. \ref{fig:origrammerMain} for an overview of this program). This program simulates, how an origami artist would create diagrams by hand. Lines, arrows, and symbols can be placed and new diagram steps can be created. Additionally, helping features are included to speed up the diagramming process as a whole. A more detailed overview and explanation of the Origrammer can be found in Section \ref{sec:origrammer}. %MISSING REFERENCE TO ORIGRAMMER OVERVIEW
 
-Up until the point of this publication there is no publicly available program that offers specific features for the origami diagramming process. The previously mentioned vector programs can be used for diagramming, however as they weren't developed with origami diagramming in mind, there are a lot of shortcomings in their feature set. These shortcomings of current programs will be further elaborated on in Section \ref{sec:requirementAnalysis}.
+This Bachelor Thesis now aims to evaluate the current state of this program and to develop it further to improve usability, efficiency and effectivity. This thesis will start with a short summary on how the Origrammer works and what a typical workflow looks like. Afterwards an evaluation has to be carried out, in order to get a sense of the current state of this program. Flaws and missing features have to be explicitly defined, so that a plan can be created on how to further improve the Origrammer.
 
-The goal for this project is to develop a desktop application that implements features specifically for the origami diagramming process. The standardized symbols and overall notations have to be included and the program has to offer functions that increase the efficiency of creating diagrams.
+As the evaluation will potentially find a multitude of different types of flaws and problems, a specific focus has to be defined. In case of this thesis, the main goal is to maximise the speed of creating origami diagrams, while also offering a usable user interface with which also novizes can work with ease. This target was set with the original plan of the Origrammer in mind:
 
-This work starts with an overview and subsequently a categorization of current origami diagramming notations. Based on these findings, a requirements analysis can be carried out in order to define the required features of the planned program. Any problems or other findings during the development process will be documented so that they may be beneficial to others in the future.
+\begin{center}
+\enquote{\emph{The goal for this project is to develop a desktop application that implements features specifically for the origami diagramming process. The standardized symbols and overall notations have to be included and the program \textbf{has to offer functions that increase the efficiency of creating diagrams}.}} \cite{origrammer}
+\end{center}
+
+Then after evaluating and collecting potential improvements, a more detailed plan can be created on how to actually implement these changes. Different possible solutions should be tested for pros and cons and the best solutions should then be developed for the Origrammer. Although not all potential improvements can be implemented within the scope of this thesis, all found flaws should be categorized and documented, which can help further development in the future.

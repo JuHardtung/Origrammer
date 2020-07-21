@@ -1,5 +1,7 @@
 package origrammer;
 
+import java.awt.Dimension;
+
 public class Constants {
 
 	public static enum LineInputMode {
@@ -80,5 +82,6 @@ public class Constants {
 	
 	final public static double DEFAULT_PAPER_SIZE = 600;
 	final public static double EPSILON = 0.00000000001;
+	final public static Dimension MAINSCREEN_SIZE = new Dimension(800, 800);
 
 }
