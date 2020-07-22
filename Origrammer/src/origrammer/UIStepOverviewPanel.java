@@ -18,12 +18,27 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+
+/**
+ * The {@code UIStepOverviewPanel} shows an overview over all current steps within the opened diagram.
+ * Every step is being shown as a StepPreview, consisting of {@code stepNumber}, 
+ * a small preview picture {@code stepImage},
+ * and the {@code stepDescription}
+ * @author Julian-Tower
+ *
+ */
 public class UIStepOverviewPanel extends JPanel implements ActionListener, MouseListener, MouseMotionListener, PropertyChangeListener, KeyListener {
 
 	
@@ -32,12 +47,32 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 	private JScrollPane scrollPane = new JScrollPane(stepOverviewPanel);
 	private AffineTransform affineTransform = new AffineTransform();
 
+	final static String MOVE_STEP_UP = "move-step-up";
+	final static String MOVE_STEP_DOWN = "move-step-down";
 
 	
-	
+	/**
+	 * The {@code UIStepOverviewPanel} shows an overview over all current steps within the opened diagram.
+	 * Every step is being shown as a StepPreview, consisting of {@code stepNumber}, 
+	 * a small preview picture {@code stepImage},
+	 * and the {@code stepDescription}
+	 */
 	public UIStepOverviewPanel() {
 		stepOverviewPanel.addMouseListener(this);
 		stepOverviewPanel.addMouseMotionListener(this);
+
+		//MOVE STEP UP
+		InputMap imMovingUp = stepOverviewPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		imMovingUp.put(KeyStroke.getKeyStroke("UP"), MOVE_STEP_UP);
+		ActionMap amMovingUp = stepOverviewPanel.getActionMap();
+		amMovingUp.put(MOVE_STEP_UP, new MoveStepUpAction());
+		
+		//MOVE STEP DOWN
+		InputMap imMovingDown = stepOverviewPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		imMovingDown.put(KeyStroke.getKeyStroke("DOWN"), MOVE_STEP_DOWN);
+		ActionMap amMovingDown = stepOverviewPanel.getActionMap();
+		amMovingDown.put(MOVE_STEP_DOWN, new MoveStepDownAction());
+		
 		setPreferredSize(new Dimension(250, 700));
 		setBackground(new Color(230, 230, 230));
 		stepOverviewPanel.setLayout(new BoxLayout(stepOverviewPanel, BoxLayout.PAGE_AXIS));
@@ -47,58 +82,58 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 	}
 	
+	/**
+	 * Creates a new {@code StepPreview} with {@code stepNumber}, 
+	 * {@code stepImageIcon}, and {@code stepDescr}
+	 */
+	private void createStepPreview() {
+		StepPreview stepPreview = new StepPreview(Globals.currentStep);
+
+		//render a stepPreview into bimg, rescale from 800x800 -> 200x200 and use as ImageIcon
+		BufferedImage bimg = new BufferedImage(Constants.MAINSCREEN_SIZE.width, 
+				Constants.MAINSCREEN_SIZE.height, BufferedImage.TYPE_BYTE_INDEXED);
+		Graphics2D graphics = bimg.createGraphics();
+		Globals.renderStepPreview = true;
+		Origrammer.mainFrame.mainScreen.paint(graphics);
+		Globals.renderStepPreview = false;
+
+		Icon icon = new ImageIcon(rescaleBufImage(bimg, 0.25));
+		stepPreview.setStepImageIcon(icon); //SET_IMAGE
+		stepPreview.setStepDescrText(Origrammer.diagram.steps.get(Globals.currentStep).stepDescription); //SET_INSTRUCTION
+		
+		stepPreviewList.add(stepPreview);
+	}
 	
+	/**
+	 * Updates a {@code StepPreview}
+	 */
+	private void updateStepPreview() {		
+		BufferedImage bimage = new BufferedImage(Constants.MAINSCREEN_SIZE.width, 
+				Constants.MAINSCREEN_SIZE.height, BufferedImage.TYPE_BYTE_INDEXED);
+		Graphics2D graphics = bimage.createGraphics();
+		Globals.renderStepPreview = true;
+		Origrammer.mainFrame.mainScreen.paint(graphics);
+		Globals.renderStepPreview = false;
+
+		ImageIcon icon = new ImageIcon(rescaleBufImage(bimage, 0.25));
+		
+		stepPreviewList.get(Globals.currentStep).setStepImageIcon(icon);
+		stepPreviewList.get(Globals.currentStep).setStepDescrText(Origrammer.diagram.steps.get(Globals.currentStep).stepDescription);
+		
+	}
+	
+	/**
+	 * Keeps the {@code StepOverviewPanel} up-to-date
+	 */
 	public void updateStepOverViewPanel() {
 		removeAll();
-		
-		int steps = stepPreviewList.size();
 		if (stepPreviewList.size() <= Globals.currentStep) {
-			StepPreview stepPreview = new StepPreview(Globals.currentStep);
-			
-
-
-			BufferedImage bimage = new BufferedImage(Constants.MAINSCREEN_SIZE.width, 
-					Constants.MAINSCREEN_SIZE.height, BufferedImage.TYPE_BYTE_INDEXED);
-			Graphics2D graphics = bimage.createGraphics();
-			
-			Globals.renderStepPreview = true;
-			Origrammer.mainFrame.mainScreen.paint(graphics);
-			Globals.renderStepPreview = false;
-
-			ImageIcon icon = new ImageIcon(rescaleBufImage(bimage, 0.25));
-			stepPreview.setStepImageIcon(icon); //SET_IMAGE
-			stepPreview.setStepImageBounds(0, 25+steps*175, 100, 100);
-
-			
-			stepPreview.setStepDescrBounds(0, 125+steps*175, 100, 25);
-			stepPreview.setStepDescrText(Origrammer.diagram.steps.get(Globals.currentStep).stepDescription); //SET_INSTRUCTION
-			
-			stepPreviewList.add(stepPreview);
-			
+			createStepPreview();
 		} else {
-			stepPreviewList.get(Globals.currentStep).setStepNumber(Globals.currentStep);
-			
-			BufferedImage bimage = new BufferedImage(Constants.MAINSCREEN_SIZE.width, 
-					Constants.MAINSCREEN_SIZE.height, BufferedImage.TYPE_BYTE_INDEXED);
-			Graphics2D graphics = bimage.createGraphics();
-			Globals.renderStepPreview = true;
-			Origrammer.mainFrame.mainScreen.paint(graphics);
-			Globals.renderStepPreview = false;
-
-			
-			ImageIcon icon = new ImageIcon(rescaleBufImage(bimage, 0.25));
-			
-			stepPreviewList.get(Globals.currentStep).setStepImageIcon(icon);
-			stepPreviewList.get(Globals.currentStep).setStepImageBounds(0, 25+steps*175, 100, 100);
-			
-			stepPreviewList.get(Globals.currentStep).setStepDescrBounds(0, 125+steps*175, 100, 25);
-			stepPreviewList.get(Globals.currentStep).setStepDescrText(Origrammer.diagram.steps.get(Globals.currentStep).stepDescription);
-			
+			updateStepPreview();
 		}
 		
-		for (StepPreview p : stepPreviewList) {
-			stepOverviewPanel.add(p);
-		}
+		addAllStepPreviews();
 
 		add(scrollPane);
 
@@ -123,6 +158,130 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		return scaledBimg;
 	}
 	
+	private void removeAllStepPreviews() {
+		for (StepPreview sp : stepPreviewList) {
+			stepOverviewPanel.remove(sp);
+		}
+	}
+	
+	private void addAllStepPreviews() {
+		for (StepPreview sp : stepPreviewList) {
+			stepOverviewPanel.add(sp);
+		}
+	}
+	
+	/**
+	 * Moves a {@code StepPreview} up in the {@code stepPreviewList} and
+	 * moves the corresponding {@code Step} up in the {@code Origrammer.diagram.steps}-list
+	 */
+	private void moveStepUp() {
+		StepPreview tmpSP = null;
+		for (StepPreview sp : stepPreviewList) {
+			if (sp.isSelected()) {
+				tmpSP = sp;
+				break;
+			}
+		}
+
+		if (tmpSP != null) {
+			int currrentStepNum = tmpSP.getStepNumber();
+			if (currrentStepNum > 0) {
+
+				//remove all StepPreviewsPanels so they can be added back in right order
+				removeAllStepPreviews(); 
+				//remove stepPreview from list
+				stepPreviewList.remove(currrentStepNum); 
+				//put the removed stepPreview back in the list on the right spot
+				stepPreviewList.add((currrentStepNum-1), tmpSP); 
+
+				//corresponding stepNumbers of stepPreview have to be corrected
+				correctAllStepPreviewStepNumbers(currrentStepNum);
+
+				//add back all stepPreviewPanels in the right order
+				addAllStepPreviews();
+				
+				//correct the order of the Steps themselves
+				Origrammer.diagram.moveStepUp(currrentStepNum);
+
+				Globals.currentStep -=1;
+				//System.out.println(stepPreviewList.toString());		
+
+				stepChanged();
+
+			} else {
+				System.out.println("Can't move step further up, it's already the last.");
+
+			}
+		} else {
+			System.out.println("Can't move the step down, as no step was selected");
+		}
+
+
+	}
+	
+	/**
+	 * Moves a {@code StepPreview} down in the {@code stepPreviewList} and
+	 * moves the corresponding {@code Step} down in the {@code Origrammer.diagram.steps}-list
+	 */
+	private void moveStepDown() {
+		StepPreview tmpSP = null;
+		for (StepPreview sp : stepPreviewList) {
+			if (sp.isSelected()) {
+				tmpSP = sp;
+				break;
+			}
+		}
+		if (tmpSP != null) {
+			int currrentStepNum = tmpSP.getStepNumber();
+
+			if (tmpSP.getStepNumber() < (stepPreviewList.size()-1)) {
+				//remove all StepPreviewsPanels so they can be added back in right order
+				removeAllStepPreviews(); 
+				//remove stepPreview from list
+				stepPreviewList.remove(currrentStepNum); 
+				//put the removed stepPreview back in the list on the right spot
+				stepPreviewList.add((currrentStepNum+1), tmpSP); 
+
+				//corresponding stepNumbers of stepPreview have to be corrected
+				correctAllStepPreviewStepNumbers(currrentStepNum);
+
+				//add back all stepPreviewPanels in the right order
+				addAllStepPreviews();
+				
+				//correct the order of the Steps themselves
+				Origrammer.diagram.moveStepDown(currrentStepNum);
+
+				Globals.currentStep +=1;
+				
+				stepChanged();
+
+			} else {
+				System.out.println("Can't move step further down, it's already the last.");
+
+			}
+		} else {
+			System.out.println("Can't move the step down, as no step was selected");
+		}
+
+	}
+	
+	public void stepChanged() {
+		revalidate();
+		repaint();
+		Origrammer.mainFrame.uiBottomPanel.stepChanged();
+	}
+
+	/**
+	 * Corrects the {@code stepNumber} of all {@code StepPreviews} after moving a step up or down
+	 * @param startNumber
+	 */
+	private void correctAllStepPreviewStepNumbers(int startNumber) {
+		for (int i = 0; i<stepPreviewList.size(); i++) {
+			stepPreviewList.get(i).setStepNumber(i);
+		}
+	}
+
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		//get mouse click coordinates
@@ -144,6 +303,8 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 				if (sp.getBounds().intersects(clickPoint.x-2.5, clickPoint.y+2.5, 5, 5)) {
 					if (!sp.isSelected()) {
 						sp.setSelected(true);
+						Globals.currentStep = sp.getStepNumber();
+						stepChanged();
 					} else {
 						sp.setSelected(false);
 					}
@@ -176,17 +337,32 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 				}
 			}
 		}
+		revalidate();
 		repaint();
-	}	
+	}
 	
 	
+	private class MoveStepUpAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			moveStepUp();
+		}
+	}
 	
+	private class MoveStepDownAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			moveStepDown();
+		}
+	}
 	
+
 
 	@Override
-	public void keyPressed(KeyEvent e) {		
+	public void actionPerformed(ActionEvent e) {
+		
+		
 	}
-
 
 	@Override
 	public void keyReleased(KeyEvent e) {		
@@ -200,11 +376,6 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {		
-	}
-
-
-	@Override
-	public void actionPerformed(ActionEvent e) {		
 	}
 
 
@@ -241,6 +412,13 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 
 	@Override
 	public void mouseDragged(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 		
 	}	

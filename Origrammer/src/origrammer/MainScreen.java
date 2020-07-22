@@ -101,20 +101,12 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		
-
-		//only render the grid and current selected 
-		//coordinate if it's not a step preview
+		//only draw the grid and apply affineTransform (with transX & transY)
+		//if it's not a stepPreview that is being rendered
 		if (!Globals.renderStepPreview) {
 			updateAffineTransform(g2d);
-
 			if (dispGrid) {
 				renderGrid(g2d);
-			}
-
-			//show coordinates of selected Vertex
-			if (selectedCandidateV != null ) {
-				g.setColor(Color.BLACK);
-				g.drawString("(" + selectedCandidateV.x + ", " + selectedCandidateV.y + ")", -325, -325);
 			}
 		} else {
 			affineTransform.setToTranslation(getWidth() * 0.5, getHeight() * 0.5);
@@ -122,10 +114,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			g2d.transform(affineTransform);
 		}
 
-		renderEverything();
-	}
-	
-	private void renderEverything() {
+		
 		renderAllFilledFaces();
 		renderAllLines();
 		renderAllArrows();
@@ -135,7 +124,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderAllEquDistSymbols();
 		renderAllEquAnglSymbols();
 		renderAllCrimpPleatSymbols();
-
+		
 		renderAllVertices();
 
 		//temporary stuff
@@ -145,7 +134,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderTmpArrow();
 		renderTmpOriSymbols();
 		
-		renderSelectedVertices();
+		//only draw the selectedVertices
+		//if it's not a stepPreview that is being rendered
+		if (!Globals.renderStepPreview) {
+			renderSelectedVertices();
+		}
 		renderRectSelection();
 		
 		renderTmpRotationSymbol();
@@ -155,6 +148,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		
 		//renderTmpEqualAnglSymbol();
 		renderTmpCrimpPleatSymbol();
+		
 	}
 	
 	private void renderGrid(Graphics2D g2d) {

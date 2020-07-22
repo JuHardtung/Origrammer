@@ -41,9 +41,7 @@ public class StepPreview extends JPanel {
 
 	public void setStepNumber(int stepNumber) {
 		this.stepNumber = stepNumber;
-		setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, 
-				getBackground().darker(), getBackground().brighter()), 
-				"Step " + String.valueOf(stepNumber)));
+		titledBorder.setTitle("Step " + String.valueOf(stepNumber));
 	}
 
 	public Icon getStepImageIcon() {
@@ -105,22 +103,27 @@ public class StepPreview extends JPanel {
 	public void setGreenBorder() {
 		if (!isSelected) {
 			titledBorder.setBorder(etchedBorderGreen);
+			titledBorder.setTitle("Step " + String.valueOf(stepNumber));
 		}
 		setBorder(titledBorder);
+		repaint();
 	}
 	
 	public void setHoveredBorder() {
 		titledBorder.setBorder(etchedBorderHovered);
+		titledBorder.setTitle("Step " + String.valueOf(stepNumber));
 		setBorder(titledBorder);
+		repaint();
 	}
 	
 	public void setGreyBorder() {
 		if (!isSelected) {
 			titledBorder.setBorder(etchedBorder);
+			titledBorder.setTitle("Step " + String.valueOf(stepNumber));
 		}
 		setBorder(titledBorder);
+		repaint();
 	}
-
 
 	@Override
 	public String toString() {

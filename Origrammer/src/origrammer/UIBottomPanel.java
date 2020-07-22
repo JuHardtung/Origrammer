@@ -188,7 +188,7 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 				newStep.lines.clear();
 			}
 
-			newStep.stepNumber = Globals.currentStep;
+			//newStep.stepNumber = Globals.currentStep;
 			Origrammer.diagram.steps.add(newStep);
 		}
 		Origrammer.diagram.steps.get(Globals.currentStep).unselectAll();

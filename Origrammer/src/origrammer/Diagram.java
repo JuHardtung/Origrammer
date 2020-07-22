@@ -35,6 +35,20 @@ public class Diagram {
 	}
 	
 	
+	public void moveStepUp(int stepNum) {
+		Step tmpStep = steps.get(stepNum);
+		steps.remove(stepNum);
+		steps.add(stepNum-1, tmpStep);
+
+	}
+	
+	public void moveStepDown(int stepNum) {
+		Step tmpStep = steps.get(stepNum);
+		steps.remove(stepNum);
+		steps.add(stepNum+1, tmpStep);
+	}
+	
+	
 	public String getTitle() {
 		return title;
 	}

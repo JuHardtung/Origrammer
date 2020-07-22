@@ -68,7 +68,7 @@ public class Step {
 	private Stack<UndoInfo> undoStack = new Stack<UndoInfo>();
 	public CopiedObjects copiedObjects = new CopiedObjects();
 	public String stepDescription;
-	public int stepNumber;
+	//public int stepNumber;
 
 	public static final double POINT_EPS = 1.0e-6;
 
@@ -79,7 +79,7 @@ public class Step {
 		if (Globals.newStepOptions == Constants.NewStepOptions.PASTE_DEFAULT_PAPER) {
 			initFirstStep();
 		}
-		stepNumber = Globals.currentStep;
+		//stepNumber = Globals.currentStep;
 	}
 
 	public void initFirstStep() {
@@ -876,18 +876,18 @@ public class Step {
 		this.stepDescription = stepDescription;
 	}
 
-	public int getStepNumber() {
-		return stepNumber;
-	}
-
-	public void setStepNumber(int stepNumber) {
-		this.stepNumber = stepNumber;
-	}
+//	public int getStepNumber() {
+//		return stepNumber;
+//	}
+//
+//	public void setStepNumber(int stepNumber) {
+//		this.stepNumber = stepNumber;
+//	}
 
 	@Override
 	public String toString() {
 		return "Step [lines=" + lines + ", vertices=" + vertices + ", arrows=" + arrows
-				+ ", stepDescription=" + stepDescription + ", stepNumber=" + stepNumber + "]";
+				+ ", stepDescription=" + stepDescription /*+ ", stepNumber=" + stepNumber*/ + "]";
 	}
 
 }
