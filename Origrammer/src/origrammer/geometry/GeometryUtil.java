@@ -4,9 +4,11 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.vecmath.Vector2d;
 
@@ -313,6 +315,31 @@ public class GeometryUtil {
 		path.closePath();
 
 		return path;
+	}
+	
+	public static ArrayList<double[]> getPointsFromGeneralPath(GeneralPath path) {
+		ArrayList<double[]> pointList = new ArrayList<double[]>();
+		double[] coords = new double[6];
+		int numSubPaths = 0;
+		for (PathIterator pi = path.getPathIterator(null); !pi.isDone(); pi.next()) {
+			switch (pi.currentSegment(coords)) {
+			case PathIterator.SEG_MOVETO:
+				pointList.add(Arrays.copyOf(coords, 2));
+				++ numSubPaths;
+				break;
+			case PathIterator.SEG_LINETO:
+				pointList.add(Arrays.copyOf(coords, 2));
+				break;
+			case PathIterator.SEG_CLOSE:
+				if (numSubPaths > 1) {
+					throw new IllegalArgumentException("Path contains multiple subpaths");
+				}
+				return pointList;
+			default:
+				throw new IllegalArgumentException("Path contains curves");
+			}
+		}
+		throw new IllegalArgumentException("Unclosed path");
 	}
 	
 	/**

@@ -61,6 +61,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private OriEqualDistSymbol selectedCandidateEDS = null;
 	private OriEqualAnglSymbol selectedCandidateEAS = null;
 	private OriPleatCrimpSymbol selectedCandidatePleat = null;
+	//private GeneralPath tmpFilledFacePath = null;
+	private ArrayList<Vector2d> tmpFilledFacePath = null;
 
 	private boolean dispGrid = true;
 	//Affine transformation info
@@ -128,6 +130,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderAllVertices();
 
 		//temporary stuff
+		renderTmpFilledFace();
 		renderTmpLine();
 		renderTmpLengthAngleLine();
 		renderTmpPerpendicular();
@@ -229,6 +232,18 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				}
 			}
 			g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+		}
+	}
+	
+	
+	private void renderTmpFilledFace() {
+		if (tmpFilledFacePath != null) {
+
+			for (Vector2d p : tmpFilledFacePath) {				
+				g2d.fill(new Rectangle2D.Double(p.x - 5.0 / Globals.SCALE,
+						p.y - 5.0 / Globals.SCALE, 10.0 / Globals.SCALE, 10.0 / Globals.SCALE));
+				
+			}
 		}
 	}
 	
@@ -1355,31 +1370,34 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private void createFilledFace(Point2D.Double clickPoint) {
 		//creates OriFace that is to be filled with DEFAULT_PAPER_COLOR --> OriFace is a triangle with 3 OriLines as sides			
 		Vector2d v = pickVertex(clickPoint);
+
 		if (v != null) {
 			if (firstSelectedV == null) {
 				firstSelectedV = v;
-			} else if (secondSelectedV == null) {
-				secondSelectedV = v;
+				tmpFilledFacePath = new ArrayList<Vector2d>();
+				tmpFilledFacePath.add(v);
 			} else {
-				ArrayList<Vector2d> vList = new ArrayList<>();
+				
+				//make a new line as long as inputV isn't the same as firstSelectedV
+				if (!(tmpFilledFacePath.get(0).x == v.x && tmpFilledFacePath.get(0).y == v.y)) {
+					tmpFilledFacePath.add(v);
 
-				vList.add(v);
-				vList.add(firstSelectedV);
-				vList.add(secondSelectedV);
-				OriFace newFace;
-				GeneralPath pathForFilledFace = GeometryUtil.createPathFromVertices(vList);
-				if (Globals.faceInputDirection == Constants.FaceInputDirection.FACE_UP) {
-					newFace = new OriFace(pathForFilledFace, false, true);
 				} else {
-					newFace = new OriFace(pathForFilledFace, false, false);
+					OriFace newFace;
+					GeneralPath path = GeometryUtil.createPathFromVertices(tmpFilledFacePath);
+					
+					if (Globals.faceInputDirection == Constants.FaceInputDirection.FACE_UP) {
+						newFace = new OriFace(path, false, true);
+					} else {
+						newFace = new OriFace(path, false, false);
+					}
+					Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+					Origrammer.diagram.steps.get(Globals.currentStep).addFilledFace(newFace);
+					firstSelectedV = null;
+					tmpFilledFacePath = null;
 				}
-				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-				Origrammer.diagram.steps.get(Globals.currentStep).addFilledFace(newFace);
-				firstSelectedV = null;
-				secondSelectedV = null;
-				thirdSelectedV = null;
 			}
-		}		
+		}
 	}
 	
 	
