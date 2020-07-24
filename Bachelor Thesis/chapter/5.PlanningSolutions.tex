@@ -48,6 +48,7 @@ A large part of the Origrammer is made up of the different arrows and symbols th
 As a result of all these problems and limitations, the decision was made to completely rework how arrows \& symbols function in the Origrammer. The new approach was to rebuild all objects with simple \texttt{java.awt.Shape}-objects. This gave total control over rotations, scaling, and on-the-fly-editing of all arrows/symbols. Another advantage was the removed reliance on \texttt{JLabels} and associated with that, there were no longer issues with wrong hitboxes or different scaling while rotating. The only disadvantage was the work-intensive nature of remodeling all arrows and symbols with \texttt{Shape}-objects by hand.
 \newline
 \textbf{Fixes: 15; 25; 26}
+
 \subsubsection{Side Panel}
 
 The text of the \texttt{JRadioButtons} at the tool bar should be replaced by self-explanatory icons in order to improve overall clarity. But the textual explanation of all the tools should still be present to help especially novizes. This can be done through tooltips that appear when hovering over the buttons.
@@ -59,3 +60,26 @@ The text of the \texttt{JRadioButtons} at the tool bar should be replaced by sel
 \subsection{New Origrammer features}
 
 These new features should increase the productivity and efficiency of the Origrammer. The focus should be set on maximising the work that can be done in the shortest amount of time. This will be achieved by implementing features that either automate parts of the workflow, or that give new, faster possibilities of achieving the goal.
+
+\subsubsection{Step Navigation \& Step Editing Options}
+
+Currently, the Origrammer can create new diagram steps with three different options (\emph{Empty Step}, \emph{Copy last Step}, and \emph{Basic Paper Shape}). Furthermore the user can navigate through them with a \emph{Next-Step}-/ and a \emph{Previous-Step}-button. Though this approach brings limitation with it. Moving through the steps one by one hinders the overall usefulness and especially the speed of working with the Origrammer.
+
+%delete and move and create in between
+Deleting redundant steps can be quite important once the folding sequence goes through changes or simply when the user has made a mistake. In the same sense of offering solutions to user made mistakes, the Origrammer should make it possible to move steps to a different position within the diagram. Being able to create new steps in between existing ones can also be quite useful in negating user error.
+
+%preview and make step active through clicking
+An additional problem arises, once a diagram with a lot of steps (100+) is created. As the user currently only knows where he is in the folding sequence by the step number, this can lead to confusion. For example when folding an animal, there can be a different folding sequence, depending on what the artist decides to fold first (e.g. head first, the front or the hind legs, the tail, the abdomen, or the back). In order to continuously see where the user is within the diagram, there should be a small preview picture for all the steps within the step navigation. This will give the user an idea on what area a range of steps is working on. When clicking on one of the previews, the clicked step should made active and should be displayed on the Editing Panel.
+
+As a result of the mentioned issues, the step navigation will be reworked to offer more functionality, visibility and ease of use. This will be accomplished by offering the following features in the rework:
+
+\begin{itemize}
+\item Small preview picture of a step
+\item Click on preview picture to show the step in the Editing Panel
+\item Show step number, the preview picture, as well as the folding description of the step in the navigation
+\item Delete a selected step
+\item Move a selected step to the front or the back
+\item Create a new step between existing steps
+\end{itemize}
+
+\textbf{Fixes: 27;  28; 29}

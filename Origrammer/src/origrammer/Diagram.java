@@ -48,6 +48,16 @@ public class Diagram {
 		steps.add(stepNum+1, tmpStep);
 	}
 	
+	public void deleteStep(int stepNum) {
+		if (Globals.currentStep == stepNum) {
+			//if last step is deleted, the Globals.currentStep has to moved down
+			if (stepNum == steps.size()-1) { 
+				Globals.currentStep -= 1;
+			}
+		}
+		steps.remove(stepNum);
+	}
+	
 	
 	public String getTitle() {
 		return title;

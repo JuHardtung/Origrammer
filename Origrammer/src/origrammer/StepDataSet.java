@@ -14,7 +14,6 @@ public class StepDataSet {
 	public OriEqualDistProxy[] equalDistSymbols;
 	public OriEqualAnglProxy[] equalAnglSymbols;
 	public String stepDescription;
-	//public int stepNumber;
 
 	
 	public StepDataSet() {
@@ -69,7 +68,6 @@ public class StepDataSet {
 			equalAnglSymbols[i] = new OriEqualAnglProxy(s.equalAnglSymbols.get(i));
 		}
 		stepDescription = s.stepDescription;
-		//stepNumber = s.stepNumber;
 	}
 
 	public void recover(Step s) {
@@ -106,8 +104,6 @@ public class StepDataSet {
 			s.equalAnglSymbols.add(equalAnglSymbols[i].getSymbol());
 		}
 		s.stepDescription = stepDescription;
-		//s.stepNumber = stepNumber;
-
 	}
 	
 	public Step getStep() {
@@ -138,9 +134,7 @@ public class StepDataSet {
 			tmpStep.equalAnglSymbols.add(equalAnglSymbols[i].getSymbol());
 		}
 		
-		tmpStep.stepDescription = stepDescription;
-		//tmpStep.stepNumber = stepNumber;
-		
+		tmpStep.stepDescription = stepDescription;		
 		return tmpStep;
 	}
 
@@ -162,8 +156,7 @@ public class StepDataSet {
 
 	@Override
 	public String toString() {
-		return "StepDataSet [lines=" + Arrays.toString(lines) + ", stepDescription=" + stepDescription + /*", stepNumber="
-				+ stepNumber +*/ "]";
+		return "StepDataSet [lines=" + Arrays.toString(lines) + ", stepDescription=" + stepDescription + "]";
 	}
 
 }

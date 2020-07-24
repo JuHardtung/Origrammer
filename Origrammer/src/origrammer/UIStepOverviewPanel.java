@@ -3,6 +3,7 @@ package origrammer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -24,11 +25,12 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.Scrollable;
 
 
 /**
@@ -41,11 +43,16 @@ import javax.swing.SwingUtilities;
  */
 public class UIStepOverviewPanel extends JPanel implements ActionListener, MouseListener, MouseMotionListener, PropertyChangeListener, KeyListener {
 
-	
 	private ArrayList<StepPreview> stepPreviewList = new ArrayList<>();
-	private JPanel stepOverviewPanel = new JPanel();
+	private ScrollablePanel stepOverviewPanel = new ScrollablePanel();
 	private JScrollPane scrollPane = new JScrollPane(stepOverviewPanel);
 	private AffineTransform affineTransform = new AffineTransform();
+	
+	private JPanel stepPreviewOptionsPanel = new JPanel();
+	private JButton deleteStepPreviewButton = new JButton("Delete");
+	private JButton moveStepPreviewUpButton = new JButton("Up");
+	private JButton moveStepPreviewDownButton = new JButton("Down");
+	private JButton createStepInBetween = new JButton("Create");
 
 	final static String MOVE_STEP_UP = "move-step-up";
 	final static String MOVE_STEP_DOWN = "move-step-down";
@@ -76,17 +83,33 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		setPreferredSize(new Dimension(250, 700));
 		setBackground(new Color(230, 230, 230));
 		stepOverviewPanel.setLayout(new BoxLayout(stepOverviewPanel, BoxLayout.PAGE_AXIS));
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setPreferredSize(new Dimension(250, 700));
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		
+		addStepPreviewOptionsPanel();
+		add(scrollPane);
+	}
+	
+	private void addStepPreviewOptionsPanel() {
+		deleteStepPreviewButton.addActionListener(this);
+		moveStepPreviewUpButton.addActionListener(this);
+		moveStepPreviewDownButton.addActionListener(this);
+		createStepInBetween.addActionListener(this);
+
+		stepPreviewOptionsPanel.add(deleteStepPreviewButton);
+		stepPreviewOptionsPanel.add(moveStepPreviewUpButton);
+		stepPreviewOptionsPanel.add(moveStepPreviewDownButton);
+		stepPreviewOptionsPanel.add(createStepInBetween);
+		add(stepPreviewOptionsPanel);
 	}
 	
 	/**
 	 * Creates a new {@code StepPreview} with {@code stepNumber}, 
 	 * {@code stepImageIcon}, and {@code stepDescr}
 	 */
-	private void createStepPreview() {
+	public void createStepPreview() {
 		StepPreview stepPreview = new StepPreview(Globals.currentStep);
 
 		//render a stepPreview into bimg, rescale from 800x800 -> 200x200 and use as ImageIcon
@@ -101,7 +124,7 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		stepPreview.setStepImageIcon(icon); //SET_IMAGE
 		stepPreview.setStepDescrText(Origrammer.diagram.steps.get(Globals.currentStep).stepDescription); //SET_INSTRUCTION
 		
-		stepPreviewList.add(stepPreview);
+		stepPreviewList.add(Globals.currentStep, stepPreview);
 	}
 	
 	/**
@@ -119,14 +142,13 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		
 		stepPreviewList.get(Globals.currentStep).setStepImageIcon(icon);
 		stepPreviewList.get(Globals.currentStep).setStepDescrText(Origrammer.diagram.steps.get(Globals.currentStep).stepDescription);
-		
 	}
 	
 	/**
-	 * Keeps the {@code StepOverviewPanel} up-to-date
+	 * Keeps the {@code StepOverviewPanel} up-to-date.
+	 * Creates a new {@code Step} if needed or just updates everything
 	 */
 	public void updateStepOverViewPanel() {
-		removeAll();
 		if (stepPreviewList.size() <= Globals.currentStep) {
 			createStepPreview();
 		} else {
@@ -134,9 +156,6 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		}
 		
 		addAllStepPreviews();
-
-		add(scrollPane);
-
 		revalidate();
 		repaint();
 	}
@@ -195,28 +214,20 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 				stepPreviewList.add((currrentStepNum-1), tmpSP); 
 
 				//corresponding stepNumbers of stepPreview have to be corrected
-				correctAllStepPreviewStepNumbers(currrentStepNum);
-
+				correctAllStepPreviewStepNumbers();
 				//add back all stepPreviewPanels in the right order
 				addAllStepPreviews();
-				
 				//correct the order of the Steps themselves
 				Origrammer.diagram.moveStepUp(currrentStepNum);
 
 				Globals.currentStep -=1;
-				//System.out.println(stepPreviewList.toString());		
-
 				stepChanged();
-
 			} else {
 				System.out.println("Can't move step further up, it's already the last.");
-
 			}
 		} else {
 			System.out.println("Can't move the step down, as no step was selected");
 		}
-
-
 	}
 	
 	/**
@@ -243,26 +254,50 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 				stepPreviewList.add((currrentStepNum+1), tmpSP); 
 
 				//corresponding stepNumbers of stepPreview have to be corrected
-				correctAllStepPreviewStepNumbers(currrentStepNum);
-
+				correctAllStepPreviewStepNumbers();
 				//add back all stepPreviewPanels in the right order
 				addAllStepPreviews();
-				
 				//correct the order of the Steps themselves
 				Origrammer.diagram.moveStepDown(currrentStepNum);
 
 				Globals.currentStep +=1;
-				
 				stepChanged();
-
 			} else {
 				System.out.println("Can't move step further down, it's already the last.");
-
 			}
 		} else {
 			System.out.println("Can't move the step down, as no step was selected");
 		}
+	}
+	
+	/**
+	 * Creates a new {@code Step} after the currently active one
+	 */
+	private void createStepAfterCurrentStep() {
+		if (!(Globals.currentStep == Origrammer.diagram.steps.size()-1)) {
+			Origrammer.mainFrame.uiBottomPanel.createStepAfter(Globals.currentStep+1);
+			correctAllStepPreviewStepNumbers();
+		} else {
+			Globals.currentStep += 1;
+			Origrammer.mainFrame.uiBottomPanel.createNewStep();
+			Origrammer.diagram.steps.get(Globals.currentStep).unselectAll();
+			Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+			stepChanged();
+		}
+	}
+	
+	private void deleteSelectedStepPreview() {
+		for (int i=0; i<stepPreviewList.size(); i++) {
+			if (stepPreviewList.get(i).isSelected()) {
+				stepOverviewPanel.remove(stepPreviewList.get(i));
+				stepPreviewList.remove(i);
+				Origrammer.diagram.deleteStep(i);
+			}
+		}
+		correctAllStepPreviewStepNumbers();
 
+		addAllStepPreviews();
+		stepChanged();
 	}
 	
 	public void stepChanged() {
@@ -273,9 +308,8 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 
 	/**
 	 * Corrects the {@code stepNumber} of all {@code StepPreviews} after moving a step up or down
-	 * @param startNumber
 	 */
-	private void correctAllStepPreviewStepNumbers(int startNumber) {
+	private void correctAllStepPreviewStepNumbers() {
 		for (int i = 0; i<stepPreviewList.size(); i++) {
 			stepPreviewList.get(i).setStepNumber(i);
 		}
@@ -293,11 +327,11 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		}
 		
 		//if right clicked on the stepPreviewPanel --> unselect everything
-		if (SwingUtilities.isRightMouseButton(e)) {
+		/*if (SwingUtilities.isRightMouseButton(e)) {
 			for(StepPreview sp: stepPreviewList) {
 				sp.setSelected(false);
 			}
-		} else {
+		} else {*/
 			//check all stepPreviews for on click and react accordingly
 			for (StepPreview sp : stepPreviewList) {
 				if (sp.getBounds().intersects(clickPoint.x-2.5, clickPoint.y+2.5, 5, 5)) {
@@ -312,7 +346,7 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 					sp.setSelected(false);
 				}
 			}
-		}
+		//}
 	}
 	
 	@Override
@@ -357,70 +391,69 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 	}
 	
 
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
-		
+		if (e.getSource() == deleteStepPreviewButton) {
+			deleteSelectedStepPreview();
+		} else if (e.getSource() == moveStepPreviewUpButton) {
+			moveStepUp();
+		} else if (e.getSource() == moveStepPreviewDownButton) {
+			moveStepDown();
+		} else if (e.getSource() == createStepInBetween) {
+			createStepAfterCurrentStep();
+		}
 	}
+	
+	
+	private static class ScrollablePanel extends JPanel implements Scrollable{
+        public Dimension getPreferredScrollableViewportSize() {
+            return super.getPreferredSize();
+        }
+ 
+        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 16;
+        }
+ 
+        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return 16;
+        }
+ 
+        public boolean getScrollableTracksViewportWidth() {
+            return true;
+        }
+ 
+        public boolean getScrollableTracksViewportHeight() {
+            return false;
+        }
+    }
+	
 
 	@Override
 	public void keyReleased(KeyEvent e) {		
 	}
-
-
 	@Override
 	public void keyTyped(KeyEvent e) {		
 	}
-
-
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {		
 	}
-
-
-
-
-
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
-
-
 	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+	public void mouseExited(MouseEvent e) {		
 	}
-
-
 	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+	public void mousePressed(MouseEvent e) {		
 	}
-
-
 	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+	public void mouseReleased(MouseEvent e) {		
 	}
-
-
 	@Override
-	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void mouseDragged(MouseEvent arg0) {		
 	}
-
-
 	@Override
-	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void keyPressed(KeyEvent arg0) {		
 	}	
 
 }

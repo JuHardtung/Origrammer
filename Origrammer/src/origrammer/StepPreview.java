@@ -7,15 +7,17 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-public class StepPreview extends JPanel {
+public class StepPreview extends JPanel{
 	
 	private int stepNumber;
 	private JLabel stepImage = new JLabel();
-	private JLabel stepDescr = new JLabel();
+	private JTextArea stepDescr = new JTextArea(1,1);
+
 	private boolean isSelected;
 	
 	private TitledBorder titledBorder;
@@ -30,6 +32,11 @@ public class StepPreview extends JPanel {
 		setBorder(titledBorder);
 		stepImage.setAlignmentX(Component.CENTER_ALIGNMENT);
 		stepDescr.setAlignmentX(Component.CENTER_ALIGNMENT);
+		stepDescr.setEditable(false);
+		stepDescr.setLineWrap(true);
+		stepDescr.setWrapStyleWord(true);
+		stepDescr.setBackground(getBackground());
+
 		add(stepImage);
 		add(stepDescr);
 	}
@@ -75,17 +82,19 @@ public class StepPreview extends JPanel {
 	public void setStepDescrBounds(int x, int y, int w, int h) {
 		stepDescr.setBounds(x, y, w, h);
 	}
-	
-	public JLabel getStepDescr() {
-		return stepDescr;
-	}
-
-	public void setStepDescr(JLabel stepDescr) {
-		this.stepDescr = stepDescr;
-	}
 
 	public boolean isSelected() {
 		return isSelected;
+	}
+
+
+	public JTextArea getStepDescr() {
+		return stepDescr;
+	}
+
+
+	public void setStepDescr(JTextArea stepDescr) {
+		this.stepDescr = stepDescr;
 	}
 
 
