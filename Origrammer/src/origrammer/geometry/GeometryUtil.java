@@ -518,7 +518,7 @@ public class GeometryUtil {
 	 * @param uv
 	 * @return
 	 */
-	public static Vector2d getEarlierstCrossPoint(Vector2d p1, Vector2d uv) {
+	public static Vector2d getClosestCrossPoint(Vector2d p1, Vector2d uv) {
 		double dist = 0;
 		double smallestDist = 1000; //TODO: make it more elegant and not with fixed value
 		Vector2d bestCrossPoint = null;
@@ -530,7 +530,7 @@ public class GeometryUtil {
 			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(p1, new Vector2d(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
 			if (crossPoint2 != null) {
 				if (!crossPoint2.equals(p1)) {
-					//check if crossPoint2 is too close to crossPoint
+					//check if crossPoint2 is too close to bestCrossPoint
 					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
 							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
 						dist = GeometryUtil.Distance(p1, crossPoint2);
@@ -546,6 +546,47 @@ public class GeometryUtil {
 	}
 	
 	/**
+	 * Returns the closest {@code line} that is crossing the input {@code p1} and direction {@code uv}
+	 * @param p1
+	 * @param uv
+	 * @return OriLine that crosses
+	 */
+	public static OriLine getClosestCrossLine(Vector2d p1, Vector2d uv) {
+		//check all OriLines for the earliest intersection with p1 and direction uv
+		double bestDist = 10000;
+		OriLine bestLine = null;
+		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+
+			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(p1, new Vector2d(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+			if (crossPoint2 != null) {
+				if (!crossPoint2.equals(p1)) {
+					double newDist = Distance(crossPoint2, p1);
+					if (newDist < bestDist) {
+						bestDist = newDist;
+						bestLine =  tmpLine;
+					}
+				}
+			}
+		}
+		return bestLine;
+	}
+	
+	/**
+	 * Returns the closest {@code Vector2d crossPoint} of a given {@code Vector2d p} and {@code OriLine l}
+	 * @param p 
+	 * @param l 
+	 * @return 
+	 */
+	public static Vector2d getClosestCrossPoint(Vector2d p, OriLine l) {
+		Vector2d uv = getUnitVector(l.getP0(), l.getP1());
+		Vector2d nv = getNormalVector(uv);
+		nv.x = -nv.x;
+		nv.y = -nv.y;
+		
+		return getClosestCrossPoint(p, nv);
+	}
+	
+	/**
 	 * Returns {@code true} if {@code a} and {@code b} are within {@code tolerance} of each other
 	 * @param a
 	 * @param b
@@ -558,6 +599,140 @@ public class GeometryUtil {
 		} else {
 			return false;
 		}
+	}
+	
+	
+	public static GeneralPath getPathFromLineList(ArrayList<OriLine> list) {
+		GeneralPath path = new GeneralPath();
+		Vector2d startP = null;
+		Vector2d lastP = null;
+
+		OriLine curL;
+		//for (OriLine l : list) {
+		for (int i=0; i<list.size(); i++) {
+			curL = list.get(i);
+			if (startP == null && lastP == null) { //initialize the path in the beginning
+				path.moveTo(curL.getP0().x, curL.getP0().y);
+				path.lineTo(curL.getP1().x, curL.getP1().y);
+				list.remove(i);
+				startP = curL.getP0();
+				lastP = curL.getP1();
+				i = -1;
+			}else if (lastP.equals(curL.getP0())) { //if lastP and curL.P0 are the same
+				if (curL.getP1().equals(startP)) { //if path is about to be closed
+					path.closePath();
+				} else {
+					path.lineTo(curL.getP1().x, curL.getP1().y);
+					lastP = curL.getP1();
+					list.remove(i);
+					i = -1;
+				}
+				
+			} else if (lastP.equals(curL.getP1())) {//if lastP and curL.P1 are the same
+				if (curL.getP0().equals(startP)) { //if path is about to be closed
+					path.closePath();
+				} else {
+					path.lineTo(curL.getP0().x, curL.getP0().y);
+					lastP = curL.getP0();
+					list.remove(i);
+					i = -1;
+				}
+			}
+		}
+		return path;	
+	}
+	
+	public static GeneralPath getFillingSegment(Vector2d v) {
+		Vector2d uvUp = new Vector2d(0, -1);
+		OriLine closestCrossLine = getClosestCrossLine(v, uvUp);
+		ArrayList<OriLine> list = new ArrayList<OriLine>();
+		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+			if (list.contains(l)) {
+				System.out.println("OriLine is already in the list for FilledFace");
+			} else if (l == closestCrossLine) {
+				list.addAll(getConnectedLines(l, v));
+				break;
+			}
+		}
+
+		GeneralPath path = getPathFromLineList(list);
+		return path;
+	}
+	
+	private static ArrayList<OriLine> getConnectedLines(OriLine l1, Vector2d clickPoint) {
+		ArrayList<OriLine> list = new ArrayList<OriLine>(); 
+		list.add(l1);
+		
+		OriLine prevLine = l1;
+		for (int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
+			OriLine curL = Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i);
+			Vector2d l1P0 = prevLine.getP0();
+			Vector2d l1P1 = prevLine.getP1();
+			Vector2d l2P0 = curL.getP0();
+			Vector2d l2P1 = curL.getP1();
+
+			if (prevLine == curL) {
+				System.out.println("OriLine was already used in the last iteration");
+			} else if (list.contains(curL)) {
+				System.out.println("OriLine is already in the list for FilledFace");
+			} else if (l1P0.equals(l2P0)) {
+				if (checkIfUnobstructedPathPossible(curL, clickPoint)) {
+					list.add(curL);
+					prevLine = curL;
+					i = -1;
+				}
+				
+			} else if (l1P0.equals(l2P1)) {
+				if (checkIfUnobstructedPathPossible(curL, clickPoint)) {
+					list.add(curL);
+					prevLine = curL;
+					i = -1;
+				}
+			} else if (l1P1.equals(l2P0)) {
+				if (checkIfUnobstructedPathPossible(curL, clickPoint)) {
+					list.add(curL);
+					prevLine = curL;
+					i = -1;
+				}
+			} else if (l1P1.equals(l2P1)) {
+				if (checkIfUnobstructedPathPossible(curL, clickPoint)) {
+					list.add(curL);
+					prevLine = curL;
+					i = -1;
+				}
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * Check if the line can be seen from point p without any other blocking {@code OriLines}
+	 * @param l
+	 * @param p
+	 * @return
+	 */
+	private static boolean checkIfUnobstructedPathPossible(OriLine l, Vector2d p) {
+		Vector2d middlePoint = getLineMiddlePoint(l);
+		Vector2d testUv = getUnitVector(p, middlePoint);
+		OriLine testLine = getClosestCrossLine(p, testUv);
+
+		if (l == testLine) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Calculates the middlePoint of {@code OriLine l }
+	 * @param l
+	 * @return
+	 */
+	public static Vector2d getLineMiddlePoint(OriLine l) {
+		Vector2d uv = getUnitVector(l.getP0(), l.getP1());
+		double halfdist = Distance(l.getP0(), l.getP1()) / 2;
+		Vector2d middlePoint = new Vector2d(l.getP0().x + uv.x * halfdist, l.getP0().y + uv.y * halfdist);
+		return middlePoint;
 	}
 	
 }

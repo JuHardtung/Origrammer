@@ -204,6 +204,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			if ((Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE
 					&& line.isSelected())
 					|| (Globals.toolbarMode == Constants.ToolbarMode.SELECTION_TOOL
+					&& line.isSelected())
+					|| (Globals.toolbarMode == Constants.ToolbarMode.FILL_TOOL
 					&& line.isSelected())) {
 				g2d.setColor(Config.LINE_COLOR_SELECTED);
 				g2d.setStroke(Config.STROKE_SELECTED);
@@ -322,9 +324,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					}
 					//get crossingPoint in order to get inputLine.P1
 					//if there is no crossing point -> reverse inputLine direction
-					v2 = GeometryUtil.getEarlierstCrossPoint(v, nv);
+					v2 = GeometryUtil.getClosestCrossPoint(v, nv);
 					if (v2 == null) {
-						v2 = GeometryUtil.getEarlierstCrossPoint(v, new Vector2d(-nv.x, -nv.y));
+						v2 = GeometryUtil.getClosestCrossPoint(v, new Vector2d(-nv.x, -nv.y));
 					}
 					if (v != null && v2 != null) {
 						setColorStrokeByLineType(Globals.inputLineType);
@@ -1368,35 +1370,21 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	 * @param clickPoint
 	 */
 	private void createFilledFace(Point2D.Double clickPoint) {
-		//creates OriFace that is to be filled with DEFAULT_PAPER_COLOR --> OriFace is a triangle with 3 OriLines as sides			
-		Vector2d v = pickVertex(clickPoint);
-
+		//creates OriFace that is to be filled with DEFAULT_PAPER_COLOR
+		//OriFace is a GeneralPath, that fully encapsules the clickPoint with OriLines
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
 		if (v != null) {
-			if (firstSelectedV == null) {
-				firstSelectedV = v;
-				tmpFilledFacePath = new ArrayList<Vector2d>();
-				tmpFilledFacePath.add(v);
-			} else {
-				
-				//make a new line as long as inputV isn't the same as firstSelectedV
-				if (!(tmpFilledFacePath.get(0).x == v.x && tmpFilledFacePath.get(0).y == v.y)) {
-					tmpFilledFacePath.add(v);
 
-				} else {
-					OriFace newFace;
-					GeneralPath path = GeometryUtil.createPathFromVertices(tmpFilledFacePath);
-					
-					if (Globals.faceInputDirection == Constants.FaceInputDirection.FACE_UP) {
-						newFace = new OriFace(path, false, true);
-					} else {
-						newFace = new OriFace(path, false, false);
-					}
-					Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-					Origrammer.diagram.steps.get(Globals.currentStep).addFilledFace(newFace);
-					firstSelectedV = null;
-					tmpFilledFacePath = null;
-				}
+			OriFace newFace;
+			GeneralPath path = GeometryUtil.getFillingSegment(v);
+
+			if (Globals.faceInputDirection == Constants.FaceInputDirection.FACE_UP) {
+				newFace = new OriFace(path, false, true);
+			} else {
+				newFace = new OriFace(path, false, false);
 			}
+			Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+			Origrammer.diagram.steps.get(Globals.currentStep).addFilledFace(newFace);
 		}
 	}
 	
@@ -1470,7 +1458,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 					Vector2d combinedL1L2Vector = new Vector2d(crossPoint.x + uv1.x + uv2.x, crossPoint.y + uv1.y + uv2.y);
 					Vector2d newUV = GeometryUtil.getUnitVector(crossPoint, combinedL1L2Vector);
-					Vector2d bestCrossPoint = GeometryUtil.getEarlierstCrossPoint(crossPoint, newUV);
+					Vector2d bestCrossPoint = GeometryUtil.getClosestCrossPoint(crossPoint, newUV);
 					if (bestCrossPoint == null) {
 						JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoCrossPointFound"),
 								"Error_NoCrossPointFound", JOptionPane.ERROR_MESSAGE);
@@ -1501,9 +1489,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 			//get crossingPoint in order to get inputLine.P1
 			//if there is no crossing point -> reverse inputLine direction
-			v2 = GeometryUtil.getEarlierstCrossPoint(v, nv);
+			v2 = GeometryUtil.getClosestCrossPoint(v, nv);
 			if (v2 == null) {
-				v2 = GeometryUtil.getEarlierstCrossPoint(v, new Vector2d(-nv.x, -nv.y));
+				v2 = GeometryUtil.getClosestCrossPoint(v, new Vector2d(-nv.x, -nv.y));
 			}
 			if (v != null && v2 != null) {
 				createOriLine(v, v2, OriLine.TYPE_NONE);
