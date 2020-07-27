@@ -48,7 +48,7 @@ import origrammer.geometry.OriPleatCrimpSymbol;
 
 public class UITopPanel extends JPanel implements ActionListener, PropertyChangeListener, KeyListener {
 
-	private String[] lineInputOptions = {"Valley Fold", "Mountain Fold", "X-Ray Fold", "Edge Line", "Existing Crease"};
+	private String[] lineInputOptions = {"Valley Fold", "Mountain Fold", "X-Ray Fold", "Edge Line",  "Existing Crease"};
 	private Object[] arrowInputOptions = {"Valley Fold", "Mountain Fold", "Turn over", 
 			new JSeparator(JSeparator.HORIZONTAL),
 			"Push here", "Pull out", "Inflate here"};

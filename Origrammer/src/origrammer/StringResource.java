@@ -19,6 +19,7 @@ public class StringResource extends ListResourceBundle {
 			{"UI_lineInputAngleBisector", "Angle Bisector"},
 			{"UI_lineInputPerpendicular", "Perpendicular"},
 			{"UI_lineInputIncenter", "Rabbit Ear (Triangle Incenter)"},
+			{"UI_lineInputExtendLine", "Extend Line"},
 			{"UI_lineInputLengthAngle", "Length & Angle"},
 			{"UI_vertexInputAbsolute", "Absolute Position"},
 			{"UI_vertexInputFractionOfLine", "Fraction of Line"},

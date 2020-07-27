@@ -17,7 +17,7 @@ Though additional \texttt{JLabels} can be used to explain or to give indicators 
 
 Additionally to the more consistent placement of elements within the UI, their sizes should be standardized as well. \texttt{JTextFields} for example should only be large enough to encapsulate the largest possible entry. This means that the \texttt{height} should always be set to 25 pixels ( and the \texttt{width} depending on what is being entered (e.g. entering an angle between 0-360° will be shorter than entering the textual explanation of a folding step).
 \newline
-\textbf{Fixes: 02; 04; 21; 22; 23}\\
+\textbf{Fixes: \#2.01; \#2.02; \#2.03; \#4.01; \#4.03}\\
 \newline
 %Later Change
 At a later point a complete redesign and rework of the UI will have to be carried out, in order to facilitate the goal of a unified and obstructionless design. At the current stage of development though the focus is being set to increase the efficiency and speed of creating origami diagrams, as this is the main reason why the Origrammer exists.
@@ -27,7 +27,7 @@ A large part of the Origrammer is made up of the different arrows and symbols th
 
  As vector graphics do not have explicit width or height values, the library Batik\cite{batik}, which was being used to load the .svg files, presented wrong values to the \texttt{JLabel.setBounds(width, height)}-method. As a result of this limitation, the arrows \& symbols got partially cut off at the original bounds of the \texttt{JLabel} when rotating them. To fix this issue, a new, pre-rotated vector graphic was being loaded whenever an arrow or symbol got rotated. Though this in turn facilitated itself in a wrong, always square border around the arrows and symbols. Additionally, this made interactions with arrows and symbols far slower and unflexible.
  
- Another sideeffect was a change in scale when rotating a non square object. The \texttt{JLabel} tries to display the biggest possible object that can fit within the border bounds. As seen on Figure \ref{fig:unwantedScaling} the size of the arrow changes after rotating it by 45°.
+ Another sideeffect was a change in scale when rotating a non square object. A \texttt{JLabel} tries to display the biggest possible object that can fit within the border bounds. As seen on Figure \ref{fig:unwantedScaling} the size of the arrow changes after rotating it by 45°.
 
 \begin{figure*}[htbp]
 	\centering
@@ -47,13 +47,27 @@ A large part of the Origrammer is made up of the different arrows and symbols th
 
 As a result of all these problems and limitations, the decision was made to completely rework how arrows \& symbols function in the Origrammer. The new approach was to rebuild all objects with simple \texttt{java.awt.Shape}-objects. This gave total control over rotations, scaling, and on-the-fly-editing of all arrows/symbols. Another advantage was the removed reliance on \texttt{JLabels} and associated with that, there were no longer issues with wrong hitboxes or different scaling while rotating. The only disadvantage was the work-intensive nature of remodeling all arrows and symbols with \texttt{Shape}-objects by hand.
 \newline
-\textbf{Fixes: 15; 25; 26}
+\textbf{Fixes: \#1.02; \#7.05; \#7.06}
+
+\subsubsection{Filling Tool}
+
+The current limitations of the Filling Tool make it slow and cumbersome to use. The user has to manually input three vertices in order to create a triangle that shows the specified filling color. The limit of only three vertices per \texttt{OriFace}-object was originally introduced to give finer control for the user, as well as simplifying the development process for this feature.
+
+But this decision went against the original goal of minimizing the time needed to create diagrams. As a result the Filling Tool has to be reworked so that it can be used faster and with less user inputs.
+%Finish explanations of how the Filling Tool works after the rework
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.9\textwidth]{fillingToolExample}
+	\caption{Example on how the Filling Tool works after the rework}
+	\label{fig:fillingToolExample}
+\end{figure}
 
 \subsubsection{Side Panel}
 
 The text of the \texttt{JRadioButtons} at the tool bar should be replaced by self-explanatory icons in order to improve overall clarity. But the textual explanation of all the tools should still be present to help especially novizes. This can be done through tooltips that appear when hovering over the buttons.
 
-\textbf{Fixes: 02; \emph{22}}
+\textbf{Fixes: \#2.01; \emph{\#2.03}}
 
 \subsection{User Input related changes}
 
@@ -82,4 +96,4 @@ As a result of the mentioned issues, the step navigation will be reworked to off
 \item Create a new step between existing steps
 \end{itemize}
 
-\textbf{Fixes: 27;  28; 29}
+\textbf{Fixes: \#1.03; \#3.02;   \#7.07}

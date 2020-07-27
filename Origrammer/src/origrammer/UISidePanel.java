@@ -52,10 +52,11 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	//INPUT LINE MODE
 	public 	JPanel lineInputPanel = new JPanel();
 	private JRadioButton lineInputTwoVerticesRB = new JRadioButton(Origrammer.res.getString("UI_lineInputTwoVertices"), true);
-	private JRadioButton lineInputAngleBisector = new JRadioButton(Origrammer.res.getString("UI_lineInputAngleBisector"), true);
-	private JRadioButton lineInputPerpendicular = new JRadioButton(Origrammer.res.getString("UI_lineInputPerpendicular"), true);
-	private JRadioButton lineInputIncenterRB = new JRadioButton(Origrammer.res.getString("UI_lineInputIncenter"), true);
-	private JRadioButton lineInputLengthAngle = new JRadioButton(Origrammer.res.getString("UI_lineInputLengthAngle"), true);
+	private JRadioButton lineInputAngleBisectorRB = new JRadioButton(Origrammer.res.getString("UI_lineInputAngleBisector"), false);
+	private JRadioButton lineInputPerpendicularRB = new JRadioButton(Origrammer.res.getString("UI_lineInputPerpendicular"), false);
+	private JRadioButton lineInputIncenterRB = new JRadioButton(Origrammer.res.getString("UI_lineInputIncenter"), false);
+	private JRadioButton lineInputExtendLineRB = new JRadioButton(Origrammer.res.getString("UI_lineInputExtendLine"), false);
+	private JRadioButton lineInputLengthAngleRB = new JRadioButton(Origrammer.res.getString("UI_lineInputLengthAngle"), false);
 	private ButtonGroup lineInputGroup;
 
 	//INPUT VERTEX MODE
@@ -186,24 +187,27 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	
 	private void addLineInputPanel() {
 		lineInputTwoVerticesRB.addActionListener(this);
-		lineInputAngleBisector.addActionListener(this);
-		lineInputPerpendicular.addActionListener(this);
+		lineInputAngleBisectorRB.addActionListener(this);
+		lineInputPerpendicularRB.addActionListener(this);
 		lineInputIncenterRB.addActionListener(this);
-		lineInputLengthAngle.addActionListener(this);
+		lineInputExtendLineRB.addActionListener(this);
+		lineInputLengthAngleRB.addActionListener(this);
 		
 		lineInputGroup = new ButtonGroup();
 		lineInputGroup.add(lineInputTwoVerticesRB);
-		lineInputGroup.add(lineInputAngleBisector);
-		lineInputGroup.add(lineInputPerpendicular);
+		lineInputGroup.add(lineInputAngleBisectorRB);
+		lineInputGroup.add(lineInputPerpendicularRB);
 		lineInputGroup.add(lineInputIncenterRB);
-		lineInputGroup.add(lineInputLengthAngle);
+		lineInputGroup.add(lineInputExtendLineRB);
+		lineInputGroup.add(lineInputLengthAngleRB);
 		
 		lineInputPanel.add(lineInputTwoVerticesRB);
-		lineInputPanel.add(lineInputAngleBisector);
-		lineInputPanel.add(lineInputPerpendicular);
+		lineInputPanel.add(lineInputAngleBisectorRB);
+		lineInputPanel.add(lineInputPerpendicularRB);
 		lineInputPanel.add(lineInputIncenterRB);
-		lineInputPanel.add(lineInputLengthAngle);
-		lineInputPanel.setLayout(new GridLayout(5, 1, 10, 2));
+		lineInputPanel.add(lineInputExtendLineRB);
+		lineInputPanel.add(lineInputLengthAngleRB);
+		lineInputPanel.setLayout(new GridLayout(6, 1, 10, 2));
 		add(lineInputPanel);
 	}
 	
@@ -391,16 +395,19 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 			if (e.getSource() == lineInputTwoVerticesRB) {
 				Globals.lineEditMode = Constants.LineInputMode.INPUT_LINE;
 				modeChanged();
-			} else if (e.getSource() == lineInputAngleBisector) {
+			} else if (e.getSource() == lineInputAngleBisectorRB) {
 				Globals.lineEditMode = Constants.LineInputMode.ANGLE_BISECTOR;
 				modeChanged();
-			} else if (e.getSource() == lineInputPerpendicular) {
+			} else if (e.getSource() == lineInputPerpendicularRB) {
 				Globals.lineEditMode = Constants.LineInputMode.PERPENDICULAR;
 				modeChanged();
 			} else if (e.getSource() == lineInputIncenterRB) {
 				Globals.lineEditMode = Constants.LineInputMode.TRIANGLE_INSECTOR;
 				modeChanged();
-			} else if (e.getSource() == lineInputLengthAngle) {
+			} else if (e.getSource() == lineInputExtendLineRB) {
+				Globals.lineEditMode = Constants.LineInputMode.EXTEND_TO_NEXT_LINE;
+				modeChanged();
+			} else if (e.getSource() == lineInputLengthAngleRB) {
 				Globals.lineEditMode = Constants.LineInputMode.BY_LENGTH_AND_ANGLE;
 				modeChanged();
 			}

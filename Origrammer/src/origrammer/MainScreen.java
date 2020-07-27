@@ -134,6 +134,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderTmpLine();
 		renderTmpLengthAngleLine();
 		renderTmpPerpendicular();
+		renderTmpExtendLine();
 		renderTmpArrow();
 		renderTmpOriSymbols();
 		
@@ -331,6 +332,26 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					if (v != null && v2 != null) {
 						setColorStrokeByLineType(Globals.inputLineType);
 						g2d.draw(new Line2D.Double(v.x,v.y,v2.x,v2.y));
+					}
+				}
+			}
+		}
+	}
+	
+	private void renderTmpExtendLine() {
+		if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE) {
+			if (Globals.lineEditMode == Constants.LineInputMode.EXTEND_TO_NEXT_LINE) {
+				if (firstSelectedV != null) {
+					Vector2d cv = selectedCandidateV == null
+							? new Vector2d(currentMousePointLogic.getX(), currentMousePointLogic.getY()) : selectedCandidateV;
+					Vector2d uv = GeometryUtil.getUnitVector(firstSelectedV, cv);
+					
+					Vector2d crossPoint1 = GeometryUtil.getClosestCrossPoint(firstSelectedV, uv);
+					uv.negate();
+					Vector2d crossPoint2 = GeometryUtil.getClosestCrossPoint(cv, uv);
+
+					if (crossPoint1 != null && crossPoint2 != null) {
+						g2d.draw(new Line2D.Double(crossPoint2.x, crossPoint2.y, crossPoint1.x, crossPoint1.y));
 					}
 				}
 			}
@@ -1512,6 +1533,15 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 	}
 	
+	public void createOriLineExtendToLine(Vector2d v1, Vector2d v2) {
+		Vector2d uv = GeometryUtil.getUnitVector(v1, v2);
+		Vector2d crossPoint1 = GeometryUtil.getClosestCrossPoint(v1, uv);
+		uv.negate();
+		Vector2d crossPoint2 = GeometryUtil.getClosestCrossPoint(crossPoint1, uv);
+		
+		createOriLine(crossPoint2, crossPoint1, OriLine.TYPE_NONE);
+	}
+	
 	public void createOriLineLengthAngle(Vector2d v1) {
 		if (Origrammer.mainFrame.uiTopPanel.inputLineLengthTF.getText().length() > 0 
 			&& Origrammer.mainFrame.uiTopPanel.inputLineAngleTF.getText().length() > 0) {
@@ -2025,6 +2055,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			case TRIANGLE_INSECTOR:
 				createThreeVertexInput(e, clickPoint, "createTriangleInsector");
 				//createTriangleInsector(clickPoint);
+				break;
+			case EXTEND_TO_NEXT_LINE:
+				createTwoVertexInput(e, clickPoint, "createOriLineExtendToLine");
+				//createOriLineExtendToLine(clickPoint);
 				break;
 			case BY_LENGTH_AND_ANGLE:
 				createOneVertexInput(e, clickPoint, "createOriLineLengthAngle");

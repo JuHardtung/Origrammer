@@ -516,7 +516,7 @@ public class GeometryUtil {
 	 * Returns the closest {@code crossingPoint} of a line with origin on {@code p1} and direction {@code uv}
 	 * @param p1
 	 * @param uv
-	 * @return
+	 * @return Vector2d crossPoint
 	 */
 	public static Vector2d getClosestCrossPoint(Vector2d p1, Vector2d uv) {
 		double dist = 0;
