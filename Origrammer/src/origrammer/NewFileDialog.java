@@ -14,6 +14,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,6 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
@@ -30,6 +32,10 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.PlainDocument;
+import javax.vecmath.Vector2d;
+
+import origrammer.geometry.OriArrow;
+import origrammer.geometry.OriLine;
 
 public class NewFileDialog  extends JDialog implements ActionListener, ComponentListener {
 	
@@ -51,7 +57,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	private ButtonGroup paperShapeBG = new ButtonGroup();
 	private JCheckBox rotatedCB = new JCheckBox("Rotated (TBD)");
 	
-	//PAPER SIZE SUQARE
+	//PAPER SIZE SQUARE
 	private JPanel paperSizePanel = new JPanel();
 	private JLabel paperSideSizeLabel = new JLabel("Side:");
 	private JTextField paperSizeTF = new JTextField();
@@ -62,6 +68,14 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	private JTextField paperWidthTF = new JTextField();
 	private JLabel paperHeightLabel = new JLabel("Height:");
 	private JTextField paperHeightTF = new JTextField();
+	
+	//FOLDING PRESETS
+	private JPanel foldingPresetsPanel = new JPanel();
+	private JLabel foldingPresetsLabel = new JLabel("Folding Presets:");
+	private Object[] foldingPresetOptions = {"None", "Divide into 3rds", "Divide into 5th", "Divide into 7th", 
+			new JSeparator(JSeparator.HORIZONTAL),
+			"Bird Base", "Waterbomb Base", "Kite Base", "Fish Base", "Frog Base", "Preliminary Fold"};
+	private JComboBox<Object> foldingPresetsCB = new JComboBox<Object>(foldingPresetOptions);
 
 	//PAPER COLOR
 	private JPanel paperColorPanel = new JPanel();
@@ -242,6 +256,17 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		paperSizeRectPanel.setLayout(new BoxLayout(paperSizeRectPanel, BoxLayout.PAGE_AXIS));
 	}
 	
+	private void addFoldingPresetsPanel() {
+		//foldingPresetsLabel
+		foldingPresetsCB.addActionListener(this);
+		foldingPresetsCB.setRenderer(new SeparatorComboBoxRenderer());
+		foldingPresetsCB.setSelectedIndex(0);
+		foldingPresetsPanel.add(foldingPresetsLabel);
+		foldingPresetsPanel.add(foldingPresetsCB);
+		foldingPresetsPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Folding Presets"));
+
+	}
+	
 	private void addPaperColorPanel() {
 		faceUpColor.setPreferredSize(new Dimension(100, 50));
 		faceUpColor.setOpaque(true);
@@ -280,12 +305,14 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		addPaperShapePanel();
 		addPaperSizeSquarePanel();
 		addPaperSizeRectPanel();
+		addFoldingPresetsPanel();
 		addPaperColorPanel();
 		addInstructionsPanel();
 		
 		paperOptionsPanel.add(paperShapePanel);
 		paperOptionsPanel.add(paperSizePanel);
 		paperOptionsPanel.add(paperSizeRectPanel);
+		paperOptionsPanel.add(foldingPresetsPanel);
 		paperOptionsPanel.add(paperColorPanel);
 		//paperOptionsPanel.add(instructPanel);
 		paperOptionsPanel.setLayout(new BoxLayout(paperOptionsPanel, BoxLayout.PAGE_AXIS));
@@ -335,6 +362,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					createNewDiagram();
+					Origrammer.mainFrame.uiStepOverviewPanel.createStepPreview();
 					dispose();
 				}
 			} else if (Globals.paperShape == Constants.PaperShape.RECTANGLE) {
@@ -355,6 +383,27 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		} else if (e.getSource() == cancelButton) {
 			dispose();		
 		}
+		
+		Object selectedPreset = foldingPresetsCB.getSelectedItem();
+		if (selectedPreset == "Divide into 3rds") {
+			Globals.foldingPreset = Constants.FoldingPreset.INTO_3;
+		} else if (selectedPreset == "Divide into 5th") {
+			Globals.foldingPreset = Constants.FoldingPreset.INTO_5;
+		}  else if (selectedPreset == "Divide into 7th") {
+			Globals.foldingPreset = Constants.FoldingPreset.INTO_7;
+		}  else if (selectedPreset == "Bird Base") {
+			Globals.foldingPreset = Constants.FoldingPreset.BIRD_BASE;
+		}  else if (selectedPreset == "Waterbomb Base") {
+			Globals.foldingPreset = Constants.FoldingPreset.WATERBOMB_BASE;
+		}  else if (selectedPreset == "Kite Base") {
+			Globals.foldingPreset = Constants.FoldingPreset.KITE_BASE;
+		}  else if (selectedPreset == "Fish Base") {
+			Globals.foldingPreset = Constants.FoldingPreset.FISH_BASE;
+		}  else if (selectedPreset == "Frog Base") {
+			Globals.foldingPreset = Constants.FoldingPreset.FROG_BASE;
+		}  else if (selectedPreset == "FoldingPreset") {
+			Globals.foldingPreset = Constants.FoldingPreset.PRELIMINARY_FOLD;
+		}
 	}
 	
 	public void modeChanged() {
@@ -367,13 +416,87 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		}
 	}
 	
+	private void createFromFoldingPreset() {
+		switch (Globals.foldingPreset) {
+		case NONE:
+			break;
+		case INTO_3:
+			createDivideInto3Preset();
+			break;
+		case INTO_5:
+			System.out.println("hey");
+			createDivideInto5Preset();
+			break;
+		case INTO_7:
+			break;
+		case BIRD_BASE:
+			break;
+		case FISH_BASE:
+			break;
+		case FROG_BASE:
+			break;
+		case KITE_BASE:
+			break;
+		case PRELIMINARY_FOLD:
+			break;
+		case WATERBOMB_BASE:
+			break;
+		default:
+			break;
+			
+		}
+	}
+	
+	private void createDivideInto3Preset() {
+		
+	}
+	
+	private void createDivideInto5Preset() {
+		OriLine tmpLine;
+		OriArrow tmpArrow;
+		
+		//STEP 0
+		tmpLine = new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_VALLEY);
+		tmpArrow = new OriArrow(new Vector2d(-300, -300), new Vector2d(300, 300), OriArrow.TYPE_VALLEY, false, true);
+		Origrammer.diagram.steps.get(Globals.currentStep).lines.add(tmpLine);
+		Origrammer.diagram.steps.get(Globals.currentStep).arrows.add(tmpArrow);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold und unfold diagonally");
+		
+		//STEP 1
+		Globals.currentStep += 1;
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		tmpLine = new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true);
+		Origrammer.diagram.steps.get(Globals.currentStep).lines.add(tmpLine);
+		tmpLine = new OriLine(new Vector2d(-300, 300), new Vector2d(-51.471862576141724, -300), OriLine.TYPE_VALLEY);
+		Origrammer.diagram.steps.get(Globals.currentStep).lines.add(tmpLine);
+		tmpArrow = new OriArrow(new Vector2d(-300, -150), new Vector2d(0, 0), OriArrow.TYPE_VALLEY, false, true);
+		Origrammer.diagram.steps.get(Globals.currentStep).arrows.add(tmpArrow);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the angle bisector");
+
+		
+		
+		//STEP 2
+		Globals.currentStep += 1;
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		tmpLine = new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true);
+		Origrammer.diagram.steps.get(Globals.currentStep).lines.add(tmpLine);
+		tmpLine = new OriLine(new Vector2d(-300, 300), new Vector2d(-51.471862576141724, -300), OriLine.TYPE_CREASE, true, true);
+		Origrammer.diagram.steps.get(Globals.currentStep).lines.add(tmpLine);
+		tmpLine = new OriLine(new Vector2d(-300, 300), new Vector2d(-180, -300), OriLine.TYPE_VALLEY);
+		Origrammer.diagram.steps.get(Globals.currentStep).lines.add(tmpLine);
+		tmpArrow = new OriArrow(new Vector2d(-300, -187.5), new Vector2d(-112.5, -150), OriArrow.TYPE_VALLEY, false, true);
+		Origrammer.diagram.steps.get(Globals.currentStep).arrows.add(tmpArrow);
+		
+	}
+	
 	private void createNewDiagram() {
 		Globals.newStepOptions = Constants.NewStepOptions.PASTE_DEFAULT_PAPER;
 
 		Diagram tmpDiagram = new Diagram(Constants.DEFAULT_PAPER_SIZE, 
 										faceUpColor.getBackground(), 
 										faceDownColor.getBackground());
-		
+		Origrammer.mainFrame.uiStepOverviewPanel.createStepPreview();
+
 		if (Globals.paperShape == Constants.PaperShape.SQUARE) {
 			tmpDiagram.setPaperWidth(Integer.parseInt(paperSizeTF.getText()));
 			tmpDiagram.setPaperHeight(Integer.parseInt(paperSizeTF.getText()));
@@ -392,6 +515,8 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Step step = new Step();
 		Origrammer.diagram.steps.add(step);
 		Globals.currentStep = 0;
+		createFromFoldingPreset();
+		
 		__screen.modeChanged();
 		
 		Globals.newStepOptions = Constants.NewStepOptions.COPY_LAST_STEP;
@@ -416,5 +541,8 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	@Override
 	public void componentShown(ComponentEvent e) {
 	}
+	
+	
+	
 
 }

@@ -81,6 +81,19 @@ public class Constants {
 		FACE_UP
 	}
 	
+	public static enum FoldingPreset {
+		NONE,
+		INTO_3,
+		INTO_5,
+		INTO_7,
+		BIRD_BASE,
+		WATERBOMB_BASE,
+		KITE_BASE,
+		FISH_BASE,
+		FROG_BASE,
+		PRELIMINARY_FOLD
+	}
+	
 	final public static double DEFAULT_PAPER_SIZE = 600;
 	final public static double EPSILON = 0.00000000001;
 	final public static Dimension MAINSCREEN_SIZE = new Dimension(800, 800);

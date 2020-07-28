@@ -141,6 +141,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		//only draw the selectedVertices
 		//if it's not a stepPreview that is being rendered
 		if (!Globals.renderStepPreview) {
+			//show coordinates of selected Vertex
+			if (selectedCandidateV != null ) {
+				g.setColor(Color.BLACK);
+				g.drawString("(" + selectedCandidateV.x + ", " + selectedCandidateV.y + ")", -325, -325);
+			}
 			renderSelectedVertices();
 		}
 		renderRectSelection();

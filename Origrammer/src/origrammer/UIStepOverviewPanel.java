@@ -117,6 +117,7 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 				Constants.MAINSCREEN_SIZE.height, BufferedImage.TYPE_BYTE_INDEXED);
 		Graphics2D graphics = bimg.createGraphics();
 		Globals.renderStepPreview = true;
+		System.out.println(Origrammer.mainFrame.mainScreen.toString());
 		Origrammer.mainFrame.mainScreen.paint(graphics);
 		Globals.renderStepPreview = false;
 

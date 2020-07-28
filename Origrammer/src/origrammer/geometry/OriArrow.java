@@ -30,7 +30,6 @@ public class OriArrow {
 	private boolean isSelected;
 	private boolean isMirrored;
 	private boolean isUnfold;
-	private int arrowRadius;
 	
 	
 	public OriArrow() {
@@ -42,16 +41,14 @@ public class OriArrow {
 		this.type = a.type;
 		this.isMirrored = a.isMirrored;
 		this.isUnfold = a.isUnfold;
-		this.arrowRadius = a.getArrowRadius();
 	}	
 	
-	public OriArrow(Vector2d p0, Vector2d p1, int type, boolean isMirrored, boolean isUnfold, int arrowRadius) {
+	public OriArrow(Vector2d p0, Vector2d p1, int type, boolean isMirrored, boolean isUnfold) {
 		this.p0 = p0;
 		this.p1 = p1;
 		this.type = type;
 		this.isMirrored = isMirrored;
 		this.isUnfold = isUnfold;
-		this.arrowRadius = arrowRadius;
 	}
 	
 	public ArrayList<Shape> getShapesForDrawing() {
@@ -602,18 +599,10 @@ public class OriArrow {
 		this.isUnfold = isUnfold;
 	}
 
-	public int getArrowRadius() {
-		return arrowRadius;
-	}
-
-	public void setArrowRadius(int arrowRadius) {
-		this.arrowRadius = arrowRadius;
-	}
-
 	@Override
 	public String toString() {
 		return "OriArrow [p0=" + p0 + ", p1=" + p1 + ", type=" + type + ", isSelected=" + isSelected + ", isMirrored="
-				+ isMirrored + ", arrowRadius=" + arrowRadius + "]";
+				+ isMirrored + "]";
 	}
 	
 }

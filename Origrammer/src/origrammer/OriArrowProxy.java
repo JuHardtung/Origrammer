@@ -11,8 +11,6 @@ public class OriArrowProxy {
 	private int type;
 	private boolean isMirrored;
 	private boolean isUnfold;
-	private int arrowRadius;
-
 	
 	public OriArrowProxy() {
 	}
@@ -23,12 +21,11 @@ public class OriArrowProxy {
 		type = a.getType();
 		isMirrored = a.isMirrored();
 		isUnfold = a.isUnfold();
-		arrowRadius = a.getArrowRadius();
                                                                                 		
 	}
 	
 	public OriArrow getArrow() {
-		return new OriArrow(p0, p1, type, isMirrored, isUnfold, arrowRadius);
+		return new OriArrow(p0, p1, type, isMirrored, isUnfold);
 	}
 
 	public Vector2d getP0() {
@@ -61,14 +58,6 @@ public class OriArrowProxy {
 
 	public void setType(int type) {
 		this.type = type;
-	}
-
-	public int getArrowRadius() {
-		return arrowRadius;
-	}
-
-	public void setArrowRadius(int arrowRadius) {
-		this.arrowRadius = arrowRadius;
 	}
 
 	@Override

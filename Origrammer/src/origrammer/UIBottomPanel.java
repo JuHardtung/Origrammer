@@ -236,7 +236,7 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 	 * Creates a new {@code Step} with only the basic 
 	 * paper shape that was being set on file creation
 	 */
-	private void createStepPaperShape(int stepNumber) {
+	public void createStepPaperShape(int stepNumber) {
 		Step newStep = new Step();
 		ArrayList<OriLine> newLines = Origrammer.diagram.steps.get(Globals.currentStep-1).getEdgeLines();
 		newStep.lines.addAll(newLines);

@@ -82,6 +82,7 @@ public class Step {
 
 	public void initFirstStep() {
 		lines.addAll(getEdgeLines());
+		
 	}
 	
 	
