@@ -298,6 +298,12 @@ public class Step {
 
 		addInputLine(points, inputLine);
 	}
+	
+	public void addLines(ArrayList<OriLine> lineList) {
+		for (OriLine l : lineList) {
+			addLine(l);
+		}
+	}
 
 	public void addInputLine(ArrayList<Vector2d> points, OriLine inputLine) {
 		Vector2d prePoint = points.get(0);
@@ -439,6 +445,16 @@ public class Step {
 	public void addArrow(OriArrow inputArrow) {
 		arrows.add(inputArrow);
 	}
+	
+	/**
+	 * Adds a list of arrows to the current diagram step
+	 * @param arrowList
+	 */
+	public void addArrows(ArrayList<OriArrow> arrowList) {
+		arrows.addAll(arrowList);
+	}
+	
+
 	
 	/** Adds a new FilledFace to the current diagram step
 	 * 

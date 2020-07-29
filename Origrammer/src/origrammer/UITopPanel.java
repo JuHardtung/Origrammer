@@ -1,7 +1,6 @@
 package origrammer;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,22 +10,17 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Hashtable;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
@@ -34,7 +28,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.text.PlainDocument;
 import javax.vecmath.Vector2d;
 
@@ -386,6 +379,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	private void addEqualDistSymbolPanel() {
 		sliderEqualDist.setMajorTickSpacing(10);
 		sliderEqualDist.setPaintTicks(true);
+		sliderEqualDist.setSnapToTicks(true);
 		sliderEqualDist.addChangeListener(e -> sliderEqualDistChanged());
 		equalDistDividerTF.setPreferredSize(new Dimension(20,20));
 		PlainDocument docEqualDistDivider = (PlainDocument) equalDistDividerTF.getDocument();

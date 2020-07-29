@@ -2027,7 +2027,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				createFilledFace(clickPoint);
 		}
 		repaint();
-		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+		//Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 	}
 	
 	private void inputVertexMode(MouseEvent e, Point2D.Double clickPoint) {

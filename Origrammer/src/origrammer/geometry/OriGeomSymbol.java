@@ -46,9 +46,10 @@ public class OriGeomSymbol {
 		this.isSelected = gs.isSelected;
 	}
 	
-	public OriGeomSymbol(Vector2d p1, double size) {
+	public OriGeomSymbol(Vector2d p1, double size, int type) {
 		this.p1 = p1;
 		this.size = size;
+		this.type = type;
 	}
 	
 	public OriGeomSymbol(Vector2d p1, Vector2d p2, double size) {
@@ -62,6 +63,15 @@ public class OriGeomSymbol {
 		this.p2 = p2;
 		this.size = size;
 		this.type = type;
+	}
+	
+	public OriGeomSymbol(Vector2d p1, Vector2d p2, double size, int type, String text, boolean isReversed) {
+		this.p1 = p1;
+		this.p2 = p2;
+		this.size = size;
+		this.type = type;
+		this.text = text;
+		this.isReversed = isReversed;
 	}
 	
 	public ArrayList<Shape> getShapesForDrawing() {

@@ -10,6 +10,8 @@ public class OriGeomSymbolProxy {
 	private Vector2d p2;
 	private double size;
 	private int type;
+	private String text;
+	private boolean isReversed;
 
 	
 	public OriGeomSymbolProxy() {
@@ -20,10 +22,12 @@ public class OriGeomSymbolProxy {
 		this.p2 = g.getP2();
 		this.size = g.getSize();
 		this.type = g.getType();
+		this.text = g.getText();
+		this.isReversed = g.isReversed();
 	}
 	
 	public OriGeomSymbol getSymbol() {
-		return new OriGeomSymbol(p1, p2, size, type);
+		return new OriGeomSymbol(p1, p2, size, type, text, isReversed);
 	}
 
 	public Vector2d getP1() {
@@ -48,6 +52,30 @@ public class OriGeomSymbolProxy {
 
 	public void setType(int type) {
 		this.type = type;
+	}
+
+	public double getSize() {
+		return size;
+	}
+
+	public void setSize(double size) {
+		this.size = size;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public boolean isReversed() {
+		return isReversed;
+	}
+
+	public void setReversed(boolean isReversed) {
+		this.isReversed = isReversed;
 	}
 	
 }

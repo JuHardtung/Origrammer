@@ -117,7 +117,6 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 				Constants.MAINSCREEN_SIZE.height, BufferedImage.TYPE_BYTE_INDEXED);
 		Graphics2D graphics = bimg.createGraphics();
 		Globals.renderStepPreview = true;
-		System.out.println(Origrammer.mainFrame.mainScreen.toString());
 		Origrammer.mainFrame.mainScreen.paint(graphics);
 		Globals.renderStepPreview = false;
 
@@ -159,6 +158,12 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		addAllStepPreviews();
 		revalidate();
 		repaint();
+//		System.out.println("After: " + stepPreviewList.size());
+//		for (StepPreview p : stepPreviewList) {
+//			System.out.println(p.getStepNumber() + " | " + p.getStepDescrText());
+//		}
+//		System.out.println("____________________________");
+
 	}
 	
 	/**
@@ -178,10 +183,15 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		return scaledBimg;
 	}
 	
-	private void removeAllStepPreviews() {
+	/**
+	 * Removes all {@code stepPreviewList}-entries and removes them from the {@code stepOverviewPanel}
+	 */
+	public void removeAllStepPreviews() {
 		for (StepPreview sp : stepPreviewList) {
 			stepOverviewPanel.remove(sp);
 		}
+		
+		stepPreviewList.clear();
 	}
 	
 	private void addAllStepPreviews() {
@@ -299,6 +309,14 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 
 		addAllStepPreviews();
 		stepChanged();
+	}
+	
+	/**
+	 * Clears the {@code stepPreviewList} when creating a new Diagram
+	 */
+	public void clearStepPreviews() {
+		stepPreviewList.clear();
+		
 	}
 	
 	public void stepChanged() {

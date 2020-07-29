@@ -86,15 +86,15 @@ public class OriEqualDistSymbol {
 	
 	public Vector2d getP0Pos() {
 		Vector2d nv = GeometryUtil.getNormalVector(GeometryUtil.getUnitVector(p0, p1));
-		double p0x = p0.x + (-translationDist * nv.x);
-		double p0y = p0.y + (-translationDist * nv.y);
+		double p0x = p0.x + translationDist * nv.x;
+		double p0y = p0.y + translationDist * nv.y;
 		return new Vector2d(p0x, p0y);
 	}
 	
 	public Vector2d getP1Pos() {
 		Vector2d nv = GeometryUtil.getNormalVector(GeometryUtil.getUnitVector(p0, p1));
-		double p1x = p1.x + (-translationDist * nv.x);
-		double p1y = p1.y + (-translationDist * nv.y);
+		double p1x = p1.x + translationDist * nv.x;
+		double p1y = p1.y + translationDist * nv.y;
 		return new Vector2d(p1x, p1y);
 	}
 
