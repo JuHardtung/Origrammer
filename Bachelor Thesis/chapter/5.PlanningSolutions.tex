@@ -41,7 +41,7 @@ A large part of the Origrammer is made up of the different arrows and symbols th
 		\caption{Angled Arrow}
 		\label{fig:arrowLabelBorderAngled}
 	\end{subfigure}
-	\caption{Unwanted Scaling when Rotating}
+	\caption{Unwanted Scaling when Rotating and the wrong, always square hitbox}
 	\label{fig:unwantedScaling}
 \end{figure*}
 
@@ -53,8 +53,7 @@ As a result of all these problems and limitations, the decision was made to comp
 
 The current limitations of the Filling Tool make it slow and cumbersome to use. The user has to manually input three vertices in order to create a triangle that shows the specified filling color. The limit of only three vertices per \texttt{OriFace}-object was originally introduced to give finer control for the user, as well as simplifying the development process for this feature.
 
-But this decision went against the original goal of minimizing the time needed to create diagrams. As a result the Filling Tool has to be reworked so that it can be used faster and with less user inputs.
-%Finish explanations of how the Filling Tool works after the rework
+But this decision went against the original goal of minimizing the time needed to create diagrams. As a result the Filling Tool has to be reworked, so that it can be used faster and with less user inputs.
 
 \begin{figure}[htbp]
 	\centering
@@ -62,6 +61,48 @@ But this decision went against the original goal of minimizing the time needed t
 	\caption{Example on how the Filling Tool works after the rework}
 	\label{fig:fillingToolExample}
 \end{figure}
+The new Filling Tool only requires one mouse click to fill an area with colour. When clicking in an area, the Origrammer first looks for the closest line to the \texttt{clickPoint}. Afterwards, both endpoints of the line are being checked for other touching or intersecting lines. The additional lines that were found have to be checked if they are visible from the original \texttt{clickPoint}, which would mean, that they are part of the enclosing lines. The endpoints of every new discovered line will be checked the same way, until a full enclosure of lines is established. Once this has happened, a \texttt{GeneralPath} is created that, goes through all points of the enclosing area. Lastly, the area of the \texttt{GeneralPath} can be filled with the specified colour.
+
+%Finish explanations of how the Filling Tool works after the rework
+
+
+
+\newpage
+\subsubsection{Folding Presets}
+In origami diagramming, there are eight widely established bases\cite{DesignSecrets} (p.53-64). When starting with these bases, one can fold a variety of different models. The bases in question are:
+
+%\begin{itemize}
+%\item Bird Base
+%\item Kite Base
+%\item Fish Base
+%\item Frog Base
+%\item Preliminary Fold
+%\item Waterbomb Base
+%\item Cupboard Base
+%\item Windmill Base
+% \end{itemize}
+ 
+ \begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{BasesTree}
+	\caption{Family Tree of the standard bases.\\
+	Top to bottom and left to right:  Cupboard Base, Windmill Base, Kite Base, Fish Base, Preliminary Fold, Bird Base, Waterbomb Base, Frog Base\cite{BaseTree}}
+	\label{fig:basesTree}
+\end{figure}
+
+As these bases serve as the starting point for a wide array of models, it would be helpful to include them in the Origrammer. By giving the user the option to start a diagram with one of these bases, the overall diagramming process will be shortened by quite a bit. Not having to keep repeating the same beginning steps for different models will save time and can also show beginners of the program, how parts of the Origrammer look like or work.
+
+Additionally to the origami bases, instructions on how to fold different grid sizes, should be included in the folding presets as well. Folding a 3x3, 5x5, or 7x7 grid from a square paper is not as straight forward and requires multiple folding steps to achieve. 
+
+ \begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{5x5-grid}
+	\caption{Example diagram of a 5x5 grid made with the Origrammer}
+	\label{fig:5x5-grid}
+\end{figure}
+
+
+\textbf{Fixes: \#7.09}
 
 \subsubsection{Side Panel}
 

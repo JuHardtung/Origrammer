@@ -687,7 +687,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.add(new OriLine(new Vector2d(-300, 60), new Vector2d(300, 60), OriLine.TYPE_CREASE, true, true));
 		lineList.add(new OriLine(new Vector2d(-300, 180), new Vector2d(300, 180), OriLine.TYPE_CREASE, true, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Done.");
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 	}
 	
