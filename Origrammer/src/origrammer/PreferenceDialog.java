@@ -53,7 +53,10 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 		this.addComponentListener(this);
 		this.setSize(375, 265);
 		this.setContentPane(getJContentPane());
-		this.setTitle("Origrammer Preferences");	
+		this.setTitle("Origrammer Preferences");
+		outsideReverseCB.setEnabled(false);
+		rabbitEarCB.setEnabled(false);
+
 	}
 
 	private JPanel getJContentPane() {
