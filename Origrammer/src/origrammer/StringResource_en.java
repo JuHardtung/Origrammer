@@ -22,6 +22,7 @@ public class StringResource_en extends ListResourceBundle {
 			{"UI_lineInputIncenter", "Rabbit Ear (Triangle Incenter)"},
 			{"UI_lineInputExtendLine", "Extend Line"},
 			{"UI_lineInputLengthAngle", "Length & Angle"},
+			{"UI_lineInputMirrorLines", "Mirror Lines"},
 			{"UI_vertexInputAbsolute", "Absolute Position"},
 			{"UI_vertexInputFractionOfLine", "Fraction of Line"},
 			{"UI_ShowGrid", "Show Grid"},

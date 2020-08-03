@@ -580,10 +580,16 @@ public class GeometryUtil {
 	public static Vector2d getClosestCrossPoint(Vector2d p, OriLine l) {
 		Vector2d uv = getUnitVector(l.getP0(), l.getP1());
 		Vector2d nv = getNormalVector(uv);
-		nv.x = -nv.x;
-		nv.y = -nv.y;
 		
-		return getClosestCrossPoint(p, nv);
+		Vector2d crossPoint = null;
+		crossPoint = getClosestCrossPoint(p, nv);
+		
+		if (crossPoint == null) {
+			nv.negate();
+			crossPoint = getClosestCrossPoint(p, nv);
+		}
+		
+		return crossPoint;
 	}
 	
 	/**
@@ -735,4 +741,36 @@ public class GeometryUtil {
 		return middlePoint;
 	}
 	
+	
+	/**
+	 * Mirrors an {@code OriLine in} along the {@code OriLine mirror}.
+	 * @param in
+	 * @param mirror
+	 * @return the mirrored {@code OriLine}
+	 */
+	public static OriLine mirrorLine(OriLine in, OriLine mirror) {
+		Vector2d uv = getUnitVector(mirror.getP0(), mirror.getP1());
+		Vector2d nv = getNormalVector(uv);
+		Vector2d cross1 = null;
+		Vector2d cross2 = null;
+		cross1 = getCrossPoint(new OriLine(in.getP0(), new Vector2d(in.getP0().x + nv.x*1000, in.getP0().y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+		if (cross1 == null) {
+			nv.negate();
+			cross1 = getCrossPoint(new OriLine(in.getP0(), new Vector2d(in.getP0().x + nv.x*1000, in.getP0().y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+		}
+		double dist1 = Distance(in.getP0(), cross1);
+		Vector2d newP0 = new Vector2d(cross1.x + nv.x * dist1, cross1.y + nv.y * dist1);
+
+
+		cross2 = getCrossPoint(new OriLine(in.getP1(), new Vector2d(in.getP1().x + nv.x*1000, in.getP1().y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+		if (cross2 == null) {
+			nv.negate();
+			cross2 = getCrossPoint(new OriLine(in.getP1(), new Vector2d(in.getP1().x + nv.x*1000, in.getP1().y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+		}
+		double dist2 = Distance(in.getP1(), cross2);
+		Vector2d newP1 = new Vector2d(cross2.x + nv.x * dist2, cross2.y + nv.y * dist2);
+
+		return new OriLine(newP0, newP1, in.getType());
+	}
+
 }

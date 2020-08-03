@@ -1581,8 +1581,22 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 	}
 	
-	public void createOriLineMirrored(MouseEvent e, Point2D.Double clickPoint) {
-		
+	public void createOriLineMirrored(Vector2d v1, Vector2d v2) {
+		ArrayList<OriLine> tmpMirroredLineList = new ArrayList<OriLine>();
+
+		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+			if (l.isSelected()) {
+				OriLine mirroredLine = GeometryUtil.mirrorLine(l, new OriLine(v1, v2, OriLine.TYPE_NONE));
+				tmpMirroredLineList.add(mirroredLine);
+			}
+		}
+
+		for (OriLine l : tmpMirroredLineList) {
+			Origrammer.diagram.steps.get(Globals.currentStep).addLine(l);
+		}
+
+
+
 	}
 	
 	/**
@@ -2087,7 +2101,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			case BY_LENGTH_AND_ANGLE:
 				createOneVertexInput(e, clickPoint, "createOriLineLengthAngle");
 			case MIRRORED:
-				createOriLineMirrored(e, clickPoint);
+				createTwoVertexInput(e, clickPoint, "createOriLineMirrored");
+				//createOriLineMirrored(e, clickPoint);
 			default:
 				break;
 		}

@@ -57,6 +57,8 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	private JRadioButton lineInputIncenterRB = new JRadioButton(Origrammer.res.getString("UI_lineInputIncenter"), false);
 	private JRadioButton lineInputExtendLineRB = new JRadioButton(Origrammer.res.getString("UI_lineInputExtendLine"), false);
 	private JRadioButton lineInputLengthAngleRB = new JRadioButton(Origrammer.res.getString("UI_lineInputLengthAngle"), false);
+	private JRadioButton lineInputMirrorLinesRB = new JRadioButton(Origrammer.res.getString("UI_lineInputMirrorLines"), false);
+
 	private ButtonGroup lineInputGroup;
 
 	//INPUT VERTEX MODE
@@ -192,6 +194,7 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		lineInputIncenterRB.addActionListener(this);
 		lineInputExtendLineRB.addActionListener(this);
 		lineInputLengthAngleRB.addActionListener(this);
+		lineInputMirrorLinesRB.addActionListener(this);
 		
 		lineInputGroup = new ButtonGroup();
 		lineInputGroup.add(lineInputTwoVerticesRB);
@@ -200,6 +203,7 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		lineInputGroup.add(lineInputIncenterRB);
 		lineInputGroup.add(lineInputExtendLineRB);
 		lineInputGroup.add(lineInputLengthAngleRB);
+		lineInputGroup.add(lineInputMirrorLinesRB);
 		
 		lineInputPanel.add(lineInputTwoVerticesRB);
 		lineInputPanel.add(lineInputAngleBisectorRB);
@@ -207,7 +211,8 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		lineInputPanel.add(lineInputIncenterRB);
 		lineInputPanel.add(lineInputExtendLineRB);
 		lineInputPanel.add(lineInputLengthAngleRB);
-		lineInputPanel.setLayout(new GridLayout(6, 1, 10, 2));
+		lineInputPanel.add(lineInputMirrorLinesRB);
+		lineInputPanel.setLayout(new GridLayout(7, 1, 10, 2));
 		add(lineInputPanel);
 	}
 	
@@ -409,6 +414,9 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 				modeChanged();
 			} else if (e.getSource() == lineInputLengthAngleRB) {
 				Globals.lineEditMode = Constants.LineInputMode.BY_LENGTH_AND_ANGLE;
+				modeChanged();
+			} else if (e.getSource() == lineInputMirrorLinesRB) {
+				Globals.lineEditMode = Constants.LineInputMode.MIRRORED;
 				modeChanged();
 			}
 		} else if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_VERTEX) {
