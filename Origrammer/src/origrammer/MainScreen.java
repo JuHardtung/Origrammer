@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -12,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -63,6 +66,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private OriPleatCrimpSymbol selectedCandidatePleat = null;
 	//private GeneralPath tmpFilledFacePath = null;
 	private ArrayList<Vector2d> tmpFilledFacePath = null;
+	
+	private ArrayList<Vector2d> tmpMirroredLineList = null;
+	private OriLine tmpMirroredLine = null;
 
 	private boolean dispGrid = true;
 	//Affine transformation info
@@ -74,6 +80,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	public ArrayList<JLabel> arrowLabelList = new ArrayList<>();
 	private boolean isMovingSymbols = false;
 	private boolean isPressedOverSymbol = false;
+	private boolean isReversePerpendicularLineInput = false;
 	int tmpArrowWidth;
 	int tmpArrowHeight;
 
@@ -328,6 +335,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 						Vector2d cp = new Vector2d(currentMousePointLogic.x, currentMousePointLogic.y);
 						GeometryUtil.DistancePointToSegment(cp,  l.getP0(), l.getP1(), v);
 					}
+					if (isReversePerpendicularLineInput) {
+						nv.negate();
+					}
+
 					//get crossingPoint in order to get inputLine.P1
 					//if there is no crossing point -> reverse inputLine direction
 					v2 = GeometryUtil.getClosestCrossPoint(v, nv);
@@ -1498,7 +1509,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 	}
 	
-	public void createOriLinePerpendicular(Point2D.Double clickPoint) {
+	public void createOriLinePerpendicular(MouseEvent e, Point2D.Double clickPoint) {
 		OriLine l = pickOriLine(clickPoint);
 
 		if (l != null) {
@@ -1512,6 +1523,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				v = new Vector2d();
 				Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
 				GeometryUtil.DistancePointToSegment(cp,  l.getP0(), l.getP1(), v);
+			}
+			
+			if (isReversePerpendicularLineInput) {
+				nv.negate();
 			}
 			//get crossingPoint in order to get inputLine.P1
 			//if there is no crossing point -> reverse inputLine direction
@@ -1564,6 +1579,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoLengthAngleSpecified"),
 					"Error_NoLengthAngleSpecified", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	public void createOriLineMirrored(MouseEvent e, Point2D.Double clickPoint) {
+		
 	}
 	
 	/**
@@ -2055,7 +2074,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				break;
 			case PERPENDICULAR:
 				//createOneVertexInput(e, clickPoint, "createOriLinePerpendicular");
-				createOriLinePerpendicular(clickPoint);
+				createOriLinePerpendicular(e, clickPoint);
 				break;
 			case TRIANGLE_INSECTOR:
 				createThreeVertexInput(e, clickPoint, "createTriangleInsector");
@@ -2067,6 +2086,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				break;
 			case BY_LENGTH_AND_ANGLE:
 				createOneVertexInput(e, clickPoint, "createOriLineLengthAngle");
+			case MIRRORED:
+				createOriLineMirrored(e, clickPoint);
 			default:
 				break;
 		}
@@ -2392,6 +2413,15 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 						&& Globals.lineEditMode == Constants.LineInputMode.ANGLE_BISECTOR)
 				|| (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE
 						&& Globals.lineEditMode == Constants.LineInputMode.PERPENDICULAR)) {
+			
+
+			if (Globals.lineEditMode == Constants.LineInputMode.PERPENDICULAR) {
+				if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+					isReversePerpendicularLineInput = true;
+				} else {
+					isReversePerpendicularLineInput = false;
+				}
+			}
 			//highlighting when moving over a line
 			selectedCandidateL = this.pickOriLine(currentMousePointLogic);
 			repaint();

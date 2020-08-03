@@ -18,7 +18,6 @@ public class Origrammer {
 	public static ResourceBundle res;
 	private static double size = Constants.DEFAULT_PAPER_SIZE;
 	
-	
 	public static void main(String[] args) {
 		
 		res = ResourceBundle.getBundle("origrammer.StringResource", Locale.ENGLISH);
@@ -33,7 +32,5 @@ public class Origrammer {
 		Globals.newStepOptions = Constants.NewStepOptions.COPY_LAST_STEP;
 		
 		mainFrame = new MainFrame();
-
 	}
-
 }

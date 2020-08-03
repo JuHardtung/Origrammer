@@ -10,7 +10,8 @@ public class Constants {
 		PERPENDICULAR,
 		TRIANGLE_INSECTOR,
 		EXTEND_TO_NEXT_LINE,
-		BY_LENGTH_AND_ANGLE
+		BY_LENGTH_AND_ANGLE,
+		MIRRORED
 	}
 	
 	public static enum VertexInputMode {

@@ -52,7 +52,7 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 	private JButton deleteStepPreviewButton = new JButton("Delete");
 	private JButton moveStepPreviewUpButton = new JButton("Up");
 	private JButton moveStepPreviewDownButton = new JButton("Down");
-	private JButton createStepInBetween = new JButton("Create");
+	private JButton createStepInBetween = new JButton("New");
 
 	final static String MOVE_STEP_UP = "move-step-up";
 	final static String MOVE_STEP_DOWN = "move-step-down";
