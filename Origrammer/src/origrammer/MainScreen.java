@@ -162,7 +162,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderTmpXRayCircleSymbol();
 		renderTmpClosedSinkSymbol();
 		
-		//renderTmpEqualAnglSymbol();
+		renderTmpEqualAnglSymbol();
 		renderTmpCrimpPleatSymbol();
 		
 	}
@@ -231,19 +231,19 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				g2d.setColor(Config.LINE_COLOR_SELECTED);
 				g2d.setStroke(Config.STROKE_SELECTED);
 			}
-			Vector2d p0 = line.getP0();
-			Vector2d p1 = line.getP1();
+			Vector2d p0 = line.getP0().p;
+			Vector2d p1 = line.getP1().p;
 
 			if (line.getType() == OriLine.TYPE_CREASE) {
 				if (line.isStartOffset()) {
 					p0 = line.getTranslatedP0();
 				} else {
-					p0 = line.getP0();
+					p0 = line.getP0().p;
 				}
 				if (line.isEndOffset()) {
 					p1 = line.getTranslatedP1();
 				} else {
-					p1 = line.getP1();
+					p1 = line.getP1().p;
 				}
 			}
 			g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
@@ -324,16 +324,16 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				OriLine l = pickOriLine(currentMousePointLogic);
 
 				if (l != null) {
-					Vector2d uv = GeometryUtil.getUnitVector(l.getP0(), l.getP1());
+					Vector2d uv = GeometryUtil.getUnitVector(l.getP0().p, l.getP1().p);
 					Vector2d nv = GeometryUtil.getNormalVector(uv);
-					Vector2d v = pickVertex(currentMousePointLogic);
+					Vector2d vertex = pickVertex(currentMousePointLogic);
 					Vector2d v2 = null;
 					//get point on OriLine that is closest to currentMousePointLogic, 
 					//if currentMousePointLogic is not close to a vertex
-					if (v == null) {
-						v = new Vector2d();
+					if (vertex == null) {
+						vertex = new Vector2d();
 						Vector2d cp = new Vector2d(currentMousePointLogic.x, currentMousePointLogic.y);
-						GeometryUtil.DistancePointToSegment(cp,  l.getP0(), l.getP1(), v);
+						GeometryUtil.DistancePointToSegment(cp,  l.getP0().p, l.getP1().p, vertex);
 					}
 					if (isReversePerpendicularLineInput) {
 						nv.negate();
@@ -341,13 +341,13 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 					//get crossingPoint in order to get inputLine.P1
 					//if there is no crossing point -> reverse inputLine direction
-					v2 = GeometryUtil.getClosestCrossPoint(v, nv);
+					v2 = GeometryUtil.getClosestCrossPoint(vertex, nv);
 					if (v2 == null) {
-						v2 = GeometryUtil.getClosestCrossPoint(v, new Vector2d(-nv.x, -nv.y));
+						v2 = GeometryUtil.getClosestCrossPoint(vertex, new Vector2d(-nv.x, -nv.y));
 					}
-					if (v != null && v2 != null) {
+					if (vertex != null && v2 != null) {
 						setColorStrokeByLineType(Globals.inputLineType);
-						g2d.draw(new Line2D.Double(v.x,v.y,v2.x,v2.y));
+						g2d.draw(new Line2D.Double(vertex.x, vertex.y, v2.x, v2.y));
 					}
 				}
 			}
@@ -393,7 +393,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					g2d.setColor(oldColor);
 				}
 				g2d.draw(s);
-
 			}
 		}
 	}
@@ -405,11 +404,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		if (firstSelectedV != null) {
 			g2d.fill(new Rectangle2D.Double(firstSelectedV.x - 5.0 / Globals.SCALE,
 					firstSelectedV.y - 5.0 / Globals.SCALE, 10.0 / Globals.SCALE, 10.0 / Globals.SCALE));
-			
+
 			if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_ARROW) {
 				Vector2d cv = selectedCandidateV == null
 						? new Vector2d(currentMousePointLogic.getX(), currentMousePointLogic.getY()) : selectedCandidateV;
-	
+
 						OriArrow a = new OriArrow();
 						a.setP0(firstSelectedV);
 						a.setP1(cv);
@@ -793,18 +792,18 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			g2d.setColor(Color.BLACK);
 			double vertexDrawSize = 3.0;
 			for (OriLine line : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-				Vector2d v0 = line.getP0();
-				Vector2d v1 = line.getP1();
-				g2d.fill(new Rectangle2D.Double(v0.x - vertexDrawSize / Globals.SCALE,
-						v0.y - vertexDrawSize / Globals.SCALE, vertexDrawSize * 2 / Globals.SCALE,
+				OriVertex v0 = line.getP0();
+				OriVertex v1 = line.getP1();
+				g2d.fill(new Rectangle2D.Double(v0.p.x - vertexDrawSize / Globals.SCALE,
+						v0.p.y - vertexDrawSize / Globals.SCALE, vertexDrawSize * 2 / Globals.SCALE,
 						vertexDrawSize * 2 / Globals.SCALE));
-				g2d.fill(new Rectangle2D.Double(v1.x - vertexDrawSize / Globals.SCALE,
-						v1.y - vertexDrawSize / Globals.SCALE, vertexDrawSize * 2 / Globals.SCALE,
+				g2d.fill(new Rectangle2D.Double(v1.p.x - vertexDrawSize / Globals.SCALE,
+						v1.p.y - vertexDrawSize / Globals.SCALE, vertexDrawSize * 2 / Globals.SCALE,
 						vertexDrawSize * 2 / Globals.SCALE));
 			}
 
 			for (OriVertex v : Origrammer.diagram.steps.get(Globals.currentStep).vertices) {
-				if (v.isSelected() || v.getP() == selectedCandidateV) {
+				if (v.isSelected() || v.p == selectedCandidateV) {
 					g2d.setColor(Config.LINE_COLOR_SELECTED);
 					vertexDrawSize = 5.0;
 				} else {
@@ -992,15 +991,15 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		Vector2d minPosition = new Vector2d();
 
 		for (OriLine line : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-			double dist0 = p.distance(line.getP0().x, line.getP0().y);
+			double dist0 = p.distance(line.getP0().p.x, line.getP0().p.y);
 			if(dist0 < minDistance) {
 				minDistance = dist0;
-				minPosition.set(line.getP0());
+				minPosition.set(line.getP0().p);
 			}
-			double dist1 = p.distance(line.getP1().x, line.getP1().y);
+			double dist1 = p.distance(line.getP1().p.x, line.getP1().p.y);
 			if (dist1 < minDistance) {
 				minDistance = dist1;
-				minPosition.set(line.getP1());
+				minPosition.set(line.getP1().p);
 			}
 		}
 
@@ -1060,7 +1059,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		OriLine bestLine = null;
 
 		for(OriLine line : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-			double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), line.getP0(), line.getP1());
+			double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), line.getP0().p, line.getP1().p);
 			if (dist < minDistance) {
 				minDistance = dist;
 				bestLine = line;
@@ -1153,215 +1152,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			return null;
 		}
 	}
-
-	//#######################################################################################
-	//############################   INVOKE INPUT METHODS   #################################
-	//#######################################################################################
-
-	
-	private void createOnePointInput(MouseEvent e, Point2D.Double clickPoint, String methodString) {
-		Vector2d v = null;
-			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
-				OriLine l = pickOriLine(clickPoint);
-				if (l != null) {
-					v = new Vector2d();
-					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
-					GeometryUtil.DistancePointToSegment(cp, l.getP0(), l.getP1(), v);
-				}
-			}
-		if (v == null) {
-			v = new Vector2d(clickPoint.x, clickPoint.y);
-		}
-		
-		if (v != null) {
-			if (firstSelectedV == null) {
-				firstSelectedV = v;
-
-				invokeOneInputMethod(methodString);
-				firstSelectedV = null;
-			}
-		}
-	}
-	
-	private void createTwoPointInput(Point2D.Double clickPoint, String methodString) {
-		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
-		if (v != null) {
-			if (firstSelectedV == null) {
-				firstSelectedV = v;
-			} else if (secondSelectedV == null) {
-				secondSelectedV = v;
-
-				invokeTwoInputMethod(methodString);
-				firstSelectedV = null;
-				secondSelectedV = null;
-			}
-		}
-	}
-	
-	private void createOneVertexInput(MouseEvent e, Point2D.Double clickPoint, String methodString) {
-		Vector2d v = pickVertex(clickPoint);
-		if (v == null) {
-			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
-				OriLine l = pickOriLine(clickPoint);
-				if (l != null) {
-					v = new Vector2d();
-					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
-					GeometryUtil.DistancePointToSegment(cp, l.getP0(), l.getP1(), v);
-				}
-			}
-		}
-		if (v != null) {
-			if (firstSelectedV == null) {
-				firstSelectedV = v;
-
-				invokeOneInputMethod(methodString);
-				firstSelectedV = null;
-			}
-		}
-	}
-	
-	private void createTwoVertexInput(MouseEvent e, Point2D.Double clickPoint, String methodString) {
-		Vector2d v = pickVertex(clickPoint);
-		if (v == null) {
-			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
-				OriLine l = pickOriLine(clickPoint);
-				if (l != null) {
-					v = new Vector2d();
-					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
-					GeometryUtil.DistancePointToSegment(cp, l.getP0(), l.getP1(), v);
-				}
-			}
-		}
-		if (v != null) {
-			if (firstSelectedV == null) {
-				firstSelectedV = v;
-			} else if (secondSelectedV == null) {
-				secondSelectedV = v;
-
-				invokeTwoInputMethod(methodString);
-				firstSelectedV = null;
-				secondSelectedV = null;
-			}
-		}
-	}
-	
-	private void createThreeVertexInput(MouseEvent e, Point2D.Double clickPoint, String methodString) {
-		Vector2d v = pickVertex(clickPoint);
-		if (v == null) {
-			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
-				OriLine l = pickOriLine(clickPoint);
-				if (l != null) {
-					v = new Vector2d();
-					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
-					GeometryUtil.DistancePointToSegment(cp, l.getP0(), l.getP1(), v);
-				}
-			}
-		}
-		if (v != null) {
-			if (firstSelectedV == null) {
-				firstSelectedV = v;
-			} else if (secondSelectedV == null) {
-				secondSelectedV = v;
-			} else if (thirdSelectedV == null) {
-				thirdSelectedV = v;
-				
-				invokeThreeInputMethod(methodString);
-				firstSelectedV = null;
-				secondSelectedV = null;
-				thirdSelectedV = null;
-			}
-		}
-	}
-	
-	/**
-	 * Invokes the Method named <code>methodString</code> with 1 input parameters
-	 * @param methodString the name of the method that is to be invoked
-	 */
-	private void invokeOneInputMethod(String methodString) {
-		Class<?>[] paramTypes = {Vector2d.class};
-		Method method = null;
-		try {
-			method = MainScreen.class.getDeclaredMethod(methodString, paramTypes);
-		} catch (NoSuchMethodException e1) {
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			e1.printStackTrace();
-		}
-		
-		try {
-			@SuppressWarnings("unused")
-			String test = (String) method.invoke(this, firstSelectedV);
-		} catch (IllegalAccessException e1) {
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e1) {
-			e1.printStackTrace();
-		} catch (InvocationTargetException e1) {
-			e1.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Invokes the Method named <code>methodString</code> with 2 input parameters
-	 * @param methodString the name of the method that is to be invoked
-	 */
-	private void invokeTwoInputMethod(String methodString) {
-		Class<?>[] paramTypes = {Vector2d.class, Vector2d.class};
-		Class<?>[] paramTypesLine = {Vector2d.class, Vector2d.class, int.class};
-		
-		if (methodString.equals("createOriLine")) {
-			Method method = null;
-
-				try {
-					method = MainScreen.class.getMethod(methodString, paramTypesLine);
-				} catch (NoSuchMethodException | SecurityException e) {
-					e.printStackTrace();
-				}
-				try {
-					String test = (String) method.invoke(this, firstSelectedV, secondSelectedV, OriLine.TYPE_NONE);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					e.printStackTrace();
-				}
-		} else {
-			Method method2 = null;
-				try {
-					method2 = MainScreen.class.getDeclaredMethod(methodString, paramTypes);
-				} catch (NoSuchMethodException | SecurityException e) {
-					e.printStackTrace();
-				}
-				try {
-					String test = (String) method2.invoke(this, firstSelectedV, secondSelectedV);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					e.printStackTrace();
-				}
-		}
-	}
-	
-	/**
-	 * Invokes the Method named <code>methodString</code> with 3 input parameters
-	 * @param methodString the name of the method that is to be invoked
-	 */
-	private void invokeThreeInputMethod(String methodString) {
-		Class<?>[] paramTypes = {Vector2d.class, Vector2d.class, Vector2d.class};
-		Method method = null;
-		try {
-			method = MainScreen.class.getDeclaredMethod(methodString, paramTypes);
-		} catch (NoSuchMethodException e1) {
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			e1.printStackTrace();
-		}
-		
-		try {
-			@SuppressWarnings("unused")
-			String test = (String) method.invoke(this, firstSelectedV, secondSelectedV, thirdSelectedV);
-		} catch (IllegalAccessException e1) {
-			e1.printStackTrace();
-		} catch (IllegalArgumentException e1) {
-			e1.printStackTrace();
-		} catch (InvocationTargetException e1) {
-			e1.printStackTrace();
-		}
-	}
 	
 	
 	//#######################################################################################
@@ -1369,10 +1159,19 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	//#######################################################################################
 
 	
-	private void createVertexAbsolutePos(Vector2d v) {
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		OriVertex vertex = new OriVertex(v);
-		Origrammer.diagram.steps.get(Globals.currentStep).addVertex(vertex);
+	private void createVertexAbsolutePos(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				OriVertex vertex = new OriVertex(firstSelectedV); //TODO: Check for double entries
+				Origrammer.diagram.steps.get(Globals.currentStep).addVertex(vertex);		
+				firstSelectedV = null;
+			}
+		}
 	}
 
 	private void createVertexFractionOfLine(Point2D.Double clickPoint) {
@@ -1382,13 +1181,13 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			firstSelectedL = l;
 
 			double fraction = Double.parseDouble(Origrammer.mainFrame.uiTopPanel.inputVertexFractionTF.getText());
-			double dist = GeometryUtil.Distance(l.getP0(), l.getP1());
-			Vector2d uv = GeometryUtil.getUnitVector(l.getP0(), l.getP1());
+			double dist = GeometryUtil.Distance(l.getP0().p, l.getP1().p);
+			Vector2d uv = GeometryUtil.getUnitVector(l.getP0().p, l.getP1().p);
 
-			double newX = l.getP0().x + uv.x * (dist * (fraction / 100)); 
-			double newY = l.getP0().y + uv.y * (dist * (fraction / 100));
+			double newX = l.getP0().p.x + uv.x * (dist * (fraction / 100)); 
+			double newY = l.getP0().p.y + uv.y * (dist * (fraction / 100));
 
-			Vector2d newVertex = new Vector2d(newX, newY);
+			OriVertex newVertex = new OriVertex(newX, newY);
 
 			OriLine first = new OriLine(l.getP0(), newVertex, l.getType());
 			OriLine second = new OriLine(newVertex, l.getP1(), l.getType());
@@ -1431,28 +1230,49 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	 * @param v1
 	 * @param v2
 	 */
-	public void createOriLine(Vector2d v1, Vector2d v2, int type) {
-		if (type == OriLine.TYPE_NONE) {
-			type = Globals.inputLineType;
-		} 
-		OriLine line = new OriLine(v1, v2, type);
-		if (Globals.inputLineType == OriLine.TYPE_CREASE) {
-			if (Origrammer.mainFrame.uiTopPanel.startCreaseCB.isSelected()) {
-				line.setStartOffset(true);
-			} else {
-				line.setStartOffset(false);
-			}
-			if (Origrammer.mainFrame.uiTopPanel.endCreaseCB.isSelected()) {
-				line.setEndOffset(true);
-			} else {
-				line.setEndOffset(false);
+	public void createOriLine(MouseEvent e, Point2D.Double clickPoint) {
+		
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
 			}
 		}
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addLine(line);
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+				
+				//TODO: Check if input OriVertex is really close to an existing one
+				OriLine line = new OriLine(new OriVertex(firstSelectedV), new OriVertex(secondSelectedV), Globals.inputLineType);
+				if (Globals.inputLineType == OriLine.TYPE_CREASE) {
+					if (Origrammer.mainFrame.uiTopPanel.startCreaseCB.isSelected()) {
+						line.setStartOffset(true);
+					} else {
+						line.setStartOffset(false);
+					}
+					if (Origrammer.mainFrame.uiTopPanel.endCreaseCB.isSelected()) {
+						line.setEndOffset(true);
+					} else {
+						line.setEndOffset(false);
+					}
+				}
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addLine(line);
 
-		if (Globals.automatedArrowPlacement) {
-			autoCreateOriArrow(v1, v2);
+				if (Globals.automatedArrowPlacement) {
+					autoCreateOriArrow(firstSelectedV, secondSelectedV);
+				}
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
 		}
 	}
 	
@@ -1468,9 +1288,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				firstSelectedL = l;
 			} else if (secondSelectedL == null) {
 				secondSelectedL = l;
-				Vector2d crossPoint = GeometryUtil.getCrossPoint(firstSelectedL, secondSelectedL);
+				OriVertex crossPoint = new OriVertex(GeometryUtil.getCrossPoint(firstSelectedL, secondSelectedL));
 
-				if (crossPoint == null) {
+				if (crossPoint.p == null) {
 					JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoCrossPointFound"),
 							"Error_NoCrossPointFound", JOptionPane.ERROR_MESSAGE);
 				} else {
@@ -1478,29 +1298,29 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					Vector2d uv2 = null;
 
 					//check if the crossPoint is firstSelectedL.P1 or firstSelected.P2 and get it's UV
-					if (GeometryUtil.closeCompare(crossPoint.x, firstSelectedL.getP0().x, Constants.EPSILON) 
-							&& GeometryUtil.closeCompare(crossPoint.y, firstSelectedL.getP0().y, Constants.EPSILON)) {
-						uv1 = GeometryUtil.getUnitVector(firstSelectedL.getP0(), firstSelectedL.getP1());
+					if (GeometryUtil.closeCompare(crossPoint.p.x, firstSelectedL.getP0().p.x, Constants.EPSILON) 
+							&& GeometryUtil.closeCompare(crossPoint.p.y, firstSelectedL.getP0().p.y, Constants.EPSILON)) {
+						uv1 = GeometryUtil.getUnitVector(firstSelectedL.getP0().p, firstSelectedL.getP1().p);
 					} else {
-						uv1 = GeometryUtil.getUnitVector(firstSelectedL.getP1(), firstSelectedL.getP0());
+						uv1 = GeometryUtil.getUnitVector(firstSelectedL.getP1().p, firstSelectedL.getP0().p);
 					}
 
 					//check if the crossPoint is secondSelectedL.P1 or secondSelectedL.P2 and get it's UV
-					if (GeometryUtil.closeCompare(crossPoint.x, secondSelectedL.getP0().x, Constants.EPSILON) 
-							&& GeometryUtil.closeCompare(crossPoint.y, secondSelectedL.getP0().y, Constants.EPSILON)) {
-						uv2 = GeometryUtil.getUnitVector(secondSelectedL.getP0(), secondSelectedL.getP1());
+					if (GeometryUtil.closeCompare(crossPoint.p.x, secondSelectedL.getP0().p.x, Constants.EPSILON) 
+							&& GeometryUtil.closeCompare(crossPoint.p.y, secondSelectedL.getP0().p.y, Constants.EPSILON)) {
+						uv2 = GeometryUtil.getUnitVector(secondSelectedL.getP0().p, secondSelectedL.getP1().p);
 					} else {
-						uv2 = GeometryUtil.getUnitVector(secondSelectedL.getP1(), secondSelectedL.getP0());
+						uv2 = GeometryUtil.getUnitVector(secondSelectedL.getP1().p, secondSelectedL.getP0().p);
 					}
 
-					Vector2d combinedL1L2Vector = new Vector2d(crossPoint.x + uv1.x + uv2.x, crossPoint.y + uv1.y + uv2.y);
-					Vector2d newUV = GeometryUtil.getUnitVector(crossPoint, combinedL1L2Vector);
-					Vector2d bestCrossPoint = GeometryUtil.getClosestCrossPoint(crossPoint, newUV);
-					if (bestCrossPoint == null) {
+					Vector2d combinedL1L2Vector = new Vector2d(crossPoint.p.x + uv1.x + uv2.x, crossPoint.p.y + uv1.y + uv2.y);
+					Vector2d newUV = GeometryUtil.getUnitVector(crossPoint.p, combinedL1L2Vector);
+					OriVertex bestCrossPoint = new OriVertex(GeometryUtil.getClosestCrossPoint(crossPoint.p, newUV));
+					if (bestCrossPoint.p == null) {
 						JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoCrossPointFound"),
 								"Error_NoCrossPointFound", JOptionPane.ERROR_MESSAGE);
 					} else {
-						createOriLine(crossPoint, bestCrossPoint, OriLine.TYPE_NONE);
+						Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(crossPoint, bestCrossPoint, Globals.inputLineType));
 					}
 				}
 				firstSelectedL = null;
@@ -1513,16 +1333,16 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		OriLine l = pickOriLine(clickPoint);
 
 		if (l != null) {
-			Vector2d uv = GeometryUtil.getUnitVector(l.getP0(), l.getP1());
+			Vector2d uv = GeometryUtil.getUnitVector(l.getP0().p, l.getP1().p);
 			Vector2d nv = GeometryUtil.getNormalVector(uv);
-			Vector2d v = pickVertex(clickPoint);
-			Vector2d v2 = null;
+			OriVertex v = new OriVertex(pickVertex(clickPoint));
+			OriVertex v2 = null;
 			//get point on OriLine that is closest to currentMousePointLogic, 
 			//if currentMousePointLogic is not close to a vertex
-			if (v == null) {
-				v = new Vector2d();
+			if (v.p == null) {
+				v = new OriVertex();
 				Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
-				GeometryUtil.DistancePointToSegment(cp,  l.getP0(), l.getP1(), v);
+				GeometryUtil.DistancePointToSegment(cp,  l.getP0().p, l.getP1().p, v.p);
 			}
 			
 			if (isReversePerpendicularLineInput) {
@@ -1530,73 +1350,159 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 			//get crossingPoint in order to get inputLine.P1
 			//if there is no crossing point -> reverse inputLine direction
-			v2 = GeometryUtil.getClosestCrossPoint(v, nv);
-			if (v2 == null) {
-				v2 = GeometryUtil.getClosestCrossPoint(v, new Vector2d(-nv.x, -nv.y));
+			v2 = new OriVertex(GeometryUtil.getClosestCrossPoint(v.p, nv));
+			if (v2.p == null) {
+				v2 = new OriVertex(GeometryUtil.getClosestCrossPoint(v.p, new Vector2d(-nv.x, -nv.y)));
 			}
 			if (v != null && v2 != null) {
-				createOriLine(v, v2, OriLine.TYPE_NONE);
+				Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(v, v2, Globals.inputLineType));
 			}
 		}
 
 	}
 	
-	public void createTriangleInsector(Vector2d v1, Vector2d v2, Vector2d v3) {
-		//creates Insector of the triangle with edge points {firstSelectedV, secondSelectedV, v}
-		Vector2d incenter = GeometryUtil.getIncenter(v1, v2, v3);
-		if (incenter == null) {
-			System.out.println("Failed to calculate the incenter of the triangle");
-		} else {
-			createOriLine(incenter, v1, OriLine.TYPE_NONE);
-			createOriLine(incenter, v2, OriLine.TYPE_NONE);
-			createOriLine(incenter, v3, OriLine.TYPE_NONE);
+	public void createTriangleInsector(MouseEvent e, Point2D.Double clickPoint) {
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
+			}
+		}
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+			} else if (thirdSelectedV == null) {
+				thirdSelectedV = v;
+				
+				//creates Insector of the triangle with edge points {firstSelectedV, secondSelectedV, v}
+				OriVertex incenter = new OriVertex(GeometryUtil.getIncenter(firstSelectedV, secondSelectedV, thirdSelectedV));
+				if (incenter.p == null) {
+					System.out.println("Failed to calculate the incenter of the triangle");
+				} else {
+					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(incenter, new OriVertex(firstSelectedV), Globals.inputLineType));
+					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(incenter, new OriVertex(secondSelectedV), Globals.inputLineType));
+					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(incenter, new OriVertex(thirdSelectedV), Globals.inputLineType));
+				}
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+				thirdSelectedV = null;
+			}
 		}
 	}
 	
-	public void createOriLineExtendToLine(Vector2d v1, Vector2d v2) {
-		Vector2d uv = GeometryUtil.getUnitVector(v1, v2);
-		Vector2d crossPoint1 = GeometryUtil.getClosestCrossPoint(v1, uv);
-		uv.negate();
-		Vector2d crossPoint2 = GeometryUtil.getClosestCrossPoint(crossPoint1, uv);
+	public void createOriLineExtendToLine(MouseEvent e, Point2D.Double clickPoint) {
 		
-		createOriLine(crossPoint2, crossPoint1, OriLine.TYPE_NONE);
-	}
-	
-	public void createOriLineLengthAngle(Vector2d v1) {
-		if (Origrammer.mainFrame.uiTopPanel.inputLineLengthTF.getText().length() > 0 
-			&& Origrammer.mainFrame.uiTopPanel.inputLineAngleTF.getText().length() > 0) {
-			String lengthString = Origrammer.mainFrame.uiTopPanel.inputLineLengthTF.getText();
-			String angleString = Origrammer.mainFrame.uiTopPanel.inputLineAngleTF.getText();
-			
-			Double length = Double.parseDouble(lengthString);
-			Double angle = Double.parseDouble(angleString);
-			
-			angle = Math.toRadians(angle);
-			Vector2d v2 = new Vector2d(length * Math.cos(angle) + v1.x, length * Math.sin(angle) + v1.y);
-			
-			createOriLine(v1, v2, OriLine.TYPE_NONE);
-		} else {
-			JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoLengthAngleSpecified"),
-					"Error_NoLengthAngleSpecified", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-	
-	public void createOriLineMirrored(Vector2d v1, Vector2d v2) {
-		ArrayList<OriLine> tmpMirroredLineList = new ArrayList<OriLine>();
-
-		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-			if (l.isSelected()) {
-				OriLine mirroredLine = GeometryUtil.mirrorLine(l, new OriLine(v1, v2, OriLine.TYPE_NONE));
-				tmpMirroredLineList.add(mirroredLine);
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
 			}
 		}
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
 
-		for (OriLine l : tmpMirroredLineList) {
-			Origrammer.diagram.steps.get(Globals.currentStep).addLine(l);
+				Vector2d uv = GeometryUtil.getUnitVector(firstSelectedV, secondSelectedV);
+				OriVertex crossPoint1 = new OriVertex(GeometryUtil.getClosestCrossPoint(firstSelectedV, uv));
+				uv.negate();
+				OriVertex crossPoint2 = new OriVertex(GeometryUtil.getClosestCrossPoint(crossPoint1.p, uv));
+				
+				Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(crossPoint2, crossPoint1, Globals.inputLineType));
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
 		}
+	}
+	
+	public void createOriLineLengthAngle(MouseEvent e, Point2D.Double clickPoint) {
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
+			}
+		}
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
 
+				if (Origrammer.mainFrame.uiTopPanel.inputLineLengthTF.getText().length() > 0 
+						&& Origrammer.mainFrame.uiTopPanel.inputLineAngleTF.getText().length() > 0) {
+					String lengthString = Origrammer.mainFrame.uiTopPanel.inputLineLengthTF.getText();
+					String angleString = Origrammer.mainFrame.uiTopPanel.inputLineAngleTF.getText();
 
+					Double length = Double.parseDouble(lengthString);
+					Double angle = Double.parseDouble(angleString);
 
+					angle = Math.toRadians(angle);
+					OriVertex v2 = new OriVertex(length * Math.cos(angle) + firstSelectedV.x, length * Math.sin(angle) + firstSelectedV.y);
+					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(new OriVertex(firstSelectedV), v2, Globals.inputLineType));
+				} else {
+					JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoLengthAngleSpecified"),
+							"Error_NoLengthAngleSpecified", JOptionPane.ERROR_MESSAGE);
+				}
+
+				firstSelectedV = null;
+			}
+		}
+	}
+	
+	public void createOriLineMirrored(MouseEvent e, Point2D.Double clickPoint) {
+		
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
+			}
+		}
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+
+				ArrayList<OriLine> tmpMirroredLineList = new ArrayList<OriLine>();
+
+				for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+					if (l.isSelected()) {
+						OriLine mirroredLine = GeometryUtil.mirrorLine(l, new OriLine(new OriVertex(firstSelectedV), new OriVertex(secondSelectedV), OriLine.TYPE_NONE));
+						tmpMirroredLineList.add(mirroredLine);
+					}
+				}
+
+				for (OriLine l : tmpMirroredLineList) {
+					Origrammer.diagram.steps.get(Globals.currentStep).addLine(l);
+				}
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
+		}
 	}
 	
 	/**
@@ -1604,39 +1510,191 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	 * @param v1 Vertex1 from the OriArrow
 	 * @param v2 Vertex2 from the OriArrow
 	 */
-	private void autoCreateOriLine(Vector2d v1, Vector2d v2, int type) {
+	private void autoCreateOriLine(Vector2d v1, Vector2d v2, int type, boolean isUnfold) {
 		double length = GeometryUtil.Distance(v1, v2);
 		Vector2d uv = GeometryUtil.getUnitVector(v1, v2);
 		Vector2d nv = GeometryUtil.getNormalVector(uv);
 		double halfLength = 0.5* length;
 		
 		Vector2d middleP = new Vector2d(v1.x + uv.x * halfLength, v1.y + uv.y * halfLength);
-		
-		Vector2d lineV1 = new Vector2d(middleP.x + nv.x * halfLength, middleP.y + nv.y * halfLength);
-		Vector2d lineV2 = new Vector2d(middleP.x - nv.x * halfLength, middleP.y - nv.y*halfLength);
-		createOriLine(lineV1, lineV2, type);
+		OriVertex lineV1 = new OriVertex(GeometryUtil.getClosestCrossPoint(middleP, nv));
+		nv.negate();
+		OriVertex lineV2 = new OriVertex(GeometryUtil.getClosestCrossPoint(middleP, nv));
+
+		Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(lineV1, lineV2, type));
+
+		//if the fold is being unfolded immediately, don't auto fold it
+		if (!isUnfold) {
+			makeAutoFold(v1, v2, lineV1.p, lineV2.p);
+		}
 	}
 	
-	
-	public void createOriArrow(Vector2d v1, Vector2d v2) {
-		OriArrow tmpArrow = new OriArrow();
-
-		tmpArrow.setP0(v1);
-		tmpArrow.setP1(v2);
-		tmpArrow.setType(Globals.inputArrowType);
-		tmpArrow.setSelected(false);
-
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addArrow(tmpArrow);
+	/**
+	 * Automatically folds Vertex {@code v1} towards Vertex {@code v2} 
+	 * and updates all connected lines
+	 * @param v1
+	 * @param v2
+	 */
+	private void makeAutoFold(Vector2d v1, Vector2d v2, Vector2d lineV1, Vector2d lineV2) {
+		Vector2d foldingUV = GeometryUtil.getUnitVector(lineV1, lineV2);
+		Vector2d foldingNV = GeometryUtil.getNormalVector(foldingUV);
 		
-		if (Globals.automatedLinePlacement) {
-			if (tmpArrow.getType() == OriArrow.TYPE_VALLEY) {
-				autoCreateOriLine(v1, v2, OriLine.TYPE_VALLEY);
-			} else if (tmpArrow.getType() == OriArrow.TYPE_MOUNTAIN) {
-				autoCreateOriLine(v1, v2, OriLine.TYPE_MOUNTAIN);
+		ArrayList<OriVertex> verticesToBeUpdated = new ArrayList<OriVertex>();	
+		double offset = 0;
+
+
+		//check which vertices are on left side of the folding line and have to be updated
+		for (int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
+			OriLine curLine = Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i);
+			if (GeometryUtil.checkPointSideOfLine(lineV1, lineV2, curLine.getP0().p) == -1.0) {
+				if (!verticesToBeUpdated.contains(curLine.getP0())) {
+					verticesToBeUpdated.add(curLine.getP0());
+				}
+			}
+			if (GeometryUtil.checkPointSideOfLine(lineV1, lineV2, curLine.getP1().p) == -1.0) {
+				if (!verticesToBeUpdated.contains(curLine.getP1())) {
+					verticesToBeUpdated.add(curLine.getP1());
+				}	
+			}
+		}
+		verticesToBeUpdated = GeometryUtil.removeDuplicatesFromList(verticesToBeUpdated);
+		
+		OriLine foldingLine = new OriLine(new OriVertex(lineV1), new OriVertex(lineV2), OriLine.TYPE_NONE);
+		Vector2d closest;
+		double distToV;
+		//update the positions of all OriVertex
+		//for (OriVertex testV : Origrammer.diagram.steps.get(Globals.currentStep).vertices) {
+		for(int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).vertices.size(); i++) {
+			OriVertex testV = Origrammer.diagram.steps.get(Globals.currentStep).vertices.get(i);
+			for (OriVertex checkV : verticesToBeUpdated) {
+				if (checkV.p.equals(testV.p)) {
+					closest = GeometryUtil.getClosestPointOnLine(testV.p, foldingLine);
+					distToV = GeometryUtil.Distance(testV.p, closest)*2;
+					Origrammer.diagram.steps.get(Globals.currentStep).vertices.remove(testV);
+					OriVertex inputVertex = new OriVertex(testV.p.x + foldingNV.x * distToV-offset, testV.p.y + foldingNV.y * distToV+offset);
+					Origrammer.diagram.steps.get(Globals.currentStep).vertices.add(inputVertex);
+					
+					//check for a given OriVertex, if any lines use it --> if yes, update them
+					for (OriLine l: Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+						if (l.getP0().p.equals(testV.p)) {
+							System.out.println("updated existing p0");
+							l.setP0(inputVertex);
+						} else if (l.getP1().p.equals(testV.p)) {
+							System.out.println("updated existing p1");
+							l.setP1(inputVertex);
+						}
+					}
+				}
 			}
 		}
 
+		//TODO: fix stuff for multiple creases after each other
+		//TODO: rounding for really small numbers
+		//TODO: line hierarchy --> prevent lines being split apart
+		//TODO: render hierarchy --> render lines in right order
+		//TODO: fix Exceptions!!!!
+		
+//		if (line.getP0().equals(v1) || line.getP0().equals(v2) || line.getP1().equals(v1) || line.getP1().equals(v2)) {
+//			System.out.println("point");
+//			for (int i=0; i < Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
+//				OriLine curLine = new OriLine(Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i));
+//
+//				if (curLine.getP0().equals(v1)) {
+//					Origrammer.diagram.steps.get(Globals.currentStep).lines.remove(i);
+//					curLine.setP0(new Vector2d(v2.x-offset, v2.y+offset));
+//					curLine.setType(OriLine.TYPE_EDGE);
+//					Origrammer.diagram.steps.get(Globals.currentStep).addLine(curLine);
+//				} else if (curLine.getP1().equals(v1)) {
+//					Origrammer.diagram.steps.get(Globals.currentStep).lines.remove(i);
+//					curLine.setP1(new Vector2d(v2.x-offset, v2.y+offset));
+//					curLine.setType(OriLine.TYPE_EDGE);
+//					Origrammer.diagram.steps.get(Globals.currentStep).addLine(curLine);
+//				}
+//				
+//			}
+//		} else {
+//			System.out.println("line");
+//			double foldingDist = GeometryUtil.Distance(v1, v2);
+//			
+//			
+//			
+//			OriLine lineToFold = new OriLine(Origrammer.diagram.steps.get(Globals.currentStep).lines.get(lineIndex));
+//			for (int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
+//				OriLine curLine = new OriLine(Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i));
+//				
+//				if (curLine.getP0().equals(lineToFold.getP0())) {
+//					System.out.println("0 == 0");
+//					curLine.setP0(new Vector2d(curLine.getP0().x+foldingUV.x*foldingDist-offset, curLine.getP0().y + foldingUV.y*foldingDist+offset));
+//				} else if (curLine.getP0().equals(lineToFold.getP1())) {
+//					System.out.println("0 == 1");
+//					curLine.setP0(new Vector2d(curLine.getP0().x+foldingUV.x*foldingDist-offset, curLine.getP0().y + foldingUV.y*foldingDist+offset));
+//				}
+//				
+//				if (curLine.getP1().equals(lineToFold.getP0())) {
+//					System.out.println("1 == 0");
+//					curLine.setP1(new Vector2d(curLine.getP1().x+foldingUV.x*foldingDist-offset, curLine.getP1().y + foldingUV.y*foldingDist+offset));
+//				} else if (curLine.getP1().equals(lineToFold.getP1())) {
+//					System.out.println("1==1");
+//					curLine.setP1(new Vector2d(curLine.getP1().x+foldingUV.x*foldingDist-offset, curLine.getP1().y + foldingUV.y*foldingDist+offset));
+//				}
+//				if (!Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).getP0().equals(curLine.getP0()) 
+//						|| !Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).getP1().equals(curLine.getP1())) {
+//					System.out.println("NEW CHANGED LINE");
+//					curLine.setType(OriLine.TYPE_EDGE);
+//					Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).setP0(curLine.getP0());
+//					Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).setP1(curLine.getP1());
+//				}
+//			}
+//			
+//		}
+//
+		Origrammer.diagram.steps.get(Globals.currentStep).arrows.clear();
+	}
+	
+	
+	public void createOriArrow(MouseEvent e, Point2D.Double clickPoint) {
+		
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
+			}
+		}
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+
+				
+				OriArrow tmpArrow = new OriArrow();
+
+				tmpArrow.setP0(firstSelectedV);
+				tmpArrow.setP1(secondSelectedV);
+				tmpArrow.setUnfold(Origrammer.mainFrame.uiTopPanel.arrowIsUnfolded.isSelected());
+				tmpArrow.setMirrored(Origrammer.mainFrame.uiTopPanel.arrowIsMirrored.isSelected());
+				tmpArrow.setType(Globals.inputArrowType);
+				tmpArrow.setSelected(false);
+
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addArrow(tmpArrow);
+				
+				if (Globals.automatedLinePlacement) {
+					if (tmpArrow.getType() == OriArrow.TYPE_VALLEY) {
+						autoCreateOriLine(firstSelectedV, secondSelectedV, OriLine.TYPE_VALLEY, tmpArrow.isUnfold());
+					} else if (tmpArrow.getType() == OriArrow.TYPE_MOUNTAIN) {
+						autoCreateOriLine(firstSelectedV, secondSelectedV, OriLine.TYPE_MOUNTAIN, tmpArrow.isUnfold());
+					}
+				}
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
+		}
 	}
 	
 	/**
@@ -1654,54 +1712,105 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		
 		Vector2d arrowV1 = new Vector2d(middleP.x + nv.x * halfLength, middleP.y + nv.y * halfLength);
 		Vector2d arrowV2 = new Vector2d(middleP.x - nv.x * halfLength, middleP.y - nv.y * halfLength);
-		createOriArrow(arrowV1, arrowV2);
+		
+		int type = 0;
+		if (Globals.inputLineType == OriLine.TYPE_VALLEY) {
+			type = OriArrow.TYPE_VALLEY;
+		} else if (Globals.inputLineType == OriLine.TYPE_MOUNTAIN) {
+			type = OriArrow.TYPE_MOUNTAIN;
+		}
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrow(new OriArrow(arrowV1, arrowV2, type, false, false));
 	}
 	
 	
-	private void createRotationSymbol(Vector2d v1) {
-		OriGeomSymbol tmpSymbol = new OriGeomSymbol();
-		tmpSymbol.setP1(v1);
-		tmpSymbol.setType(OriGeomSymbol.TYPE_ROTATION);
+	private void createRotationSymbol(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
 
-		if (Origrammer.mainFrame.uiTopPanel.rotationTF.getText().length() == 0) {
-			JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_EmptyRotationTextField"),
-					"Error_EmptyRotationTextField", JOptionPane.ERROR_MESSAGE);
-		} else {
-			tmpSymbol.setSize(80); //TODO: adjustmentSlider on TopPanel
-			tmpSymbol.setText(Origrammer.mainFrame.uiTopPanel.rotationTF.getText() + "°");
-			tmpSymbol.setReversed(Origrammer.mainFrame.uiTopPanel.reverseRotSymbol.isSelected());
-			Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-			Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+				tmpSymbol.setP1(firstSelectedV);
+				tmpSymbol.setType(OriGeomSymbol.TYPE_ROTATION);
+
+				if (Origrammer.mainFrame.uiTopPanel.rotationTF.getText().length() == 0) {
+					JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_EmptyRotationTextField"),
+							"Error_EmptyRotationTextField", JOptionPane.ERROR_MESSAGE);
+				} else {
+					tmpSymbol.setSize(80); //TODO: adjustmentSlider on TopPanel
+					tmpSymbol.setText(Origrammer.mainFrame.uiTopPanel.rotationTF.getText() + "°");
+					tmpSymbol.setReversed(Origrammer.mainFrame.uiTopPanel.reverseRotSymbol.isSelected());
+					Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+					Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				}
+				
+				firstSelectedV = null;
+			}
 		}
 	}
 	
-	private void createHoldSymbol(Vector2d v1) {
-		OriGeomSymbol tmpSymbol = new OriGeomSymbol();
-		tmpSymbol.setP1(v1);
-		tmpSymbol.setType(OriGeomSymbol.TYPE_HOLD);
-		tmpSymbol.setSize(45); //TODO: adjustmentSlider on TopPanel
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+	private void createHoldSymbol(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+
+				OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+				tmpSymbol.setP1(firstSelectedV);
+				tmpSymbol.setType(OriGeomSymbol.TYPE_HOLD);
+				tmpSymbol.setSize(45); //TODO: adjustmentSlider on TopPanel
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				
+				firstSelectedV = null;
+			}
+		}
 	}
 	
-	private void createHoldAndPullSymbol(Vector2d v1, Vector2d v2) {
-		OriGeomSymbol tmpSymbol = new OriGeomSymbol();
-		tmpSymbol.setP1(firstSelectedV);
-		tmpSymbol.setP2(v2);
-		tmpSymbol.setType(OriGeomSymbol.TYPE_HOLD_AND_PULL); 
-		tmpSymbol.setSize(45); //TODO: adjustmentSlider on TopPanel
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+	private void createHoldAndPullSymbol(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+
+				OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+				tmpSymbol.setP1(firstSelectedV);
+				tmpSymbol.setP2(secondSelectedV);
+				tmpSymbol.setType(OriGeomSymbol.TYPE_HOLD_AND_PULL); 
+				tmpSymbol.setSize(45); //TODO: adjustmentSlider on TopPanel
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
+		}
 	}
 	
-	private void createNextViewHereSymbol(Vector2d v1, Vector2d v2) {
-		OriGeomSymbol tmpSymbol = new OriGeomSymbol();
-		tmpSymbol.setP1(v1);
-		tmpSymbol.setP2(v2);
-		tmpSymbol.setType(OriGeomSymbol.TYPE_NEXT_VIEW_HERE);
-		tmpSymbol.setSize(100); //TODO: adjustmentSlider on TopPanel
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+	private void createNextViewHereSymbol(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+
+				OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+				tmpSymbol.setP1(firstSelectedV);
+				tmpSymbol.setP2(secondSelectedV);
+				tmpSymbol.setType(OriGeomSymbol.TYPE_NEXT_VIEW_HERE);
+				tmpSymbol.setSize(100); //TODO: adjustmentSlider on TopPanel
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
+		}
 	}
 
 	private void createXRayCircle() {
@@ -1729,90 +1838,182 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpGeomS);
 	}
 	
-	private void createClosedSinkSymbol(Vector2d v1) {
+	private void createClosedSinkSymbol(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
 
-		OriGeomSymbol tmpSymbol = new OriGeomSymbol();
-		tmpSymbol.setP1(v1);
-		tmpSymbol.setType(OriGeomSymbol.TYPE_CLOSED_SINK);
-		tmpSymbol.setSize(10); //TODO: adjustmentSlider on TopPanel
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+				tmpSymbol.setP1(firstSelectedV);
+				tmpSymbol.setType(OriGeomSymbol.TYPE_CLOSED_SINK);
+				tmpSymbol.setSize(10); //TODO: adjustmentSlider on TopPanel
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+
+				firstSelectedV = null;
+			}
+		}
 	}
 	
-	private void createLeaderSymbol(Vector2d v1, Vector2d v2) {
-		OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+	private void createLeaderSymbol(Point2D.Double clickPoint) {
+		
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
 
-		tmpSymbol.setP1(v1);
-		tmpSymbol.setP2(v2);
-		if (Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText().length() > 0) {
-			tmpSymbol.setText(Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText());
-		} else {
-			JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_EmptyLeaderTextField"),
-					"Error_EmptyLeaderTextField", 
-					JOptionPane.ERROR_MESSAGE);
+				OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+
+				tmpSymbol.setP1(firstSelectedV);
+				tmpSymbol.setP2(secondSelectedV);
+				if (Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText().length() > 0) {
+					tmpSymbol.setText(Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText());
+				} else {
+					JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_EmptyLeaderTextField"),
+							"Error_EmptyLeaderTextField", 
+							JOptionPane.ERROR_MESSAGE);
+				}
+
+				tmpSymbol.setType(OriGeomSymbol.TYPE_LEADER);
+
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
 		}
-
-		tmpSymbol.setType(OriGeomSymbol.TYPE_LEADER);
-
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
 	}
 	
-	private void createRepetitionBoxSymbol(Vector2d v1, Vector2d v2) {
-		OriGeomSymbol tmpSymbol = new OriGeomSymbol();
+	private void createRepetitionBoxSymbol(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+				
+				OriGeomSymbol tmpSymbol = new OriGeomSymbol();
 
-		tmpSymbol.setP1(v1);
-		tmpSymbol.setP2(v2);
-		if (Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText().length() > 0) {
-			tmpSymbol.setText(Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText());
-		} else {
-			JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_EmptyLeaderTextField"),
-					"Error_EmptyLeaderTextField", 
-					JOptionPane.ERROR_MESSAGE);
+				tmpSymbol.setP1(firstSelectedV);
+				tmpSymbol.setP2(secondSelectedV);
+				if (Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText().length() > 0) {
+					tmpSymbol.setText(Origrammer.mainFrame.uiTopPanel.inputLeaderTextTF.getText());
+				} else {
+					JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_EmptyLeaderTextField"),
+							"Error_EmptyLeaderTextField", 
+							JOptionPane.ERROR_MESSAGE);
+				}
+
+				tmpSymbol.setType(OriGeomSymbol.TYPE_REPETITION);
+
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
 		}
-
-		tmpSymbol.setType(OriGeomSymbol.TYPE_REPETITION);
-
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
 	}
 
-	private void createEqualDistSymbol(Vector2d v1, Vector2d v2) {
-		OriEqualDistSymbol tmpEquDistSymbol = new OriEqualDistSymbol();
-
-		tmpEquDistSymbol.setTranslationDist(Origrammer.mainFrame.uiTopPanel.sliderEqualDist.getValue());
-		tmpEquDistSymbol.setDividerCount(Integer.parseInt(Origrammer.mainFrame.uiTopPanel.equalDistDividerTF.getText()));
-		tmpEquDistSymbol.setP0(v1);
-		tmpEquDistSymbol.setP1(v2);
-
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(tmpEquDistSymbol);
-
-	}
-
-	private void createEqualAnglSymbol(Vector2d v1, Vector2d v2, Vector2d v3) {
-
-		Vector2d uv1 = GeometryUtil.getUnitVector(v1, v2);
-		Vector2d uv2 = GeometryUtil.getUnitVector(v1, v3);
-
-		OriEqualAnglSymbol tmpEquAnglSymbol = new OriEqualAnglSymbol(v1, v2, v3);
-		tmpEquAnglSymbol.setDividerCount(Integer.parseInt(Origrammer.mainFrame.uiTopPanel.equalAnglDividerTF.getText()));
-
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addEqualAngleSymbol(tmpEquAnglSymbol);
-	}
-
-	private void createPleatCrimpSymbol(Vector2d v1) {
-		OriPleatCrimpSymbol tmpPCSymbol = new OriPleatCrimpSymbol(v1, 
-				Origrammer.mainFrame.uiTopPanel.pleatCB.isSelected(),
-				Integer.parseInt(Origrammer.mainFrame.uiTopPanel.pleatTF.getText()));
-		if (Origrammer.mainFrame.uiTopPanel.pleatRB.isSelected()) {
-			tmpPCSymbol.setType(OriPleatCrimpSymbol.TYPE_PLEAT);
-		} else {
-			tmpPCSymbol.setType(OriPleatCrimpSymbol.TYPE_CRIMP);
+	private void createEqualDistSymbol(MouseEvent e, Point2D.Double clickPoint) {
+		
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
+			}
 		}
-		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		Origrammer.diagram.steps.get(Globals.currentStep).addPleatSymbol(tmpPCSymbol);
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+
+				OriEqualDistSymbol tmpEquDistSymbol = new OriEqualDistSymbol();
+
+				tmpEquDistSymbol.setTranslationDist(Origrammer.mainFrame.uiTopPanel.sliderEqualDist.getValue());
+				tmpEquDistSymbol.setDividerCount(Integer.parseInt(Origrammer.mainFrame.uiTopPanel.equalDistDividerTF.getText()));
+				tmpEquDistSymbol.setP0(firstSelectedV);
+				tmpEquDistSymbol.setP1(secondSelectedV);
+
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(tmpEquDistSymbol);
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+			}
+		}
+	}
+
+	private void createEqualAnglSymbol(MouseEvent e, Point2D.Double clickPoint) {
+		
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+				OriLine l = pickOriLine(clickPoint);
+				if (l != null) {
+					v = new Vector2d();
+					Vector2d cp = new Vector2d(clickPoint.x, clickPoint.y);
+					GeometryUtil.DistancePointToSegment(cp, l.getP0().p, l.getP1().p, v);
+				}
+			}
+		}
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+			} else if (secondSelectedV == null) {
+				secondSelectedV = v;
+			} else if (thirdSelectedV == null) {
+				thirdSelectedV = v;
+				
+				Vector2d uv1 = GeometryUtil.getUnitVector(firstSelectedV, secondSelectedV);
+				Vector2d uv2 = GeometryUtil.getUnitVector(firstSelectedV, thirdSelectedV);
+
+				OriEqualAnglSymbol tmpEquAnglSymbol = new OriEqualAnglSymbol(firstSelectedV, secondSelectedV, thirdSelectedV);
+				tmpEquAnglSymbol.setDividerCount(Integer.parseInt(Origrammer.mainFrame.uiTopPanel.equalAnglDividerTF.getText()));
+
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addEqualAngleSymbol(tmpEquAnglSymbol);
+				
+				firstSelectedV = null;
+				secondSelectedV = null;
+				thirdSelectedV = null;
+			}
+		}
+	}
+
+	private void createPleatCrimpSymbol(Point2D.Double clickPoint) {
+		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		
+		if (v != null) {
+			if (firstSelectedV == null) {
+				firstSelectedV = v;
+				
+				OriPleatCrimpSymbol tmpPCSymbol = new OriPleatCrimpSymbol(firstSelectedV, 
+						Origrammer.mainFrame.uiTopPanel.pleatCB.isSelected(),
+						Integer.parseInt(Origrammer.mainFrame.uiTopPanel.pleatTF.getText()));
+				if (Origrammer.mainFrame.uiTopPanel.pleatRB.isSelected()) {
+					tmpPCSymbol.setType(OriPleatCrimpSymbol.TYPE_PLEAT);
+				} else {
+					tmpPCSymbol.setType(OriPleatCrimpSymbol.TYPE_CRIMP);
+				}
+				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
+				Origrammer.diagram.steps.get(Globals.currentStep).addPleatSymbol(tmpPCSymbol);
+				
+				firstSelectedV = null;
+			}
+		}
 	}
 
 
@@ -1836,10 +2037,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	
 	private void selectOriVertex(Point2D.Double clickPoint) {
 		//select OriVertex or unselect all OriVertices if clicked on nothing
-		Vector2d p = pickVertex(clickPoint);
-		if (p != null) {
+		Vector2d vertex = pickVertex(clickPoint);
+		if (vertex != null) {
 			for (OriVertex v : Origrammer.diagram.steps.get(Globals.currentStep).vertices) {
-				if (v.getP().x == p.x && v.getP().y == p.y) {
+				if (v.getP().x == vertex.x && v.getP().y == vertex.y) {
 					if (v != null) {
 						if (!v.isSelected()) {
 							v.setSelected(true);
@@ -1972,7 +2173,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		//MEASURE LENGTH (OriLine.v0 - OriLine.v1)
 		OriLine l = pickOriLine(clickPoint);
 		if (v == null && l != null) {
-			double length = GeometryUtil.Distance(l.getP0(), l.getP1());
+			double length = GeometryUtil.Distance(l.getP0().p, l.getP1().p);
 			Origrammer.mainFrame.uiSidePanel.measureLengthTF.setValue(length);;
 			firstSelectedL = null;
 		}
@@ -2000,7 +2201,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				firstSelectedL = l;
 			} else {
 				//double angle = GeometryUtil.measureAngle(firstSelectedL, l); //use for measuring the spanning angles between 2 lines
-				double angle = GeometryUtil.measureAngleToXAxis(GeometryUtil.getUnitVector(firstSelectedL.getP0(), firstSelectedL.getP1()));
+				double angle = GeometryUtil.measureAngleToXAxis(GeometryUtil.getUnitVector(firstSelectedL.getP0().p, firstSelectedL.getP1().p));
 				Origrammer.mainFrame.uiSidePanel.measureAngleTF.setValue(Math.toDegrees(angle));
 				firstSelectedL = null;
 			}
@@ -2045,7 +2246,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				inputVertexMode(e, clickPoint);
 				break;
 			case INPUT_ARROW:
-				createTwoVertexInput(e, clickPoint, "createOriArrow");
+				createOriArrow(e, clickPoint);
 				break;
 			case INPUT_SYMBOL:
 				inputSymbolMode(e, clickPoint);
@@ -2066,8 +2267,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private void inputVertexMode(MouseEvent e, Point2D.Double clickPoint) {
 		switch(Globals.vertexInputMode) {
 			case ABSOLUTE:
-				createOnePointInput(e, clickPoint, "createVertexAbsolutePos");
-				//createVertexAbsolutePos(clickPoint);
+				createVertexAbsolutePos(clickPoint);
 				break;
 			case FRACTION_OF_LINE:
 				createVertexFractionOfLine(clickPoint);
@@ -2080,29 +2280,24 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private void inputLineMode(MouseEvent e, Point2D.Double clickPoint) {
 		switch(Globals.lineEditMode) {
 			case INPUT_LINE:
-				createTwoVertexInput(e, clickPoint, "createOriLine");
+				createOriLine(e, clickPoint);
 				break;
 			case ANGLE_BISECTOR:
-				//createTwoLineInput(e, clickPoint, "createOriLineAngleBisector");
 				createOriLineAngleBisector(clickPoint);
 				break;
 			case PERPENDICULAR:
-				//createOneVertexInput(e, clickPoint, "createOriLinePerpendicular");
 				createOriLinePerpendicular(e, clickPoint);
 				break;
 			case TRIANGLE_INSECTOR:
-				createThreeVertexInput(e, clickPoint, "createTriangleInsector");
-				//createTriangleInsector(clickPoint);
+				createTriangleInsector(e, clickPoint);
 				break;
 			case EXTEND_TO_NEXT_LINE:
-				createTwoVertexInput(e, clickPoint, "createOriLineExtendToLine");
-				//createOriLineExtendToLine(clickPoint);
+				createOriLineExtendToLine(e, clickPoint);
 				break;
 			case BY_LENGTH_AND_ANGLE:
-				createOneVertexInput(e, clickPoint, "createOriLineLengthAngle");
+				createOriLineLengthAngle(e, clickPoint);
 			case MIRRORED:
-				createTwoVertexInput(e, clickPoint, "createOriLineMirrored");
-				//createOriLineMirrored(e, clickPoint);
+				createOriLineMirrored(e, clickPoint);
 			default:
 				break;
 		}
@@ -2111,46 +2306,37 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private void inputSymbolMode(MouseEvent e, Point2D.Double clickPoint) {
 		switch(Globals.inputSymbolMode) {
 			case LEADER:
-				createTwoPointInput(clickPoint, "createLeaderSymbol");
-				//createLeaderBox(clickPoint);
+				createLeaderSymbol(clickPoint);
 				break;
 			case REPETITION_BOX:
-				createTwoPointInput(clickPoint, "createRepetitionBoxSymbol");
-				//createLeaderBox(clickPoint);
+				createRepetitionBoxSymbol(clickPoint);
 				break;
 			case EQUAL_DIST:
-				createTwoVertexInput(e, clickPoint, "createEqualDistSymbol");
-				//createEqualDistSymbol(clickPoint);
+				createEqualDistSymbol(e, clickPoint);
 				break;
 			case EQUAL_ANGL:
-				createThreeVertexInput(e, clickPoint, "createEqualAnglSymbol");
-				//createEqualAnglSymbol(clickPoint);
+				createEqualAnglSymbol(e, clickPoint);
 				break;
 			case CRIMPING_PLEATING:
-				createOnePointInput(e, clickPoint, "createPleatCrimpSymbol");
-				//createPleatCrimpSymbol(clickPoint);
+				createPleatCrimpSymbol(clickPoint);
 				break;
 			case SINKS:
-				createOnePointInput(e, clickPoint, "createClosedSinkSymbol");
-				//createClosedSinkSymbol(clickPoint);
+				createClosedSinkSymbol(clickPoint);
 				break;
 			case FOLD_OVER_AND_OVER:
+				//TODO: create the fold over and over symbol
 				break;
 			case HOLD_HERE:
-				createOnePointInput(e, clickPoint, "createHoldSymbol");
-				//createHoldSymbol(clickPoint);
+				createHoldSymbol(clickPoint);
 				break;
 			case HOLD_HERE_AND_PULL:
-				createTwoPointInput(clickPoint, "createHoldAndPullSymbol");
-				//createHoldAndPullSymbol(clickPoint);
+				createHoldAndPullSymbol(clickPoint);
 				break;
 			case NEXT_VIEW:
-				createTwoPointInput(clickPoint, "createNextViewHereSymbol");
-				//createNextViewHereSymbol(clickPoint);
+				createNextViewHereSymbol(clickPoint);
 				break;
 			case ROTATIONS:
-				createOnePointInput(e, clickPoint, "createRotationSymbol");
-				//createRotationSymbol(clickPoint);
+				createRotationSymbol(clickPoint);
 				break;
 			case X_RAY_CIRCLE:
 				//is done through MouseDragged(MouseEvent e){}
@@ -2325,7 +2511,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				|| (Globals.toolbarMode == Constants.ToolbarMode.INPUT_VERTEX && Globals.vertexInputMode == Constants.VertexInputMode.ABSOLUTE)	//TODO: maybe just for everything except Selection tool?
 				|| Globals.toolbarMode == Constants.ToolbarMode.FILL_TOOL
 				) {
-				Vector2d firstV = selectedCandidateV;
+			Vector2d firstV = selectedCandidateV;
 				selectedCandidateV = this.pickVertex(currentMousePointLogic);
 
 				if (selectedCandidateV == null) {
@@ -2334,7 +2520,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 						if (l != null) {
 							selectedCandidateV = new Vector2d();
 							Vector2d cp = new Vector2d(currentMousePointLogic.x, currentMousePointLogic.y);
-							GeometryUtil.DistancePointToSegment(cp,  l.getP0(), l.getP1(), selectedCandidateV);
+							GeometryUtil.DistancePointToSegment(cp,  l.getP0().p, l.getP1().p, selectedCandidateV);
 						}
 					}
 				}
@@ -2513,7 +2699,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 			//Check if there is a line in the selection rectangle
 			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-				Line2D tmpL = new Line2D.Double(l.getP0().x, l.getP0().y, l.getP1().x, l.getP1().y);
+				Line2D tmpL = new Line2D.Double(l.getP0().p.x, l.getP0().p.y, l.getP1().p.x, l.getP1().p.y);
 				if (tmpL.intersects(selectRect)) {
 					l.setSelected(true);
 				} else {

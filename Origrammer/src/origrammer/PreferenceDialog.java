@@ -32,6 +32,7 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 	private JCheckBox isColoredLines = new JCheckBox();
 	private JCheckBox automatedArrowPlacement = new JCheckBox();
 	private JCheckBox automatedLinePlacement = new JCheckBox();
+	private JCheckBox automatedFolding = new JCheckBox();
 
 
 	//BUTTONS
@@ -51,7 +52,7 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 
 	private void init() {
 		this.addComponentListener(this);
-		this.setSize(375, 265);
+		this.setSize(375, 290);
 		this.setContentPane(getJContentPane());
 		this.setTitle("Origrammer Preferences");
 		outsideReverseCB.setEnabled(false);
@@ -95,6 +96,12 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 			automatedLinePlacement.setSelected(true);
 		} else {
 			automatedLinePlacement.setSelected(false);
+		}
+		
+		if (Globals.automatedFolding) {
+			automatedFolding.setSelected(true);
+		} else {
+			automatedFolding.setSelected(false);
 		}
 
 		applyButton.addActionListener(this);
@@ -141,6 +148,9 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 		
 		JLabel automatedLineLabel = new JLabel("Automatically place Lines: ", JLabel.TRAILING);
 		automatedLineLabel.setLabelFor(automatedLinePlacement);
+		
+		JLabel automatedFoldingLabel = new JLabel("Automatically fold the paper: ", JLabel.TRAILING);
+		automatedFoldingLabel.setLabelFor(automatedFolding);
 
 		preferencePanel.setLayout(preferenceLayout);
 		preferencePanel.add(mountainStyleLabel);
@@ -155,9 +165,11 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 		preferencePanel.add(automatedArrowPlacement);
 		preferencePanel.add(automatedLineLabel);
 		preferencePanel.add(automatedLinePlacement);
+		preferencePanel.add(automatedFoldingLabel);
+		preferencePanel.add(automatedFolding);
 
 		preferencePanel.setLayout(preferenceLayout);
-		SpringUtilities.makeCompactGrid(preferencePanel, 6, 2, 6, 6, 6, 6);
+		SpringUtilities.makeCompactGrid(preferencePanel, 7, 2, 6, 6, 6, 6);
 	}
 
 	private void addButtonsPanel() {

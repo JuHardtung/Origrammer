@@ -124,9 +124,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	private JButton pleatButton = new JButton("Set");
 
 	//ARROWS SETTINGS
-	private JPanel sliderPanel = new JPanel();
-//	private JSlider arrowScaleSlider = new JSlider(0, 100);
-//	private JSlider arrowRotSlider = new JSlider(0, 3600);
+	private JPanel arrowPanel = new JPanel();
 	public JCheckBox arrowIsMirrored = new JCheckBox("Is Mirrored");
 	public JCheckBox arrowIsUnfolded = new JCheckBox("Is Unfolded");
 	
@@ -189,7 +187,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		add(equalDistPanel);
 		add(equalAnglPanel);
 		add(pleatPanel);
-		add(sliderPanel);
+		add(arrowPanel);
 		add(rotationPanel);
 		add(nextViewPanel);
 
@@ -335,10 +333,10 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 
 	private void addArrowSettingsPanel() {
 		arrowIsMirrored.addActionListener(this);
-		sliderPanel.add(arrowIsMirrored);
+		arrowPanel.add(arrowIsMirrored);
 		arrowIsUnfolded.addActionListener(this);
-		sliderPanel.add(arrowIsUnfolded);
-		sliderPanel.setVisible(false);
+		arrowPanel.add(arrowIsUnfolded);
+		arrowPanel.setVisible(false);
 	}
 
 	private void addSymbolInputPanel() {
@@ -786,9 +784,11 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		}
 
 		if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_ARROW) {
-			inputArrowPanel.setVisible(true);			
+			inputArrowPanel.setVisible(true);
+			arrowPanel.setVisible(true);
 		} else {
-			inputArrowPanel.setVisible(false);			
+			inputArrowPanel.setVisible(false);
+			arrowPanel.setVisible(false);
 		}
 
 		if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_SYMBOL) {
@@ -854,11 +854,11 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 			for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
 				if (a.isSelected()) {
 					changeArrowPanel.setVisible(true);
-					sliderPanel.setVisible(true);
+					arrowPanel.setVisible(true);
 					break;
 				} else {
 					changeArrowPanel.setVisible(false);
-					sliderPanel.setVisible(false);
+					arrowPanel.setVisible(false);
 				}
 			}
 			for (OriFace f : Origrammer.diagram.steps.get(Globals.currentStep).filledFaces) {
@@ -930,50 +930,6 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		}
 		screen.modeChanged();
 	}
-
-	//Indents JComboBox entries
-//	class IndentedRenderer extends DefaultListCellRenderer {
-//		public Component getListCellRendererComponent(JList list, Object value,
-//				int index,boolean isSelected,boolean cellHasFocus) {
-//			JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-//			lbl.setBorder(BorderFactory.createEmptyBorder(0,5,0,0));
-//			return lbl;
-//		}
-//	}
-
-	//source: http://esus.com/creating-a-jcombobox-with-a-divider-separator-line/
-//	class SeparatorComboBoxRenderer extends BasicComboBoxRenderer implements ListCellRenderer {
-//		public SeparatorComboBoxRenderer() {
-//			super();
-//		}
-//
-//		public Component getListCellRendererComponent(JList list,
-//				Object value, int index, boolean isSelected, boolean cellHasFocus) {
-//			JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-//			lbl.setBorder(BorderFactory.createEmptyBorder(0,5,0,0));
-//			if (isSelected) {
-//				setBackground(list.getSelectionBackground());
-//				setForeground(list.getSelectionForeground());
-//			}
-//			else {
-//				setBackground(list.getBackground());
-//				setForeground(list.getForeground());
-//			}
-//
-//			setFont(list.getFont());
-//			if (value instanceof Icon) {
-//				setIcon((Icon)value);
-//			}
-//			if (value instanceof JSeparator) {
-//				return (Component) value;
-//			}
-//			else {
-//				setText((value == null) ? "" : value.toString());
-//			}
-//
-//			return lbl;
-//		} 
-//	}
 
 	//source: http://esus.com/creating-a-jcombobox-with-a-divider-separator-line/
 	class SeparatorComboBoxListener implements ActionListener {

@@ -3,11 +3,12 @@ package origrammer;
 import javax.vecmath.Vector2d;
 
 import origrammer.geometry.OriLine;
+import origrammer.geometry.OriVertex;
 
 public class OriLineProxy {
 	
-	private Vector2d p0;
-	private Vector2d p1;
+	private OriVertex p0;
+	private OriVertex p1;
 	private int type;
 	private boolean isStartTransl;
 	private boolean isEndTransl;
@@ -28,19 +29,19 @@ public class OriLineProxy {
 		return new OriLine(p0, p1, type, isStartTransl, isEndTransl);
 	}
 
-	public Vector2d getP0() {
+	public OriVertex getP0() {
 		return p0;
 	}
 
-	public void setP0(Vector2d p0) {
+	public void setP0(OriVertex p0) {
 		this.p0 = p0;
 	}
 
-	public Vector2d getP1() {
+	public OriVertex getP1() {
 		return p1;
 	}
 
-	public void setP1(Vector2d p1) {
+	public void setP1(OriVertex p1) {
 		this.p1 = p1;
 	}
 

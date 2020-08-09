@@ -30,6 +30,7 @@ public class Globals {
 	public static boolean dispColoredLines = false;
 	public static boolean automatedArrowPlacement = false;
 	public static boolean automatedLinePlacement = false;
+	public static boolean automatedFolding = false;
 	public static int inputLineType = OriLine.TYPE_VALLEY;
 	public static int inputArrowType = OriArrow.TYPE_VALLEY;
 	public static boolean renderStepPreview = false;

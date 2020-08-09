@@ -25,7 +25,13 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import origrammer.geometry.OriArrow;
+import origrammer.geometry.OriEqualAnglSymbol;
+import origrammer.geometry.OriEqualDistSymbol;
+import origrammer.geometry.OriFace;
+import origrammer.geometry.OriGeomSymbol;
 import origrammer.geometry.OriLine;
+import origrammer.geometry.OriPleatCrimpSymbol;
+import origrammer.geometry.OriVertex;
 
 public class UIBottomPanel extends JPanel implements ActionListener, PropertyChangeListener, KeyListener {
 
@@ -89,6 +95,9 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 				Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 			}
 		});
+		newEmptyStep.addActionListener(this);
+		newCopiedStep.addActionListener(this);
+		newBaseShapeStep.addActionListener(this);
 
 		newStepGroup = new ButtonGroup();
 		newStepGroup.add(newEmptyStep);
@@ -132,7 +141,7 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 	 * Go one {@code Step} forward and create new {@code Step} 
 	 * if the current {@code Step} was the last one
 	 */
-	private void stepForth() {
+	public void stepForth() {
 		Globals.currentStep += 1;
 		
 		if (Globals.currentStep-1 == Origrammer.diagram.steps.size() - 1) {
@@ -147,13 +156,13 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 	 * Creates a new {@code Step}
 	 */
 	public void createNewStep() {
-		if (newCopiedStep.isSelected()) {
+		if (Globals.newStepOptions == Constants.NewStepOptions.COPY_LAST_STEP) {
 			//new step that is a copy of last step
 			createStepLastCopy(Globals.currentStep);
-		} else if (newBaseShapeStep.isSelected()) {
+		} else if (Globals.newStepOptions == Constants.NewStepOptions.PASTE_DEFAULT_PAPER) {
 			//new step with previously chosen paper shape
 			createStepPaperShape(Globals.currentStep);
-		} else if (newEmptyStep.isSelected()) {
+		} else if (Globals.newStepOptions == Constants.NewStepOptions.EMPTY_STEP) {
 			//new empty step
 			createEmptyStep(Globals.currentStep);
 		}
@@ -167,13 +176,13 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 		Globals.currentStep += 1;
 		
 		//if currentStep == last step in diagram --> create new step
-		if (newCopiedStep.isSelected()) {
+		if (Globals.newStepOptions == Constants.NewStepOptions.COPY_LAST_STEP) {
 			//new step that is a copy of last step
 			createStepLastCopy(stepNumber);
-		} else if (newBaseShapeStep.isSelected()) {
+		} else if (Globals.newStepOptions == Constants.NewStepOptions.PASTE_DEFAULT_PAPER) {
 			//new step with previously chosen paper shape
 			createStepPaperShape(stepNumber);
-		} else if (newEmptyStep.isSelected()) {
+		} else if (Globals.newStepOptions == Constants.NewStepOptions.EMPTY_STEP) {
 			//new empty step
 			createEmptyStep(stepNumber);
 		}
@@ -185,47 +194,48 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 	/**
 	 * Creates a new folding {@code Step} that is an exact copy of the previous {@code Step}
 	 */
-	private void createStepLastCopy(int stepNumber) {
+	public void createStepLastCopy(int stepNumber) {
 		int prevStep = Globals.currentStep-1;
 		Step newStep = new Step();
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).lines.size(); i++) {
-			newStep.lines.add(Origrammer.diagram.steps.get(prevStep).lines.get(i));
+			OriLine tmpLine = new OriLine(Origrammer.diagram.steps.get(prevStep).lines.get(i));
+			newStep.lines.add(tmpLine);
 		}
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).vertices.size(); i++) {
-			newStep.vertices.add(Origrammer.diagram.steps.get(prevStep).vertices.get(i));
+			OriVertex tmpVertex = new OriVertex(Origrammer.diagram.steps.get(prevStep).vertices.get(i));
+			newStep.vertices.add(tmpVertex);
 		}		
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).arrows.size(); i++) {
-			OriArrow tmpArrow = new OriArrow();
-			tmpArrow.setP0(Origrammer.diagram.steps.get(prevStep).arrows.get(i).getP0());
-			tmpArrow.setP1(Origrammer.diagram.steps.get(prevStep).arrows.get(i).getP1());
-			tmpArrow.setType(Origrammer.diagram.steps.get(prevStep).arrows.get(i).getType());
-			tmpArrow.setMirrored(Origrammer.diagram.steps.get(prevStep).arrows.get(i).isMirrored());
-			tmpArrow.setSelected(Origrammer.diagram.steps.get(prevStep).arrows.get(i).isSelected());
-
+			OriArrow tmpArrow = new OriArrow(Origrammer.diagram.steps.get(prevStep).arrows.get(i));
 			newStep.arrows.add(tmpArrow);
 		}
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).filledFaces.size(); i++) {
-			newStep.filledFaces.add(Origrammer.diagram.steps.get(prevStep).filledFaces.get(i));
+			OriFace tmpFilledFace = new OriFace(Origrammer.diagram.steps.get(prevStep).filledFaces.get(i));
+			newStep.filledFaces.add(tmpFilledFace);
 		}
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).geomSymbols.size(); i++) {
-			newStep.geomSymbols.add(Origrammer.diagram.steps.get(prevStep).geomSymbols.get(i));
+			OriGeomSymbol tmpGeomSymbol = new OriGeomSymbol(Origrammer.diagram.steps.get(prevStep).geomSymbols.get(i));
+			newStep.geomSymbols.add(tmpGeomSymbol);
 		}
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).equalDistSymbols.size(); i++) {
-			newStep.equalDistSymbols.add(Origrammer.diagram.steps.get(prevStep).equalDistSymbols.get(i));
+			OriEqualDistSymbol tmpEqualDistSymbol = new OriEqualDistSymbol(Origrammer.diagram.steps.get(prevStep).equalDistSymbols.get(i));
+			newStep.equalDistSymbols.add(tmpEqualDistSymbol);
 		}
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).equalAnglSymbols.size(); i++) {
-			newStep.equalAnglSymbols.add(Origrammer.diagram.steps.get(prevStep).equalAnglSymbols.get(i));
+			OriEqualAnglSymbol tmpEqualAnglSymbol = new OriEqualAnglSymbol(Origrammer.diagram.steps.get(prevStep).equalAnglSymbols.get(i));
+			newStep.equalAnglSymbols.add(tmpEqualAnglSymbol);
 		}
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).pleatCrimpSymbols.size(); i++) {
-			newStep.pleatCrimpSymbols.add(Origrammer.diagram.steps.get(prevStep).pleatCrimpSymbols.get(i));
+			OriPleatCrimpSymbol tmpPleatCrimpSymbol = new OriPleatCrimpSymbol(Origrammer.diagram.steps.get(prevStep).pleatCrimpSymbols.get(i));
+			newStep.pleatCrimpSymbols.add(tmpPleatCrimpSymbol);
 		}
 		
 		Origrammer.diagram.steps.add(stepNumber, newStep);
@@ -238,8 +248,6 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 	 */
 	public void createStepPaperShape(int stepNumber) {
 		Step newStep = new Step();
-		ArrayList<OriLine> newLines = Origrammer.diagram.steps.get(Globals.currentStep-1).getEdgeLines();
-		newStep.lines.addAll(newLines);
 		
 		Origrammer.diagram.steps.add(stepNumber, newStep);
 		Origrammer.mainFrame.uiStepOverviewPanel.createStepPreview();
@@ -269,6 +277,15 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 			stepBack();
 		} else if (e.getSource() == stepForth) {
 			stepForth();
+		} else if (e.getSource() == newCopiedStep) {
+			System.out.println("COPY");
+			Globals.newStepOptions = Constants.NewStepOptions.COPY_LAST_STEP;
+		} else if (e.getSource() == newBaseShapeStep) {
+			System.out.println("BASE SHAPE");
+			Globals.newStepOptions = Constants.NewStepOptions.PASTE_DEFAULT_PAPER;
+		} else if (e.getSource() == newEmptyStep) {
+			System.out.println("EMPTY");
+			Globals.newStepOptions = Constants.NewStepOptions.EMPTY_STEP;
 		}
 	}
 
