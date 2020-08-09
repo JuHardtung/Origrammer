@@ -427,7 +427,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 			createDivideInto3Preset();
 			break;
 		case INTO_5:
-			//createDivideInto5Preset();
+			createDivideInto5Preset();
 			break;
 		case INTO_7:
 			break;
@@ -577,143 +577,175 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	/**
 	 * Creates the steps with all lines/arrows/symbols required to divide the paper into a 5-by-5 grid
 	 */
-//	private void createDivideInto5Preset() {
-//		ArrayList<OriLine> lineList = new ArrayList<OriLine>();
-//		ArrayList<OriArrow> arrowList = new ArrayList<OriArrow>();
-//		OriGeomSymbol tmpGeomSymbol;
-//		OriEqualDistSymbol equalDistSymbol;
-//		
-//		//STEP 0
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(-300, -300), new Vector2d(300, 300), OriArrow.TYPE_VALLEY, false, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold und unfold diagonally");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//
-//		//STEP 1
-//		Globals.currentStep += 1;
-//		lineList.clear();
-//		arrowList.clear();
-//		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(-51.471862576141724, -300), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(-300, -150), new Vector2d(0, 0), OriArrow.TYPE_VALLEY, false, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the angle bisector");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//
-//		//STEP 2
-//		Globals.currentStep += 1;
-//		lineList.clear();
-//		arrowList.clear();
-//		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(-51.471862576141724, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(-180, -300), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(-300, -187.5), new Vector2d(-112.5, -150), OriArrow.TYPE_VALLEY, false, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the next angle bisector");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//
-//		//STEP 3
-//		Globals.currentStep += 1;
-//		lineList.clear();
-//		arrowList.clear();
-//		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(-51.471862576141724, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(-180, -300), OriLine.TYPE_CREASE));
-//		lineList.add(new OriLine(new Vector2d(-180, -300), new Vector2d(-180, 300), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(-60, -60), OriArrow.TYPE_VALLEY, false, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-//		tmpGeomSymbol = new OriGeomSymbol(new Vector2d(-202.5, -322.5), 45, OriGeomSymbol.TYPE_XRAY_CIRCLE);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpGeomSymbol);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Use the crease mark of the last step to make a vertical fold at 1/5th");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//		
-//		//STEP 4
-//		Globals.currentStep += 1;
-//		lineList.clear();
-//		arrowList.clear();
-//		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-180, -300), new Vector2d(-180, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(60, -300), new Vector2d(60, 300), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(-180, 0), OriArrow.TYPE_VALLEY, true, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the right edge onto the crease made in the last step. Irrelevant crease lines will not longer be shown.");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//
-//		
-//		//STEP 5
-//		Globals.currentStep += 1;
-//		lineList.clear();
-//		arrowList.clear();
-//		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-180, -300), new Vector2d(-180, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(60, -300), new Vector2d(60, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-60, 300), new Vector2d(-60, -300), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(60, 0), OriArrow.TYPE_VALLEY, true, true));
-//		lineList.add(new OriLine(new Vector2d(180, -300), new Vector2d(180, 300), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(180, -60), OriArrow.TYPE_VALLEY, false, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-//		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(300, -300), -40, 5);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//		
-//		//STEP 6
-//		Globals.currentStep += 1;
-//		lineList.clear();
-//		arrowList.clear();
-//		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-180, -300), new Vector2d(-180, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(60, -300), new Vector2d(60, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-60, 300), new Vector2d(-60, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(180, -300), new Vector2d(180, 300), OriLine.TYPE_CREASE, true, true));
-//		
-//		lineList.add(new OriLine(new Vector2d(-300, -180), new Vector2d(300, -180), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(60, -300), new Vector2d(60, -60), OriArrow.TYPE_VALLEY, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, -60), new Vector2d(300, -60), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(-180, -300), new Vector2d(-180, 180), OriArrow.TYPE_VALLEY, false, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 60), new Vector2d(300, 60), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(180, 300), new Vector2d(180, -180), OriArrow.TYPE_VALLEY, false, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 180), new Vector2d(300, 180), OriLine.TYPE_VALLEY));
-//		arrowList.add(new OriArrow(new Vector2d(-60, 300), new Vector2d(-60, 60), OriArrow.TYPE_VALLEY, false, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-//		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(-300, 300), 40, 5);
-//		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//		
-//		
-//		//STEP 7
-//		Globals.currentStep += 1;
-//		lineList.clear();
-//		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-//		lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-180, -300), new Vector2d(-180, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(60, -300), new Vector2d(60, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-60, 300), new Vector2d(-60, -300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(180, -300), new Vector2d(180, 300), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, -180), new Vector2d(300, -180), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, -60), new Vector2d(300, -60), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 60), new Vector2d(300, 60), OriLine.TYPE_CREASE, true, true));
-//		lineList.add(new OriLine(new Vector2d(-300, 180), new Vector2d(300, 180), OriLine.TYPE_CREASE, true, true));
-//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Done.");
-//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-//	}
-//	
+	private void createDivideInto5Preset() {
+		ArrayList<OriLine> lineList = new ArrayList<OriLine>();
+		ArrayList<OriArrow> arrowList = new ArrayList<OriArrow>();
+		OriGeomSymbol tmpGeomSymbol;
+		OriEqualDistSymbol equalDistSymbol;
+		
+		//FULL 300
+		OriVertex minusPlus = new OriVertex(-300, 300);
+		OriVertex plusMinus = new OriVertex(300, -300);
+		
+		//-51.4718 -300
+		OriVertex minus51Minus = new OriVertex(-51.471862576141724, -300);
+		
+		//180 300
+		OriVertex plus180Plus = new OriVertex(180, 300);
+		OriVertex plus180Minus = new OriVertex(180, -300);
+		OriVertex minus180Plus = new OriVertex(-180, 300);
+		OriVertex minus180Minus = new OriVertex(-180, -300);
+		
+		//60 300
+		OriVertex plus60Plus = new OriVertex(60, 300);
+		OriVertex plus60Minus = new OriVertex(60, -300);
+		OriVertex minus60Plus = new OriVertex(-60, 300);
+		OriVertex minus60Minus = new OriVertex(-60, -300);
+		
+		//300 180
+		OriVertex plusPlus180 = new OriVertex(300, 180);
+		OriVertex plusMinus180 = new OriVertex(300, -180);
+		OriVertex minusPlus180 = new OriVertex(-300, 180);
+		OriVertex minusMinus180 = new OriVertex(-300, -180);
+		
+		//300 60
+		OriVertex plusPlus60 = new OriVertex(300, 60);
+		OriVertex plusMinus60 = new OriVertex(300, -60);
+		OriVertex minusPlus60 = new OriVertex(-300, 60);
+		OriVertex minusMinus60 = new OriVertex(-300, -60);
+
+		
+		//STEP 0
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_VALLEY));
+		arrowList.add(new OriArrow(new Vector2d(-300, -300), new Vector2d(300, 300), OriArrow.TYPE_VALLEY, false, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold und unfold diagonally");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+
+		//STEP 1
+		Globals.currentStep += 1;
+		lineList.clear();
+		arrowList.clear();
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.TYPE_VALLEY));
+		arrowList.add(new OriArrow(new Vector2d(-300, -150), new Vector2d(0, 0), OriArrow.TYPE_VALLEY, false, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the angle bisector");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+
+		//STEP 2
+		Globals.currentStep += 1;
+		lineList.clear();
+		arrowList.clear();
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.TYPE_VALLEY));
+		arrowList.add(new OriArrow(new Vector2d(-300, -187.5), new Vector2d(-112.5, -150), OriArrow.TYPE_VALLEY, false, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the next angle bisector");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+
+		//STEP 3
+		Globals.currentStep += 1;
+		lineList.clear();
+		arrowList.clear();
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.TYPE_CREASE));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_VALLEY));
+		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(-60, -60), OriArrow.TYPE_VALLEY, false, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+		tmpGeomSymbol = new OriGeomSymbol(new Vector2d(-202.5, -322.5), 45, OriGeomSymbol.TYPE_XRAY_CIRCLE);
+		Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpGeomSymbol);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Use the crease mark of the last step to make a vertical fold at 1/5th");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+		
+		//STEP 4
+		Globals.currentStep += 1;
+		lineList.clear();
+		arrowList.clear();
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_VALLEY));
+		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(-180, 0), OriArrow.TYPE_VALLEY, true, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the right edge onto the crease made in the last step. Irrelevant crease lines will no longer be shown.");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+
+		
+		//STEP 5
+		Globals.currentStep += 1;
+		lineList.clear();
+		arrowList.clear();
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.TYPE_VALLEY));
+		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(60, 0), OriArrow.TYPE_VALLEY, true, true));
+		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(180, -60), OriArrow.TYPE_VALLEY, false, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(300, -300), -40, 5);
+		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+		
+		//STEP 6
+		Globals.currentStep += 1;
+		lineList.clear();
+		arrowList.clear();
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.TYPE_CREASE, true, true));
+		
+		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.TYPE_VALLEY));
+		arrowList.add(new OriArrow(new Vector2d(60, -300), new Vector2d(60, -60), OriArrow.TYPE_VALLEY, true, true));
+		arrowList.add(new OriArrow(new Vector2d(-180, -300), new Vector2d(-180, 180), OriArrow.TYPE_VALLEY, false, true));
+		arrowList.add(new OriArrow(new Vector2d(180, 300), new Vector2d(180, -180), OriArrow.TYPE_VALLEY, false, true));
+		arrowList.add(new OriArrow(new Vector2d(-60, 300), new Vector2d(-60, 60), OriArrow.TYPE_VALLEY, false, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(-300, 300), 40, 5);
+		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+		
+		
+		//STEP 7
+		Globals.currentStep += 1;
+		lineList.clear();
+		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.TYPE_CREASE, true, true));
+		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Done.");
+		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+	}
+	
 	private void createNewDiagram() {
 
 		Globals.newStepOptions = Constants.NewStepOptions.PASTE_DEFAULT_PAPER;
@@ -739,7 +771,6 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Globals.currentStep = 0;
 
 		Origrammer.mainFrame.uiStepOverviewPanel.removeAllStepPreviews();
-		//Origrammer.mainFrame.uiStepOverviewPanel.createStepPreview();
 		Step step = new Step();
 		Origrammer.diagram.steps.add(step);
 		createFromFoldingPreset();
@@ -769,8 +800,6 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	@Override
 	public void componentShown(ComponentEvent e) {
 	}
-	
-	
 	
 
 }

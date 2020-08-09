@@ -1,7 +1,5 @@
 package origrammer;
 
-import javax.vecmath.Vector2d;
-
 import origrammer.geometry.OriLine;
 import origrammer.geometry.OriVertex;
 

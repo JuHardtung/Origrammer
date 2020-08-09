@@ -18,9 +18,6 @@ import javax.swing.SwingConstants;
 
 public class PreferenceDialog extends JDialog implements ActionListener, ComponentListener {
 
-
-
-
 	//PREFERENCE PANEL
 	private JPanel preferencePanel = new JPanel();
 	private String[] mountainStyleOptions = {"Dash Dot", "Dash Dot Dot"};
@@ -33,7 +30,6 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 	private JCheckBox automatedArrowPlacement = new JCheckBox();
 	private JCheckBox automatedLinePlacement = new JCheckBox();
 	private JCheckBox automatedFolding = new JCheckBox();
-
 
 	//BUTTONS
 	private JPanel buttonPanel = new JPanel();

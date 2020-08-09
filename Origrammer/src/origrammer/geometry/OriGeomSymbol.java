@@ -238,11 +238,7 @@ public class OriGeomSymbol {
 		ArrayList<Shape> shapes = new ArrayList<>();
 		Line2D.Double leaderLine = new Line2D.Double(p1.x, p1.y, p2.x, p2.y);
 		
-
-		Rectangle2D rect = new Rectangle((int) Math.round(p2.x), (int) Math.round(p2.y-25), 50, 25);
-
 		shapes.add(leaderLine);
-		//shapes.add(rect);
 		return shapes;
 	}
 	
@@ -274,14 +270,6 @@ public class OriGeomSymbol {
 	public void setP2(Vector2d p2) {
 		this.p2 = p2;
 	}
-
-//	public Vector2d getDirection() {
-//		return direction;
-//	}
-//
-//	public void setDirection(Vector2d direction) {
-//		this.direction = direction;
-//	}
 
 	public double getSize() {
 		return size;

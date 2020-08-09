@@ -33,7 +33,6 @@ public class GeometryUtil {
 	}
 
 
-
 	public static boolean isSameLineSegment(OriLine l0, OriLine l1) {
 		if (Distance(l0.getP0().p, l1.getP0().p) < Constants.EPSILON && Distance(l0.getP1().p, l1.getP1().p) < Constants.EPSILON) {
 			return true;
@@ -43,7 +42,13 @@ public class GeometryUtil {
 		return false;
 	}
 	
-	
+	/**
+	 * Gets the crossingPoint between two lines.
+	 * @param l0
+	 * @param l1
+	 * @return {@code Vector2d crossingPoint}<br>
+	 * 		   {@code null} if the two lines don't cross
+	 */
 	public static Vector2d getCrossPoint(OriLine l0, OriLine l1) {
 		double epsilon = 1.0e-6;
 		Vector2d p0 = new Vector2d(l0.getP0().p);
@@ -547,7 +552,19 @@ public class GeometryUtil {
 		return bestCrossPoint;
 	}
 	
+	/**
+	 * Gets the point on {@code line} that is closest to {@code vertex}.
+	 * @param vertex
+	 * @param line
+	 * @return
+	 */
 	public static Vector2d getClosestPointOnLine(Vector2d vertex, OriLine line) {
+		/**    |    ° = vertex
+		 *     |    | = line
+		 * °---p    p = closestPointOnLine
+		 *     |  
+		 *     | 
+		 */
 		Vector2d uv = getUnitVector(line.getP0().p, line.getP1().p);
 		Vector2d nv = getNormalVector(uv);
 		
@@ -574,7 +591,7 @@ public class GeometryUtil {
 	}
 	
 	/**
-	 * Returns the closest {@code line} that is crossing the input {@code p1} and direction {@code uv}
+	 * Returns the closest {@code line} of the current Step, that is crossing the input {@code p1} and direction {@code uv}
 	 * @param vertex
 	 * @param uv
 	 * @return OriLine that crosses

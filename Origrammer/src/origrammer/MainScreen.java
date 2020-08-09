@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -14,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -28,8 +25,6 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import javax.swing.JLabel;
@@ -64,11 +59,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private OriEqualDistSymbol selectedCandidateEDS = null;
 	private OriEqualAnglSymbol selectedCandidateEAS = null;
 	private OriPleatCrimpSymbol selectedCandidatePleat = null;
-	//private GeneralPath tmpFilledFacePath = null;
 	private ArrayList<Vector2d> tmpFilledFacePath = null;
-	
-	private ArrayList<Vector2d> tmpMirroredLineList = null;
-	private OriLine tmpMirroredLine = null;
 
 	private boolean dispGrid = true;
 	//Affine transformation info
@@ -1594,60 +1585,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		//TODO: render hierarchy --> render lines in right order
 		//TODO: fix Exceptions!!!!
 		
-//		if (line.getP0().equals(v1) || line.getP0().equals(v2) || line.getP1().equals(v1) || line.getP1().equals(v2)) {
-//			System.out.println("point");
-//			for (int i=0; i < Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
-//				OriLine curLine = new OriLine(Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i));
-//
-//				if (curLine.getP0().equals(v1)) {
-//					Origrammer.diagram.steps.get(Globals.currentStep).lines.remove(i);
-//					curLine.setP0(new Vector2d(v2.x-offset, v2.y+offset));
-//					curLine.setType(OriLine.TYPE_EDGE);
-//					Origrammer.diagram.steps.get(Globals.currentStep).addLine(curLine);
-//				} else if (curLine.getP1().equals(v1)) {
-//					Origrammer.diagram.steps.get(Globals.currentStep).lines.remove(i);
-//					curLine.setP1(new Vector2d(v2.x-offset, v2.y+offset));
-//					curLine.setType(OriLine.TYPE_EDGE);
-//					Origrammer.diagram.steps.get(Globals.currentStep).addLine(curLine);
-//				}
-//				
-//			}
-//		} else {
-//			System.out.println("line");
-//			double foldingDist = GeometryUtil.Distance(v1, v2);
-//			
-//			
-//			
-//			OriLine lineToFold = new OriLine(Origrammer.diagram.steps.get(Globals.currentStep).lines.get(lineIndex));
-//			for (int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
-//				OriLine curLine = new OriLine(Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i));
-//				
-//				if (curLine.getP0().equals(lineToFold.getP0())) {
-//					System.out.println("0 == 0");
-//					curLine.setP0(new Vector2d(curLine.getP0().x+foldingUV.x*foldingDist-offset, curLine.getP0().y + foldingUV.y*foldingDist+offset));
-//				} else if (curLine.getP0().equals(lineToFold.getP1())) {
-//					System.out.println("0 == 1");
-//					curLine.setP0(new Vector2d(curLine.getP0().x+foldingUV.x*foldingDist-offset, curLine.getP0().y + foldingUV.y*foldingDist+offset));
-//				}
-//				
-//				if (curLine.getP1().equals(lineToFold.getP0())) {
-//					System.out.println("1 == 0");
-//					curLine.setP1(new Vector2d(curLine.getP1().x+foldingUV.x*foldingDist-offset, curLine.getP1().y + foldingUV.y*foldingDist+offset));
-//				} else if (curLine.getP1().equals(lineToFold.getP1())) {
-//					System.out.println("1==1");
-//					curLine.setP1(new Vector2d(curLine.getP1().x+foldingUV.x*foldingDist-offset, curLine.getP1().y + foldingUV.y*foldingDist+offset));
-//				}
-//				if (!Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).getP0().equals(curLine.getP0()) 
-//						|| !Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).getP1().equals(curLine.getP1())) {
-//					System.out.println("NEW CHANGED LINE");
-//					curLine.setType(OriLine.TYPE_EDGE);
-//					Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).setP0(curLine.getP0());
-//					Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i).setP1(curLine.getP1());
-//				}
-//			}
-//			
-//		}
-//
 		Origrammer.diagram.steps.get(Globals.currentStep).arrows.clear();
 	}
 	
@@ -1671,7 +1608,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			} else if (secondSelectedV == null) {
 				secondSelectedV = v;
 
-				
 				OriArrow tmpArrow = new OriArrow();
 
 				tmpArrow.setP0(firstSelectedV);
@@ -1883,7 +1819,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
 				Origrammer.diagram.steps.get(Globals.currentStep).addGeomSymbol(tmpSymbol);
 				
-				
 				firstSelectedV = null;
 				secondSelectedV = null;
 			}
@@ -1976,9 +1911,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				secondSelectedV = v;
 			} else if (thirdSelectedV == null) {
 				thirdSelectedV = v;
-				
-				Vector2d uv1 = GeometryUtil.getUnitVector(firstSelectedV, secondSelectedV);
-				Vector2d uv2 = GeometryUtil.getUnitVector(firstSelectedV, thirdSelectedV);
 
 				OriEqualAnglSymbol tmpEquAnglSymbol = new OriEqualAnglSymbol(firstSelectedV, secondSelectedV, thirdSelectedV);
 				tmpEquAnglSymbol.setDividerCount(Integer.parseInt(Origrammer.mainFrame.uiTopPanel.equalAnglDividerTF.getText()));

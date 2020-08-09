@@ -175,8 +175,6 @@ public class OriPleatCrimpSymbol {
 			smallX = (int) Math.round(p0.x - 20 + 20 * (layersCount - 1) - width);
 		}
 
-		//System.out.println("smallX: " + smallX + " bigX: " + bigX + " smallY: " + smallY + " bigY: " + bigY + " width: " + width + " height: " + height);
-
 		return new Rectangle((int) Math.round(smallX), (int) Math.round(bigY), width, height);
 	}
 	
