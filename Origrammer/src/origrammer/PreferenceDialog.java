@@ -27,9 +27,9 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 	private JComboBox<String> outsideReverseCB = new JComboBox<>(outsideReverseOptions);
 	private JComboBox<String> rabbitEarCB = new JComboBox<>(rabbitEarOptions);
 	private JCheckBox isColoredLines = new JCheckBox();
-	private JCheckBox automatedArrowPlacement = new JCheckBox();
-	private JCheckBox automatedLinePlacement = new JCheckBox();
-	private JCheckBox automatedFolding = new JCheckBox();
+	private JCheckBox automatedArrowPlacementCB = new JCheckBox();
+	private JCheckBox automatedLinePlacementCB = new JCheckBox();
+	private JCheckBox automatedFoldingCB = new JCheckBox();
 
 	//BUTTONS
 	private JPanel buttonPanel = new JPanel();
@@ -83,21 +83,21 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 		}
 		
 		if (Globals.automatedArrowPlacement) {
-			automatedArrowPlacement.setSelected(true);
+			automatedArrowPlacementCB.setSelected(true);
 		} else {
-			automatedArrowPlacement.setSelected(false);
+			automatedArrowPlacementCB.setSelected(false);
 		}
 		
 		if (Globals.automatedLinePlacement) {
-			automatedLinePlacement.setSelected(true);
+			automatedLinePlacementCB.setSelected(true);
 		} else {
-			automatedLinePlacement.setSelected(false);
+			automatedLinePlacementCB.setSelected(false);
 		}
 		
 		if (Globals.automatedFolding) {
-			automatedFolding.setSelected(true);
+			automatedFoldingCB.setSelected(true);
 		} else {
-			automatedFolding.setSelected(false);
+			automatedFoldingCB.setSelected(false);
 		}
 
 		applyButton.addActionListener(this);
@@ -140,13 +140,13 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 		isColoredLinesLabel.setLabelFor(isColoredLines);
 		
 		JLabel automatedArrowLabel = new JLabel("Automatically place Arrows: ", JLabel.TRAILING);
-		automatedArrowLabel.setLabelFor(automatedArrowPlacement);
+		automatedArrowLabel.setLabelFor(automatedArrowPlacementCB);
 		
 		JLabel automatedLineLabel = new JLabel("Automatically place Lines: ", JLabel.TRAILING);
-		automatedLineLabel.setLabelFor(automatedLinePlacement);
+		automatedLineLabel.setLabelFor(automatedLinePlacementCB);
 		
 		JLabel automatedFoldingLabel = new JLabel("Automatically fold the paper: ", JLabel.TRAILING);
-		automatedFoldingLabel.setLabelFor(automatedFolding);
+		automatedFoldingLabel.setLabelFor(automatedFoldingCB);
 
 		preferencePanel.setLayout(preferenceLayout);
 		preferencePanel.add(mountainStyleLabel);
@@ -158,11 +158,11 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 		preferencePanel.add(isColoredLinesLabel);
 		preferencePanel.add(isColoredLines);
 		preferencePanel.add(automatedArrowLabel);
-		preferencePanel.add(automatedArrowPlacement);
+		preferencePanel.add(automatedArrowPlacementCB);
 		preferencePanel.add(automatedLineLabel);
-		preferencePanel.add(automatedLinePlacement);
+		preferencePanel.add(automatedLinePlacementCB);
 		preferencePanel.add(automatedFoldingLabel);
-		preferencePanel.add(automatedFolding);
+		preferencePanel.add(automatedFoldingCB);
 
 		preferencePanel.setLayout(preferenceLayout);
 		SpringUtilities.makeCompactGrid(preferencePanel, 7, 2, 6, 6, 6, 6);
@@ -211,8 +211,9 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 		}
 
 		Globals.dispColoredLines = isColoredLines.isSelected();
-		Globals.automatedArrowPlacement = automatedArrowPlacement.isSelected();
-		Globals.automatedLinePlacement = automatedLinePlacement.isSelected();
+		Globals.automatedArrowPlacement = automatedArrowPlacementCB.isSelected();
+		Globals.automatedLinePlacement = automatedLinePlacementCB.isSelected();
+		Globals.automatedFolding = automatedFoldingCB.isSelected();
 		__screen.repaint();
 	}
 

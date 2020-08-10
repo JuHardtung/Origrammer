@@ -552,6 +552,38 @@ public class GeometryUtil {
 		return bestCrossPoint;
 	}
 	
+	
+	/**
+	 * Returns the farthest {@code crossingPoint} of a line with origin {@code p1} and direction {@code uv}.
+	 * Checks all lines of the current diagram step
+	 * @param p1
+	 * @param uv
+	 * @return
+	 */
+	public static Vector2d getFarthestCrossPoint(Vector2d p1, Vector2d uv) {
+		double dist = 0;
+		double biggestDist = 0;
+		Vector2d bestCrossPoint = null;
+		
+		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+			
+			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+			if (crossPoint2 != null) {
+				if (!crossPoint2.equals(p1)) {
+					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
+							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+						dist = GeometryUtil.Distance(p1, crossPoint2);
+						if (dist > biggestDist) {
+							biggestDist = dist;
+							bestCrossPoint = crossPoint2;
+						}
+					}
+				}
+			}
+		}
+		return bestCrossPoint;
+	}
+	
 	/**
 	 * Gets the point on {@code line} that is closest to {@code vertex}.
 	 * @param vertex

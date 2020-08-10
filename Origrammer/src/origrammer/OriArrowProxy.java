@@ -16,12 +16,11 @@ public class OriArrowProxy {
 	}
 	
 	public OriArrowProxy(OriArrow a) {
-		p0 = a.getP0();
-		p1 = a.getP1();
-		type = a.getType();
-		isMirrored = a.isMirrored();
-		isUnfold = a.isUnfold();
-                                                                                		
+		this.p0 = a.getP0();
+		this.p1 = a.getP1();
+		this.type = a.getType();
+		this.isMirrored = a.isMirrored();
+		this.isUnfold = a.isUnfold();                                                     		
 	}
 	
 	public OriArrow getArrow() {
@@ -60,9 +59,18 @@ public class OriArrowProxy {
 		this.type = type;
 	}
 
+	public boolean isUnfold() {
+		return isUnfold;
+	}
+
+	public void setUnfold(boolean isUnfold) {
+		this.isUnfold = isUnfold;
+	}
+
 	@Override
 	public String toString() {
-		return "OriArrowProxy [p0=" + p0 + ", p1=" + p1 + ", type=" + type + ", isMirrored=" + isMirrored + "]";
+		return "OriArrowProxy [p0=" + p0 + ", p1=" + p1 + ", type=" + type + ", isMirrored=" + isMirrored
+				+ ", isUnfold=" + isUnfold + "]";
 	}
 	
 }

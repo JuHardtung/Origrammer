@@ -602,7 +602,7 @@ public class OriArrow {
 	@Override
 	public String toString() {
 		return "OriArrow [p0=" + p0 + ", p1=" + p1 + ", type=" + type + ", isSelected=" + isSelected + ", isMirrored="
-				+ isMirrored + "]";
+				+ isMirrored + ", isUnfold=" + isUnfold + "]";
 	}
 	
 }

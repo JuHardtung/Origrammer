@@ -1508,15 +1508,22 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		double halfLength = 0.5* length;
 		
 		Vector2d middleP = new Vector2d(v1.x + uv.x * halfLength, v1.y + uv.y * halfLength);
-		OriVertex lineV1 = new OriVertex(GeometryUtil.getClosestCrossPoint(middleP, nv));
+//		OriVertex lineV1 = new OriVertex(GeometryUtil.getClosestCrossPoint(middleP, nv));
+//		nv.negate();
+//		OriVertex lineV2 = new OriVertex(GeometryUtil.getClosestCrossPoint(middleP, nv));
+
+		OriVertex lineFarV1 = new OriVertex(GeometryUtil.getFarthestCrossPoint(middleP, nv));
 		nv.negate();
-		OriVertex lineV2 = new OriVertex(GeometryUtil.getClosestCrossPoint(middleP, nv));
+		OriVertex lineFarV2 = new OriVertex(GeometryUtil.getFarthestCrossPoint(middleP, nv));
+		
+		int linesCountPre = Origrammer.diagram.steps.get(Globals.currentStep).lines.size()-1;
 
-		Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(lineV1, lineV2, type));
-
+		Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(lineFarV1, lineFarV2, type));
+		System.out.println(Origrammer.diagram.steps.get(Globals.currentStep).lines.toString());
+		System.out.println("           ");
 		//if the fold is being unfolded immediately, don't auto fold it
-		if (!isUnfold) {
-			makeAutoFold(v1, v2, lineV1.p, lineV2.p);
+		if (!isUnfold && Globals.automatedFolding) {
+			makeAutoFold(v1, v2, lineFarV1.p, lineFarV2.p, linesCountPre);
 		}
 	}
 	
@@ -1526,7 +1533,17 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	 * @param v1
 	 * @param v2
 	 */
-	private void makeAutoFold(Vector2d v1, Vector2d v2, Vector2d lineV1, Vector2d lineV2) {
+	private void makeAutoFold(Vector2d v1, Vector2d v2, Vector2d lineV1, Vector2d lineV2, int linesCountPre) {
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		
+		//set all OriLines with type OriLine.TYPE_VALLEY or OriLine.TYPE_MOUNTAIN to OriLine.TYPE_EDGE
+		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+			if (l.getType() == OriLine.TYPE_VALLEY || l.getType() == OriLine.TYPE_MOUNTAIN) {
+				l.setType(OriLine.TYPE_EDGE);
+			}
+		}
+		
+		
 		Vector2d foldingUV = GeometryUtil.getUnitVector(lineV1, lineV2);
 		Vector2d foldingNV = GeometryUtil.getNormalVector(foldingUV);
 		
@@ -1550,7 +1567,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 		verticesToBeUpdated = GeometryUtil.removeDuplicatesFromList(verticesToBeUpdated);
 		
-		OriLine foldingLine = new OriLine(new OriVertex(lineV1), new OriVertex(lineV2), OriLine.TYPE_NONE);
+		OriLine foldingLine = new OriLine(new OriVertex(lineV1), new OriVertex(lineV2), OriLine.TYPE_NONE); //TODO: foldingLine doesn't go far enough (doesn't go through lines if there are more behind it)
 		Vector2d closest;
 		double distToV;
 		//update the positions of all OriVertex
@@ -2441,8 +2458,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				|| Globals.toolbarMode == Constants.ToolbarMode.INPUT_ARROW
 				|| Globals.toolbarMode == Constants.ToolbarMode.INPUT_SYMBOL
 				|| (Globals.toolbarMode == Constants.ToolbarMode.INPUT_VERTEX && Globals.vertexInputMode == Constants.VertexInputMode.ABSOLUTE)	//TODO: maybe just for everything except Selection tool?
-				|| Globals.toolbarMode == Constants.ToolbarMode.FILL_TOOL
-				) {
+				|| Globals.toolbarMode == Constants.ToolbarMode.FILL_TOOL) {
 			Vector2d firstV = selectedCandidateV;
 				selectedCandidateV = this.pickVertex(currentMousePointLogic);
 
