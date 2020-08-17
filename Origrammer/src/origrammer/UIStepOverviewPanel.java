@@ -32,6 +32,8 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
 
+import javafx.geometry.Rectangle2D;
+
 
 /**
  * The {@code UIStepOverviewPanel} shows an overview over all current steps within the opened diagram.
@@ -117,6 +119,7 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 				Constants.MAINSCREEN_SIZE.height, BufferedImage.TYPE_BYTE_INDEXED);
 		Graphics2D graphics = bimg.createGraphics();
 		Globals.renderStepPreview = true;
+		
 		Origrammer.mainFrame.mainScreen.paint(graphics);
 		Globals.renderStepPreview = false;
 

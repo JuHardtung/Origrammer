@@ -1,5 +1,6 @@
 package origrammer;
 
+import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,13 +10,16 @@ import javax.vecmath.Vector2d;
 
 import origrammer.geometry.GeometryUtil;
 import origrammer.geometry.OriArrow;
+import origrammer.geometry.OriDiagonal;
 import origrammer.geometry.OriEqualAnglSymbol;
 import origrammer.geometry.OriEqualDistSymbol;
 import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
 import origrammer.geometry.OriLine;
 import origrammer.geometry.OriPleatCrimpSymbol;
+import origrammer.geometry.OriPolygon;
 import origrammer.geometry.OriVertex;
+import origrammer.geometry.OriVertexList;
 
 class PointComparatorX implements Comparator<Object> {
 	@Override
@@ -65,6 +69,12 @@ public class Step {
 	public ArrayList<OriEqualDistSymbol> equalDistSymbols = new ArrayList<>();
 	public ArrayList<OriEqualAnglSymbol> equalAnglSymbols = new ArrayList<>();
 	public ArrayList<OriPleatCrimpSymbol> pleatCrimpSymbols = new ArrayList<>();
+	
+	public ArrayList<OriPolygon> polygons = new ArrayList<>();
+	
+	//OriVertexList vertexList = new OriVertexList();
+	//OriPolygon paperPolygon;
+
 	private Stack<UndoInfo> undoStack = new Stack<UndoInfo>();
 	public CopiedObjects copiedObjects = new CopiedObjects();
 	public String stepDescription;
@@ -81,12 +91,304 @@ public class Step {
 	}
 
 	public void initFirstStep() {
-		ArrayList<OriLine> inputLines = getEdgeLines();
 		
-		for (OriLine l : inputLines) {
-			addLine(l);
+		OriVertexList vertexList = getEdgeLines();
+
+		OriPolygon paperPolygon = new OriPolygon(vertexList);
+		polygons.add(paperPolygon);
+
+		addLinesFromVertices();
+		
+	}
+	
+	public void addLinesFromVertices() {
+		clearLinesExceptCreases();
+
+		addEdgeLinesFromVertices();
+		
+		addTriangulationDiagonals();
+
+		removeDuplicateLines();
+	}
+
+	private void addEdgeLinesFromVertices() {
+		for (OriPolygon p : polygons) {
+			OriVertex curP0 = p.vertexList.head;
+			OriVertex curP1;
+			boolean duplicateLine = false;
+			
+			for (int i=0; i<p.vertexList.n; i++) {
+				curP1 = curP0.next;
+				for (OriLine l : lines) {
+					if (l.isSameLine(curP0, curP1)) {
+						duplicateLine = true;
+						break;
+					}
+				}
+				
+				if (!duplicateLine) {
+					lines.add(new OriLine(curP0, curP1, OriLine.TYPE_EDGE));
+				}
+				curP0 = curP1;
+				duplicateLine = false;
+			}
+		}
+	}
+	
+	/**
+	 * Goes through all polygons, triangulates them and adds the diagonals to the {@code lines} 
+	 * if they are not duplicate or overlapping another existing line.
+	 */
+	private void addTriangulationDiagonals() {
+
+		for (OriPolygon p : polygons) {
+			p.triangulate();
+			OriDiagonal curDia = p.diagList.head;
+
+			for (int i=0; i<p.diagList.n; i++) {
+				lines.add(new OriLine(curDia.v1, curDia.v2, OriLine.TYPE_DIAGONAL));
+				curDia = curDia.next;
+			}
+		}
+	}
+	
+	/**
+	 * Splits an existing polygon into two smaller ones. <br>
+	 * The polygon gets split at the vertices of {@code inputLine}
+	 * @param inputLine
+	 * @param polygon
+	 */
+	private ArrayList<OriPolygon> splitPolygon(OriLine inputLine, OriPolygon polygon) {
+		polygon.diagList.clearDiagonalList();
+		OriVertex p0 = inputLine.getP0();
+		OriVertex p1 = inputLine.getP1();
+		int type = inputLine.getType();
+		OriVertexList tmpOldList = polygon.vertexList;
+		
+		OriVertexList newList1 = new OriVertexList();
+		OriVertexList newList2 = new OriVertexList();
+		
+		OriVertex curV = tmpOldList.head;
+		//NEW LIST 1
+		do {
+			if (curV.p.epsilonEquals(p0.p, Constants.EPSILON)) {
+				//add the line.p0 to newList; skip all vertices until line.p1 and add p1; 
+				//add all remaining vertices until back to head
+				newList1.insertBeforeHead(curV);
+				do { //skip all vertices right of the folding line
+					curV = curV.next;
+				} while (!curV.p.epsilonEquals(p1.p, Constants.EPSILON));
+				newList1.insertBeforeHead(curV); //insert 2nd vertex of folding line
+			
+			} else if (curV.p.epsilonEquals(p1.p, Constants.EPSILON)) {
+				//add the line.p1 to newList; skip all vertices until line.p0 and add p0; 
+				//add all remaining vertices until back to head
+				newList1.insertBeforeHead(curV);
+				do { //skip all vertices right of the folding line
+					curV = curV.next;
+				} while (!curV.p.epsilonEquals(p0.p, Constants.EPSILON));
+				newList1.insertBeforeHead(curV); //insert 2nd vertex of folding line
+			
+				
+			} else {
+				//curV doesn't equal the inputLine points --> just add it to new list;
+				newList1.addVertex(curV.p.x, curV.p.y);
+			}
+			curV = curV.next;
+		} while (!curV.p.epsilonEquals(tmpOldList.head.p, Constants.EPSILON));
+		
+		//curV back at the head
+		curV = tmpOldList.head;
+
+		//NEW LIST 2
+		//Set head to either p0 or p1, SKIP all other vertices
+		while (!curV.p.epsilonEquals(p0.p, Constants.EPSILON) && !curV.p.epsilonEquals(p1.p, Constants.EPSILON)) {
+			curV = curV.next;
+		} 
+		
+		
+		if (curV.p.epsilonEquals(p0.p, Constants.EPSILON)) {
+			//add p0 to newList2, as it is the first vertex
+			newList2.addVertex(curV.p.x, curV.p.y);
+			
+			curV = curV.next;
+			while (!curV.p.epsilonEquals(p1.p, Constants.EPSILON)) {
+				//add all vertices that are between p0 and p1 (right side of the line)
+				newList2.insertBeforeHead(new OriVertex(curV.p.x, curV.p.y));
+				curV = curV.next;
+			}
+			newList2.insertBeforeHead(new OriVertex(curV.p.x, curV.p.y));
+			
+		} else if (curV.p.epsilonEquals(p1.p, Constants.EPSILON)) {
+			newList2.addVertex(curV.p.x, curV.p.y);
+			
+			curV = curV.next;
+			while (!curV.p.epsilonEquals(p0.p, Constants.EPSILON)) {
+				
+				newList2.insertBeforeHead(new OriVertex(curV.p.x, curV.p.y));
+				curV = curV.next;
+			}
+			newList2.insertBeforeHead(new OriVertex(curV.p.x, curV.p.y));
+		} else {
+			System.out.println("head does not equal inputLine.p0 or inputLine.p1");
+		}
+
+		ArrayList<OriPolygon> splitPList = new ArrayList<OriPolygon>();
+		OriPolygon newPolygon1 = new OriPolygon(newList1);
+		OriPolygon newPolygon2 = new OriPolygon(newList2);
+		splitPList.add(newPolygon1);
+		splitPList.add(newPolygon2);
+		return  splitPList;
+	}
+	
+	private ArrayList<OriPolygon> getAffectedPolygons(OriLine inputLine) {
+		ArrayList<OriPolygon> pList = new ArrayList<>();
+		for (OriPolygon polygon : polygons) {
+			if (inputLine.intersects(polygon)) {
+				pList.add(polygon);
+			}
+		}
+		return pList;
+	}
+	
+	
+	/**Adds a new OriLine and checks for intersections with others
+	 * 
+	 * @param inL
+	 */
+	public void addLineToPolygons(OriLine inL) {
+		boolean p0Added = false;
+		boolean p1Added = false;
+		if (inL.getType() == OriLine.TYPE_MOUNTAIN || 
+				inL.getType() == OriLine.TYPE_VALLEY) {
+			//get all the polygons that are affected by the inputLine
+			ArrayList<OriPolygon> tmpPolygonList = getAffectedPolygons(inL);
+
+			//add the 2 vertices of the input line to the affected polygons
+			for (OriPolygon p: tmpPolygonList) {
+				if (p.contains(inL.getP0())) {
+					p0Added = true;
+					p.vertexList.addVertex(inL.getP0().p.x, inL.getP0().p.y);
+				}
+
+				if (p.contains(inL.getP1())) {
+					p1Added = true;
+					p.vertexList.addVertex(inL.getP1().p.x, inL.getP1().p.y);
+				}
+				
+				//only split polygons if 2 new points are added
+				if (p0Added && p1Added) {
+					polygons.remove(p);
+					polygons.addAll(splitPolygon(inL, p));
+				}
+				p0Added = false;
+				p1Added = false;
+			}
+		}
+	}
+	
+	/**Adds a new OriLine and checks for intersections with others
+	 * 
+	 * @param inL
+	 */
+	public void addLine(OriLine inputLine) {
+		//don't add the line if it already exists
+		for (OriLine l : lines) {
+			if (inputLine.isSameLine(l)) {
+				l.setType(inputLine.getType());
+				return;
+			}
 		}
 		
+		//check if the inputLine is partially the same as existing line
+		for (OriLine l : lines) {
+			if (inputLine.isPartiallySameLine(l)) {
+				return;
+			}
+		}
+		
+		// Check if the vertices of inputLine already exist or not
+		// and split existing lines, if the vertices of 
+		// inputLine lie on an existing line			
+		boolean isNewVertexP0 = true;
+		boolean isNewVertexP1 = true;
+
+		for (OriVertex v : vertices) {
+			if (GeometryUtil.closeCompareOriVertex(inputLine.getP0(), v)) {
+				//CASE input.p0 is similar to existing v -> just make input.p0 = v as to avoid rounding issues
+				inputLine.setP0(v);
+				isNewVertexP0 = false;
+			} else if (GeometryUtil.closeCompareOriVertex(inputLine.getP1(), v)) {
+				//CASE input.p1 is similar to existing v -> just make input.p1 = v as to avoid rounding issues
+				inputLine.setP1(v);
+				isNewVertexP1 = false;
+			}
+		}
+
+		if (isNewVertexP0) { 
+			//CASE input.p0 is a new vertex and might split existing lines
+			vertices.add(inputLine.getP0());
+			splitLinesFromVertex(inputLine.getP0());
+		}
+		if (isNewVertexP1) { 
+			//CASE input.p1 is a new vertex and might split existing lines
+			vertices.add(inputLine.getP1());
+			splitLinesFromVertex(inputLine.getP1());
+		}
+		splitExistingLines(inputLine);
+
+		lines.add(inputLine);
+	}
+	
+	/**
+	 * Clears die diagList from the paperPolygon but leaves the existing crease lines.
+	 * The existing crease lines are originally added to check for intersections while creating new diagonals.
+	 */
+	public void clearLinesExceptCreases() {
+		for (int i=0; i<lines.size(); i++) {
+			int type = lines.get(i).getType();
+			if (type == OriLine.TYPE_DIAGONAL || type == OriLine.TYPE_EDGE) {
+				lines.remove(i);
+				i = -1;
+			}
+//			if (polygons.size() != 0) {
+//				for (OriPolygon p : polygons) {
+//					
+//					if (p.diagList.n != 0) {
+//						OriDiagonal curDiag = p.diagList.head;
+//						OriDiagonal preCur = curDiag.prev;
+//						OriDiagonal nextCur = curDiag.next;
+//
+//						do {
+//							if (l.getP0() == curDiag.v1 && l.getP1() == curDiag.v2
+//									|| l.getP0() == curDiag.v2 && l.getP1() == curDiag.v1) {
+//
+//								preCur.next = nextCur;
+//								nextCur.prev = preCur;
+//								p.diagList.n--;
+//								System.out.println("removed ");
+//							}
+//							curDiag = curDiag.next;
+//						} while (curDiag != p.diagList.head);
+//					}
+//				}
+//			}
+		}
+	}
+	
+	/**
+	 * Adds a new Vertex to the current diagram step
+	 * @param inputVertex
+	 */
+	public void addVertex(OriVertex inputVertex) {
+		//vertices.add(inputVertex);
+		//vertexList.addVertex(inputVertex.p.x, inputVertex.p.y);
+		
+//		paperPolygon.diagList.head = null;
+//		paperPolygon.listCopy(); 	//TODO: add vertex doesn't work with the polygonList
+//		paperPolygon.triangulate();
+		addLinesFromVertices();
+
 	}
 	
 	 
@@ -219,7 +521,7 @@ public class Step {
 	}
 	
 
-	public ArrayList<OriLine> getEdgeLines() {
+	public OriVertexList getEdgeLines() {
 		if (Globals.paperShape == Constants.PaperShape.SQUARE) {
 			//TODO: this is setup for default square paper --> todo for different shapes like octagonal etc.
 			return getSquareEdgeLines();
@@ -230,23 +532,30 @@ public class Step {
 		}
 	}
 
-	public ArrayList<OriLine> getSquareEdgeLines() {
-		ArrayList<OriLine> newLines = new ArrayList<>();
+	/**
+	 * Creates the {@code OriVertexList} with the vertices for a square paper.
+	 * @return
+	 */
+	public OriVertexList getSquareEdgeLines() {
+		
+		OriVertex v0 = new OriVertex(-size/2.0, size/2.0);
+		
+		OriVertexList vertexList = new OriVertexList();
+		vertexList.initHead(v0);
 
-		OriLine l0 = new OriLine(-size/2.0, size/2.0, size/2.0, size/2.0, OriLine.TYPE_EDGE);
-		OriLine l1 = new OriLine(size/2.0, size/2.0, size/2.0, -size/2.0, OriLine.TYPE_EDGE);
-		OriLine l2 = new OriLine(size/2.0, -size/2.0, -size/2.0, -size/2.0, OriLine.TYPE_EDGE);
-		OriLine l3 = new OriLine(-size/2.0, -size/2.0, -size/2.0, size/2.0, OriLine.TYPE_EDGE);
-		newLines.add(l0);
-		newLines.add(l1);
-		newLines.add(l2);
-		newLines.add(l3);
-		return newLines;
+		vertexList.addVertex(size/2.0, size/2.0);
+		vertexList.addVertex(size/2.0, -size/2.0);
+		vertexList.addVertex(-size/2.0, -size/2.0);
+		
+		return vertexList;
 	}
 
 
-	public ArrayList<OriLine> getRectEdgeLines() {
-		ArrayList<OriLine> newLines = new ArrayList<>();
+	/**
+	 * Creates the {@code OriVertexList} with the vertices for a rectangular paper.
+	 * @return
+	 */
+	public OriVertexList getRectEdgeLines() {
 
 		double width = Origrammer.diagram.recPaperWidth;
 		double height = Origrammer.diagram.recPaperHeight;
@@ -258,180 +567,49 @@ public class Step {
 			ratio = width / height;
 		}
 
-		OriLine l0 = new OriLine(-size/2.0, size/2.0*ratio, size/2.0, size/2.0*ratio, OriLine.TYPE_EDGE);
-		OriLine l1 = new OriLine(size/2.0, size/2.0*ratio, size/2.0, -size/2.0*ratio, OriLine.TYPE_EDGE);
-		OriLine l2 = new OriLine(size/2.0, -size/2.0*ratio, -size/2.0, -size/2.0*ratio, OriLine.TYPE_EDGE);
-		OriLine l3 = new OriLine(-size/2.0, -size/2.0*ratio, -size/2.0, size/2.0*ratio, OriLine.TYPE_EDGE);
-		newLines.add(l0);
-		newLines.add(l1);
-		newLines.add(l2);
-		newLines.add(l3);
-
-		return newLines;
-	}
-
-
-
-	/**Adds a new OriLine and checks for intersections with others
-	 * 
-	 * @param inputLine
-	 */
-	public void addLine(OriLine inputLine) {
-		//don't add the line if it already exists
-		for (OriLine l : lines) {
-			if (isSameLine(l, inputLine)) {
-				l.setType(inputLine.getType());
-				System.out.println("Line already exists");
-				return;
-			}
-		}
+		OriVertex v0 = new OriVertex(-size/2.0, size/2.0*ratio);
 		
-		//check if the inputLine is partially the same as existing line
-		for (OriLine l : lines) {
-			if (isPartiallySameLine(l, inputLine)) {
-				System.out.println("partially same Line already exists");
-				return;
-			}
-		}
+		OriVertexList vertexList = new OriVertexList();
+		vertexList.initHead(v0);
+
+		vertexList.addVertex(size/2.0, size/2.0*ratio);
+		vertexList.addVertex(size/2.0, -size/2.0*ratio);
+		vertexList.addVertex(-size/2.0, -size/2.0*ratio);
 		
-		// Check if the vertices of inputLine already exist or not
-		// and split existing lines, if the vertices of 
-		// inputLine lie on an existing line			
-		boolean isNewVertexP0 = true;
-		boolean isNewVertexP1 = true;
-
-		for (OriVertex v : vertices) {
-			if (GeometryUtil.closeCompareOriVertex(inputLine.getP0(), v)) {
-				//CASE input.p0 is similar to existing v -> just make input.p0 = v as to avoid rounding issues
-				inputLine.setP0(v);
-				isNewVertexP0 = false;
-			} else if (GeometryUtil.closeCompareOriVertex(inputLine.getP1(), v)) {
-				//CASE input.p1 is similar to existing v -> just make input.p1 = v as to avoid rounding issues
-				inputLine.setP1(v);
-				isNewVertexP1 = false;
-			}
-		}
-
-		if (isNewVertexP0) { 
-			//CASE input.p0 is a new vertex and might split existing lines
-			vertices.add(inputLine.getP0());
-			splitLinesFromVertex(inputLine.getP0());
-		}
-		if (isNewVertexP1) { 
-			//CASE input.p1 is a new vertex and might split existing lines
-			vertices.add(inputLine.getP1());
-			splitLinesFromVertex(inputLine.getP1());
-		}
-		splitExistingLines(inputLine);
-		
-		//points contains p0 and p1 of inputLine
-		ArrayList<Vector2d> points = new ArrayList<>();
-		points.add(inputLine.getP0().p);
-		points.add(inputLine.getP1().p);
-		points.addAll(splitInputLine(inputLine));
-
-		//sort ArrayList<Vector2d> points
-		boolean sortByX = Math.abs(inputLine.getP0().p.x - inputLine.getP1().p.x) > Math.abs(inputLine.getP0().p.y - inputLine.getP1().p.y);
-		if (sortByX) {
-			Collections.sort(points, new PointComparatorX());
-		} else {
-			Collections.sort(points, new PointComparatorY());
-		}
-
-		addInputLine(points, inputLine);
-		
-		removeDuplicateLines();
+		return vertexList;	
 	}
 	
 	
 	private void removeDuplicateLines() {
 		for (int i=0; i<lines.size(); i++) {
-			OriLine l0 = lines.get(i);
+			OriLine curL = lines.get(i);
+			
 			for (int j=0; j<lines.size(); j++) {
-				OriLine l1 = lines.get(j);
-				if (i != j) {
-					if (l1.getP0().p.equals(l0.getP0().p) && l1.getP1().p.equals(l0.getP1().p)) { //case l.p0 == tmpL.p0 && l.p1 == tmpL.p1
-						if (i > j) {
-							lines.remove(l1);
-							i = 0;
-							j = 0;
-							break;
-						} else {
-							lines.remove(l0);
-							i = 0;
-							j = 0;
-							break;
-						}
-						
-					} else if (l1.getP0().p.equals(l0.getP1().p) && l1.getP1().p.equals(l0.getP0().p)) {//case l.p0 == tmpL.p1 && l.p1 == tmpL.p0
-						if (i > j) {
-							lines.remove(l1);
-							i = 0;
-							j = 0;
-							break;
-						} else {
-							lines.remove(l0);
-							i = 0;
-							j = 0;
-							break;
-						}
-					}
-				}
+				OriLine tmpL = lines.get(j);
 				
+				if (i != j) {
+					if (curL.isSameLine(tmpL)) {
+						if (curL.getLength() > tmpL.getLength()) {
+							lines.remove(curL);
+						} else {
+							lines.remove(tmpL);
+						}
+						i = 0;
+						j = 0;
+						break;
+					} /*else if (curL.isPartiallySameLine(tmpL)) {
+						if (curL.getLength() > tmpL.getLength()) {
+							lines.remove(curL);
+						} else {
+							lines.remove(tmpL);
+						}
+						i = 0;
+						j = 0;
+						break;
+					}*/
+				}
 			}
 		}
-	}
-	
-	/**
-	 * Checks if {@code l0} is the same line as {@code l1}
-	 * @param l0
-	 * @param l1
-	 * @return {@code true} if both lines are the same
-	 */
-	private boolean isSameLine(OriLine l0, OriLine l1) {
-		if (GeometryUtil.closeCompareOriVertex(l0.getP0(), l1.getP0()) && GeometryUtil.closeCompareOriVertex(l0.getP1(), l1.getP1())) {	
-			return true;
-		} else if (GeometryUtil.closeCompareOriVertex(l0.getP0(), l1.getP1()) && GeometryUtil.closeCompareOriVertex(l0.getP1(), l1.getP0())) {
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Checks if the two lines are partially the same. As in, do they share a common part
-	 * @param toCheckLine
-	 * @param inputLine
-	 * @return {@code true} if both lines share one vertex at least
-	 */
-	private boolean isPartiallySameLine(OriLine toCheckLine, OriLine inputLine) {
-		Vector2d uv0 = GeometryUtil.getUnitVector(toCheckLine.getP0().p, toCheckLine.getP1().p);
-		Vector2d uv1 = GeometryUtil.getUnitVector(inputLine.getP0().p, inputLine.getP1().p);
-		Vector2d uv1Neg = uv1;
-		boolean isSameDirection = false;
-		uv1Neg.negate();
-		
-		if (uv0.epsilonEquals(uv1, Constants.EPSILON)) {
-			isSameDirection = true;
-		} else if (uv0.epsilonEquals(uv1Neg, Constants.EPSILON)) {
-			isSameDirection = true;
-		}
-
-		if (isSameDirection) {
-			if (GeometryUtil.closeCompareOriVertex(toCheckLine.getP0(), inputLine.getP0())) {
-				splitLinesFromVertex(inputLine.getP1()); //check if second vertex of the line is splitting an existing one
-				return true;
-			} else if (GeometryUtil.closeCompareOriVertex(toCheckLine.getP0(), inputLine.getP1())) {
-				splitLinesFromVertex(inputLine.getP1()); //check if second vertex of the line is splitting an existing one
-				return true;
-			} else if (GeometryUtil.closeCompareOriVertex(toCheckLine.getP1(), inputLine.getP0())) {
-				splitLinesFromVertex(inputLine.getP0()); //check if second vertex of the line is splitting an existing one
-				return true;
-			} else if (GeometryUtil.closeCompareOriVertex(toCheckLine.getP1(), inputLine.getP1())) {
-				splitLinesFromVertex(inputLine.getP0()); //check if second vertex of the line is splitting an existing one
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/**
@@ -451,18 +629,17 @@ public class Step {
 	
 	private void splitLinesFromVertex(OriVertex vertex) {
 		for (int i=0; i<lines.size(); i++) {
-			double distl0V = GeometryUtil.Distance(lines.get(i).getP0().p, vertex.p);
-			double distVl1 = GeometryUtil.Distance(vertex.p, lines.get(i).getP1().p);
-			double distl0l1 = GeometryUtil.Distance(lines.get(i).getP0().p, lines.get(i).getP1().p);
-			
+			OriVertex lP0 = lines.get(i).getP0();
+			OriVertex lP1 = lines.get(i).getP1();
+			int type = lines.get(i).getType();
 			//check if vertex is on the OriLine l
-			//l.p0 ----- vertex --------------- l.p1 == l.p0 ---------------------------- l.p1
-			if (GeometryUtil.closeCompare(distl0V + distVl1, distl0l1, Constants.EPSILON)) {
-				if (lines.get(i).getP0().p.equals(vertex.p) && lines.get(i).getP1().p.equals(vertex.p)) {
+			if (GeometryUtil.isPointOnLine(lP0, lP1, vertex)) {
+				//if the vertex is either lP0 or lP1, no need to split the line
+				if (lP0.p.epsilonEquals(vertex.p, Constants.EPSILON) || lP1.p.epsilonEquals(vertex.p, Constants.EPSILON)) {
 					continue;
 				}
-				if (lines.get(i).getType() == OriLine.TYPE_CREASE) {
-					//TODO: line splitting for OriLine.TYPE_CREASE
+				if (type == OriLine.TYPE_DIAGONAL) {
+					//TODO: line splitting for OriLine.TYPE_DIAGONAL
 				} else {
 					//create 2 new lines and remove the old one
 					lines.add(new OriLine(lines.get(i).getP0(), vertex, lines.get(i).getType()));
@@ -508,35 +685,122 @@ public class Step {
 		}
 	}
 
-	public ArrayList<Vector2d> splitInputLine(OriLine inputLine) {
+	
+	public void addNewLine(OriLine inputLine) {
+		inputLine.getP0().setP(GeometryUtil.round(inputLine.getP0().p, 10));
+		inputLine.getP1().setP(GeometryUtil.round(inputLine.getP1().p, 10));
+		
+		ArrayList<OriLine> splitLines = splitInputLine(inputLine);
+		if (splitLines.size() == 0) {
+			addLineToPolygons(inputLine);
+			addLine(inputLine);
+		}
+		
+		for (OriLine l : splitLines) {
+			addLineToPolygons(l);
+			addLine(l);
+		}
+		addLinesFromVertices();
+	}
+	
+	/**
+	 * Splits the inputLine where it intersects with existing lines.
+	 * Adds these smaller lines one by one.
+	 * @param inputLine
+	 * @return
+	 */
+	public ArrayList<OriLine> splitInputLine(OriLine inputLine) {
 		ArrayList<Vector2d> points = new ArrayList<>();
 		//split up the inputLine where it crosses existing lines
-		for (OriLine line : lines) {
-//			if (GeometryUtil.Distance(inputLine.getP0().p,  line.getP0().p) < POINT_EPS) {
-//				continue;
-//			}
-//			if (GeometryUtil.Distance(inputLine.getP0().p,  line.getP1().p) < POINT_EPS) {
-//				continue;
-//			}
-//			if (GeometryUtil.Distance(inputLine.getP1().p,  line.getP0().p) < POINT_EPS) {
-//				continue;
-//			}
-//			if (GeometryUtil.Distance(inputLine.getP1().p,  line.getP1().p) < POINT_EPS) {
-//				continue;
-//			}
-			if (GeometryUtil.DistancePointToSegment(line.getP0().p, inputLine.getP0().p, inputLine.getP1().p) < POINT_EPS) {
-				points.add(line.getP0().p);
-			}
-			if (GeometryUtil.DistancePointToSegment(line.getP1().p, inputLine.getP0().p, inputLine.getP1().p) < POINT_EPS) {
-				points.add(line.getP1().p);
-			}
+		for (OriPolygon p : polygons) {
+			OriVertex curV = p.vertexList.head;
+			OriVertex curV1 = curV.next;
+			do {
+				Vector2d crossPoint = GeometryUtil.getCrossPoint(inputLine, new OriLine(curV, curV1, OriLine.TYPE_NONE));
+				if (crossPoint != null && !points.contains(crossPoint)) {
+					points.add(new Vector2d(GeometryUtil.round(crossPoint.x, 10), GeometryUtil.round(crossPoint.y, 10)));
+				}
+				curV = curV.next;
+				curV1 = curV.next;
+			} while (curV != p.vertexList.head);
 
-			Vector2d crossPoint = GeometryUtil.getCrossPoint(inputLine, line);
-			if (crossPoint != null) {
-				points.add(crossPoint);
-			}
 		}
-		return points;
+
+//		for (OriLine line : lines) {
+//			if (line.getType() == OriLine.TYPE_DIAGONAL) {
+//				continue;
+//			}
+////			if (GeometryUtil.Distance(inputLine.getP0().p,  line.getP0().p) < POINT_EPS) {
+////				continue;
+////			}
+////			if (GeometryUtil.Distance(inputLine.getP0().p,  line.getP1().p) < POINT_EPS) {
+////				continue;
+////			}
+////			if (GeometryUtil.Distance(inputLine.getP1().p,  line.getP0().p) < POINT_EPS) {
+////				continue;
+////			}
+////			if (GeometryUtil.Distance(inputLine.getP1().p,  line.getP1().p) < POINT_EPS) {
+////				continue;
+////			}
+////			if (GeometryUtil.DistancePointToSegment(line.getP0().p, inputLine.getP0().p, inputLine.getP1().p) < POINT_EPS) {
+////				System.out.println("this never happens");
+////				points.add(line.getP0().p);
+////			}
+////			if (GeometryUtil.DistancePointToSegment(line.getP1().p, inputLine.getP0().p, inputLine.getP1().p) < POINT_EPS) {
+////				System.out.println("this never happens");
+////				points.add(line.getP1().p);
+////			}
+//			
+//
+//			Vector2d crossPoint = GeometryUtil.getCrossPoint(inputLine, line);
+//			if (crossPoint != null && !points.contains(crossPoint)) {
+//					points.add(crossPoint);
+//
+//			}
+//		}
+		
+		ArrayList<Vector2d> sortedList = new ArrayList<Vector2d>();
+
+		//sort points
+		sortedList.add(inputLine.getP0().p);
+
+		boolean didAdd = false;
+		
+		for (Vector2d p : points) {
+			if (p.epsilonEquals(inputLine.getP0().p, Constants.EPSILON)) {
+				continue;
+			}
+			double curDist = GeometryUtil.Distance(inputLine.getP0().p, p);
+			if (sortedList.size() == 1) {
+				sortedList.add(p);
+				continue;
+			}
+			for (int i=1; i<sortedList.size(); i++) {
+				double checkDist = GeometryUtil.Distance(inputLine.getP0().p, sortedList.get(i));
+				if (curDist < checkDist) {
+					sortedList.add(i, p);
+					didAdd = true;
+					break;
+				}
+				
+			}
+			if (!didAdd) {
+				sortedList.add(p);
+			}
+			didAdd = false;
+			
+		}
+		
+		ArrayList<OriLine> inLines = new ArrayList<>();
+		
+		for (int i=0; i<sortedList.size()-1; i++) {
+			OriVertex tmpV1 = new OriVertex(sortedList.get(i));
+			OriVertex tmpV2 = new OriVertex(sortedList.get(i+1));
+			OriLine tmpLine = new OriLine(tmpV1, tmpV2, inputLine.getType());
+			inLines.add(tmpLine);
+		}
+		
+		return inLines;
 	}
 
 	/** Checks if the inputLine crosses any existing lines and splits them if necessary.
@@ -549,6 +813,9 @@ public class Step {
 
 		//if new line crosses another one, split them up to smaller lines
 		for (OriLine l : tmpLines) {
+			if (l.getType() == OriLine.TYPE_DIAGONAL) {
+				continue;
+			}
 			OriVertex crossPoint = new OriVertex(GeometryUtil.getCrossPoint(l, inputLine));
 			if (crossPoint.p == null) {
 				continue;
@@ -613,13 +880,6 @@ public class Step {
 		addLine(new OriLine(incenter, v2, Globals.inputLineType));
 	}
 
-	/**
-	 * Adds a new Vertex to the current diagram step
-	 * @param inputVertex
-	 */
-	public void addVertex(OriVertex inputVertex) {
-		vertices.add(inputVertex);
-	}
 
 	/** Adds a new Arrow to the current diagram step
 	 * 
@@ -798,6 +1058,7 @@ public class Step {
 		unselectAllEqualDistSymbols();
 		unselectAllEqualAnglSymbols();
 		unselectAllPleatSymbols();
+		unselectAllPolygons();
 	}
 
 	public void unselectAllLines() {
@@ -845,6 +1106,12 @@ public class Step {
 	public void unselectAllPleatSymbols() {
 		for (OriPleatCrimpSymbol pleat : pleatCrimpSymbols) {
 			pleat.setSelected(false);
+		}
+	}
+	
+	public void unselectAllPolygons() {
+		for (OriPolygon poly : polygons) {
+			poly.setSelected(false);
 		}
 	}
 	

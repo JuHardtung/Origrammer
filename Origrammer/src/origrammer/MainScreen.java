@@ -1,6 +1,8 @@
 package origrammer;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -25,8 +27,12 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -59,6 +65,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private OriEqualDistSymbol selectedCandidateEDS = null;
 	private OriEqualAnglSymbol selectedCandidateEAS = null;
 	private OriPleatCrimpSymbol selectedCandidatePleat = null;
+	private OriPolygon selectedCandidatePolygon = null;
 	private ArrayList<Vector2d> tmpFilledFacePath = null;
 
 	private boolean dispGrid = true;
@@ -85,21 +92,17 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		
 		setPreferredSize(Constants.MAINSCREEN_SIZE);
 		setLayout(null);
-
-
 		preSize = getSize();
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-
 		removeAll();
 		
 		setBackground(Color.white);
 		g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		
 		
 		//only draw the grid and apply affineTransform (with transX & transY)
 		//if it's not a stepPreview that is being rendered
@@ -113,11 +116,15 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			affineTransform.scale(Globals.SCALE, Globals.SCALE);
 			g2d.transform(affineTransform);
 		}
-
 		
+		renderAllPolygons();		
 		renderAllFilledFaces();
 		renderAllLines();
 		renderAllArrows();
+
+		
+		renderAllVertices();
+
 
 		//Symbols
 		renderAllOriGeomSymbols();
@@ -125,8 +132,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderAllEquAnglSymbols();
 		renderAllCrimpPleatSymbols();
 		
-		renderAllVertices();
-
 		//temporary stuff
 		renderTmpFilledFace();
 		renderTmpLine();
@@ -155,8 +160,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		
 		renderTmpEqualAnglSymbol();
 		renderTmpCrimpPleatSymbol();
-		
 	}
+	
 	
 	private void renderGrid(Graphics2D g2d) {
 		g2d.setColor(Color.LIGHT_GRAY);
@@ -174,7 +179,37 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 	}
 
-	
+
+	private void renderAllPolygons() {
+		if (Globals.dispPolygons) {
+			int highestPolygonHeight = 0;
+
+			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+				if (p.getHeight() > highestPolygonHeight) {
+					highestPolygonHeight = p.getHeight();
+				}
+			}
+
+			//TODO: render the different heights
+			for (int i=0; i<= highestPolygonHeight; i++) {
+				for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+					if (p.getHeight() == i) {
+						GeneralPath tmpPath = p.getShapesForDrawing();
+
+						if (p.isSelected()) {
+							g2d.setPaint(new Color(0.0f, 1.0f, 0.0f, 0.25f));
+
+						} else {
+							g2d.setPaint(new Color(1.0f, 0.0f, 0.0f, 0.25f));
+
+						}
+						g2d.fill(tmpPath);
+					}
+				}
+			}
+		}
+	}
+
 	private void renderAllFilledFaces() {
 		if (Globals.dispFilledFaces) {
 			for (OriFace f : Origrammer.diagram.steps.get(Globals.currentStep).filledFaces) {
@@ -237,7 +272,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					p1 = line.getP1().p;
 				}
 			}
-			g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+
+			if (line.getType() != OriLine.TYPE_DIAGONAL || Globals.dispTriangulation) {
+				g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+			}
+
 		}
 	}
 	
@@ -367,6 +406,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	
 	
 	private void renderAllArrows() {
+		
 		for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
 			ArrayList<Shape> shapes = a.getShapesForDrawing();
 			if (a.isSelected() || selectedCandidateA == a) {
@@ -899,6 +939,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			break;
 		case OriLine.TYPE_CREASE:
 			g2d.setStroke(Config.STROKE_CREASE);
+		case OriLine.TYPE_DIAGONAL:
+			g2d.setStroke(Config.STROKE_DIAGONAL);
 		}
 	}
 	
@@ -925,6 +967,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			case OriLine.TYPE_EDGE:
 				g2d.setColor(Config.LINE_COLOR_EDGE);
 			case OriLine.TYPE_CREASE:
+				g2d.setColor(Config.LINE_COLOR_CREASE);
+			case OriLine.TYPE_DIAGONAL:
 				g2d.setColor(Config.LINE_COLOR_CREASE);
 			}
 		} else {
@@ -1144,6 +1188,36 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 	}
 	
+	private OriPolygon pickPolygon(Point2D.Double p) {
+		OriPolygon bestPolygon = null;
+		int highestPolygonHeight = 0;
+		for (OriPolygon test : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+			if (test.getHeight() > highestPolygonHeight) {
+				highestPolygonHeight = test.getHeight();
+			}
+		}
+
+		for (int i=highestPolygonHeight; i >= 0; i--) {
+			for (OriPolygon poly : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+				if (poly.getHeight() == i) {
+					boolean pickedP = poly.isInside(new Vector2d(p.x, p.y));
+					
+					if (pickedP) {
+						bestPolygon = poly;
+						i = 0;
+						break;
+					}
+
+				}
+			}
+		}
+		if (bestPolygon != null) {
+			return bestPolygon;
+		} else {
+			return null;
+		}
+	}
+	
 	
 	//#######################################################################################
 	//############################   CREATE ON MOUSECLICK   #################################
@@ -1255,7 +1329,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					}
 				}
 				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-				Origrammer.diagram.steps.get(Globals.currentStep).addLine(line);
+				//Origrammer.diagram.steps.get(Globals.currentStep).addLine(line);
+				Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(line);
 
 				if (Globals.automatedArrowPlacement) {
 					autoCreateOriArrow(firstSelectedV, secondSelectedV);
@@ -1518,9 +1593,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		
 		int linesCountPre = Origrammer.diagram.steps.get(Globals.currentStep).lines.size()-1;
 
-		Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(lineFarV1, lineFarV2, type));
-		System.out.println(Origrammer.diagram.steps.get(Globals.currentStep).lines.toString());
-		System.out.println("           ");
+		Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(new OriLine(lineFarV1, lineFarV2, type));
 		//if the fold is being unfolded immediately, don't auto fold it
 		if (!isUnfold && Globals.automatedFolding) {
 			makeAutoFold(v1, v2, lineFarV1.p, lineFarV2.p, linesCountPre);
@@ -1547,54 +1620,82 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		Vector2d foldingUV = GeometryUtil.getUnitVector(lineV1, lineV2);
 		Vector2d foldingNV = GeometryUtil.getNormalVector(foldingUV);
 		
-		ArrayList<OriVertex> verticesToBeUpdated = new ArrayList<OriVertex>();	
-		double offset = 0;
-
-
-		//check which vertices are on left side of the folding line and have to be updated
-		for (int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
-			OriLine curLine = Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i);
-			if (GeometryUtil.checkPointSideOfLine(lineV1, lineV2, curLine.getP0().p) == -1.0) {
-				if (!verticesToBeUpdated.contains(curLine.getP0())) {
-					verticesToBeUpdated.add(curLine.getP0());
-				}
-			}
-			if (GeometryUtil.checkPointSideOfLine(lineV1, lineV2, curLine.getP1().p) == -1.0) {
-				if (!verticesToBeUpdated.contains(curLine.getP1())) {
-					verticesToBeUpdated.add(curLine.getP1());
-				}	
-			}
-		}
-		verticesToBeUpdated = GeometryUtil.removeDuplicatesFromList(verticesToBeUpdated);
-		
-		OriLine foldingLine = new OriLine(new OriVertex(lineV1), new OriVertex(lineV2), OriLine.TYPE_NONE); //TODO: foldingLine doesn't go far enough (doesn't go through lines if there are more behind it)
 		Vector2d closest;
 		double distToV;
-		//update the positions of all OriVertex
-		//for (OriVertex testV : Origrammer.diagram.steps.get(Globals.currentStep).vertices) {
-		for(int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).vertices.size(); i++) {
-			OriVertex testV = Origrammer.diagram.steps.get(Globals.currentStep).vertices.get(i);
-			for (OriVertex checkV : verticesToBeUpdated) {
-				if (checkV.p.equals(testV.p)) {
-					closest = GeometryUtil.getClosestPointOnLine(testV.p, foldingLine);
-					distToV = GeometryUtil.Distance(testV.p, closest)*2;
-					Origrammer.diagram.steps.get(Globals.currentStep).vertices.remove(testV);
-					OriVertex inputVertex = new OriVertex(testV.p.x + foldingNV.x * distToV-offset, testV.p.y + foldingNV.y * distToV+offset);
-					Origrammer.diagram.steps.get(Globals.currentStep).vertices.add(inputVertex);
+		Vector2d vertexMoveUv;
+		//TODO: foldingLine doesn't go far enough (doesn't go through lines if there are more behind it)
+		OriLine foldingLine = new OriLine(new OriVertex(lineV1), new OriVertex(lineV2), OriLine.TYPE_NONE); 
+
+		System.out.println(Origrammer.diagram.steps.get(Globals.currentStep).polygons.size());
+		for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+			
+			OriVertex curV = p.vertexList.head;
+			do {
+				if (GeometryUtil.isStrictLeft(lineV1, lineV2, curV.p)) {
+					System.out.println("isleft: " + curV.p.toString());
+
+					closest = GeometryUtil.getClosestPointOnLine(curV.p, foldingLine);
+					distToV = GeometryUtil.Distance(curV.p, closest)*2;
+					vertexMoveUv = GeometryUtil.getUnitVector(curV.p, closest);
+					//p.vertexList.setVertex(curV, curV.p.x + vertexMoveUv.x*distToV, curV.p.y + vertexMoveUv.y*distToV);
+					p.vertexList.removeVertex(curV);
+					p.vertexList.addVertex(curV.p.x + vertexMoveUv.x*distToV, curV.p.y + vertexMoveUv.y*distToV);
+					System.out.println("after moving: " + curV.p);
+					p.setHeight(1);
+					curV = p.vertexList.head;
 					
-					//check for a given OriVertex, if any lines use it --> if yes, update them
-					for (OriLine l: Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-						if (l.getP0().p.equals(testV.p)) {
-							System.out.println("updated existing p0");
-							l.setP0(inputVertex);
-						} else if (l.getP1().p.equals(testV.p)) {
-							System.out.println("updated existing p1");
-							l.setP1(inputVertex);
-						}
-					}
 				}
-			}
+				curV = curV.next;
+			} while(curV != p.vertexList.head);
+			
 		}
+		
+		Origrammer.diagram.steps.get(Globals.currentStep).addLinesFromVertices();
+		
+
+//		//check which vertices are on left side of the folding line and have to be updated
+//		for (int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).lines.size(); i++) {
+//			OriLine curLine = Origrammer.diagram.steps.get(Globals.currentStep).lines.get(i);
+//			if (GeometryUtil.checkPointSideOfLine(lineV1, lineV2, curLine.getP0().p) == -1.0) {
+//				if (!verticesToBeUpdated.contains(curLine.getP0())) {
+//					verticesToBeUpdated.add(curLine.getP0());
+//				}
+//			}
+//			if (GeometryUtil.checkPointSideOfLine(lineV1, lineV2, curLine.getP1().p) == -1.0) {
+//				if (!verticesToBeUpdated.contains(curLine.getP1())) {
+//					verticesToBeUpdated.add(curLine.getP1());
+//				}	
+//			}
+//		}
+		
+//		verticesToBeUpdated = GeometryUtil.removeDuplicatesFromList(verticesToBeUpdated);
+//		
+//		
+//		//update the positions of all OriVertex
+//		//for (OriVertex testV : Origrammer.diagram.steps.get(Globals.currentStep).vertices) {
+//		for(int i=0; i<Origrammer.diagram.steps.get(Globals.currentStep).vertices.size(); i++) {
+//			OriVertex testV = Origrammer.diagram.steps.get(Globals.currentStep).vertices.get(i);
+//			for (OriVertex checkV : verticesToBeUpdated) {
+//				if (checkV.p.equals(testV.p)) {
+//					closest = GeometryUtil.getClosestPointOnLine(testV.p, foldingLine);
+//					distToV = GeometryUtil.Distance(testV.p, closest)*2;
+//					Origrammer.diagram.steps.get(Globals.currentStep).vertices.remove(testV);
+//					OriVertex inputVertex = new OriVertex(testV.p.x + foldingNV.x * distToV-offset, testV.p.y + foldingNV.y * distToV+offset);
+//					Origrammer.diagram.steps.get(Globals.currentStep).vertices.add(inputVertex);
+//					
+//					//check for a given OriVertex, if any lines use it --> if yes, update them
+//					for (OriLine l: Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+//						if (l.getP0().p.equals(testV.p)) {
+//							System.out.println("updated existing p0");
+//							l.setP0(inputVertex);
+//						} else if (l.getP1().p.equals(testV.p)) {
+//							System.out.println("updated existing p1");
+//							l.setP1(inputVertex);
+//						}
+//					}
+//				}
+//			}
+//		}
 
 		//TODO: fix stuff for multiple creases after each other
 		//TODO: rounding for really small numbers
@@ -1603,6 +1704,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		//TODO: fix Exceptions!!!!
 		
 		Origrammer.diagram.steps.get(Globals.currentStep).arrows.clear();
+		repaint();
 	}
 	
 	
@@ -1647,7 +1749,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				firstSelectedV = null;
 				secondSelectedV = null;
 			}
-		}
+		}		
 	}
 	
 	/**
@@ -1980,6 +2082,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		selectOriEqualDistSymbol(clickPoint);
 		selectOriEqualAnglSymbol(clickPoint);
 		selectOriPleatCrimpSymbol(clickPoint);
+		selectOriPolygon(clickPoint);
 
 		Origrammer.mainFrame.uiTopPanel.modeChanged();
 	}
@@ -2101,6 +2204,20 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 		} else {
 			Origrammer.diagram.steps.get(Globals.currentStep).unselectAllPleatSymbols();
+		}
+	}
+	
+	private void selectOriPolygon(Point2D.Double clickPoint) {
+		//select OriPleatSymbol or unselect all OriPleatSymbols if clicked on nothing
+		OriPolygon poly = pickPolygon(clickPoint);
+		if (poly != null) {
+			if (!poly.isSelected()) {
+				poly.setSelected(true);
+			} else if (!isPressedOverSymbol) {
+				poly.setSelected(false);
+			}
+		} else {
+			Origrammer.diagram.steps.get(Globals.currentStep).unselectAllPolygons();
 		}
 	}
 	
@@ -2530,6 +2647,12 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			if (prePleatSymbol != selectedCandidatePleat) {
 				repaint();
 			}
+			
+			OriPolygon prePolygon = selectedCandidatePolygon;
+			selectedCandidatePolygon = pickPolygon(currentMousePointLogic);
+			if (prePolygon != selectedCandidatePolygon) {
+				repaint();
+			}
 
 		} else if (Globals.toolbarMode == Constants.ToolbarMode.MEASURE_TOOL) {
 			Vector2d firstV = selectedCandidateV;
@@ -2615,6 +2738,13 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			OriPleatCrimpSymbol pickedPleatSymbol = pickPleatCrimpSymbol(currentMousePointLogic);
 			if (pickedPleatSymbol != null) {
 				pickedPleatSymbol.setSelected(true);
+				isPressedOverSymbol = true;
+				repaint();
+			}
+			
+			OriPolygon pickedPolygon = pickPolygon(currentMousePointLogic);
+			if (pickedPolygon != null) {
+				pickedPolygon.setSelected(true);
 				isPressedOverSymbol = true;
 				repaint();
 			}

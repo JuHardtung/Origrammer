@@ -26,6 +26,8 @@ public class Globals {
 	public static int gridDivNum = Config.DEFAULT_GRID_DIV_NUM;
 	public static boolean dispVertex = true;
 	public static boolean dispFilledFaces = true;
+	public static boolean dispPolygons = true;
+	public static boolean dispTriangulation = true;
 	public static boolean bDispCrossLine = false;
 	public static boolean dispColoredLines = false;
 	public static boolean automatedArrowPlacement = false;

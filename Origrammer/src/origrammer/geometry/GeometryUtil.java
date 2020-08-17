@@ -3,10 +3,13 @@ package origrammer.geometry;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -50,34 +53,119 @@ public class GeometryUtil {
 	 * 		   {@code null} if the two lines don't cross
 	 */
 	public static Vector2d getCrossPoint(OriLine l0, OriLine l1) {
+		return getCrossPoint(l0.getP0().p, l0.getP1().p, l1.getP0().p, l1.getP1().p);
+	}
+	
+	
+	/**
+	 * Checks if the line segments {@code line(p1,p2)} and {@code line(p3,p4)} are intersecting
+	 * @param p1
+	 * @param p2
+	 * @param p3
+	 * @param p4
+	 * @return {@code true} if the line segments are intersecting
+	 */
+	public static boolean isIntersecting(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4) {
+		Line2D.Double l1 = new Line2D.Double(p1.x, p1.y, p2.x, p2.y);
+		Line2D.Double l2 = new Line2D.Double(p3.x, p3.y, p4.x, p4.y);
+		
+		return l1.intersectsLine(l2);
+	}
+	
+	/**
+	 * Gets the crossingPoint between {@code line(p0, p1)} and {@code line(p2, p3)}.
+	 * @param l0
+	 * @param l1
+	 * @return {@code Vector2d crossingPoint}<br>
+	 * 		   {@code null} if the two lines don't cross
+	 */
+	public static Vector2d getCrossPoint(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4) {
+		
 		double epsilon = 1.0e-6;
-		Vector2d p0 = new Vector2d(l0.getP0().p);
-		Vector2d p1 = new Vector2d(l0.getP1().p);
 
-		Vector2d d0 = new Vector2d(p1.x - p0.x, p1.y - p0.y);
-		Vector2d d1 = new Vector2d(l1.getP1().p.x - l1.getP0().p.x, l1.getP1().p.y - l1.getP0().p.y);
-		Vector2d diff = new Vector2d(l1.getP0().p.x - p0.x, l1.getP0().p.y - p0.y);
-		double det = d1.x * d0.y - d1.y * d0.x;
-
-		if (det * det > epsilon * d0.lengthSquared() * d1.lengthSquared()) {
-			double invDet = 1.0 / det;
-			double s = (d1.x * diff.y - d1.y * diff.x) * invDet;
-			double t = (d0.x * diff.y - d0.y * diff.x) * invDet;
-
-			if(t < 0.0 - epsilon || t > 1.0 + epsilon) {
-				return null;
-			} else if (s < 0.0 - epsilon || s > 1.0 + epsilon) {
-				return null;
-			} else {
-				Vector2d cp = new Vector2d();
-				//TODO: rounding here is not elegant, but works for now
-				cp.x = Math.round((1.0 - t) * l1.getP0().p.x + t * l1.getP1().p.x); 
-				cp.y = Math.round((1.0 - t) * l1.getP0().p.y + t * l1.getP1().p.y);
-				
-				return cp;
-			}
-		}
-		return null;
+		// Line AB represented as a1x + b1y = c1 
+        double a1 = p2.y - p1.y; 
+        double b1 = p1.x - p2.x; 
+        double c1 = a1*(p1.x) + b1*(p1.y); 
+       
+        // Line CD represented as a2x + b2y = c2 
+        double a2 = p4.y - p3.y; 
+        double b2 = p3.x - p4.x; 
+        double c2 = a2*(p3.x)+ b2*(p3.y); 
+       
+        double determinant = a1*b2 - a2*b1; 
+       
+        if (determinant == 0) { 
+            //lines are parallel
+            return null;
+        } else { 
+            double x = (b2*c1 - b1*c2) / determinant; 
+            double y = (a1*c2 - a2*c1) / determinant;
+            Vector2d cross = new Vector2d(x, y);
+            
+            double distL1 = Distance(p1, p2);
+            double distL2 = Distance(p3, p4);
+            double distP1Cross = Distance(p1, cross);
+            double distP2Cross = Distance(p2, cross);
+            double distP3Cross = Distance(p3, cross);
+            double distP4Cross = Distance(p4, cross);
+            
+            if (distL1 < distP1Cross || distL1 < distP2Cross || distL2 < distP3Cross || distL2 < distP4Cross) {
+            	//System.out.println("crossPoint is outside of line segment");
+            	return null; //crossPoint is outside of the line segments
+            }
+            return cross; 
+        } 
+		
+		
+		
+//		double a1 = p1.y - p0.y;
+//        double b1 = p0.x - p1.x;
+//        double c1 = a1 * p0.x + b1 * p0.y;
+// 
+//        double a2 = p3.y - p2.y;
+//        double b2 = p2.x - p3.x;
+//        double c2 = a2 * p2.x + b2 * p2.y;
+// 
+//        double delta = a1 * b2 - a2 * b1;
+//        
+//
+//       
+//        
+//        if (delta == 0) {
+//        	return null;
+//        }
+//        Vector2d crossPoint = new Vector2d((b2 * c1 - b1 * c2) / delta, (a1 * c2 - a2 * c1) / delta);
+        
+        
+        //return crossPoint;
+		
+		
+		
+//		Vector2d d0 = new Vector2d(p1.x - p0.x, p1.y - p0.y);
+//		Vector2d d1 = new Vector2d(p3.x - p2.x, p3.y - p2.y);
+//		Vector2d diff = new Vector2d(p2.x - p0.x, p3.y - p0.y);
+//		double det = d1.x * d0.y - d1.y * d0.x;
+//
+//		if (det * det > epsilon * d0.lengthSquared() * d1.lengthSquared()) {
+//			double invDet = 1.0 / det;
+//			double s = (d1.x * diff.y - d1.y * diff.x) * invDet;
+//			double t = (d0.x * diff.y - d0.y * diff.x) * invDet;
+//
+//			if(t < 0.0 - epsilon || t > 1.0 + epsilon) {
+//				return null;
+//			} else if (s < 0.0 - epsilon || s > 1.0 + epsilon) {
+//				return null;
+//			} else {
+//				Vector2d cp = new Vector2d();
+//				//TODO: rounding here is not elegant, but works for now
+//				cp.x = Math.round((1.0 - t) * p2.x + t * p3.x); 
+//				cp.y = Math.round((1.0 - t) * p2.y + t * p3.y);
+//				
+//				return cp;
+//			}
+//		}
+//		return null;
 	}
 	
 	public static double DistancePointToSegment(Vector2d p, Vector2d sp, Vector2d ep) {
@@ -619,6 +707,7 @@ public class GeometryUtil {
 			System.out.println("NO CROSS POINT FOUND");
 		}
 		
+		crossPoint = round(crossPoint, 10);
 		return crossPoint;
 	}
 	
@@ -882,6 +971,169 @@ public class GeometryUtil {
 			}
 		}
 		return newList;
+	}
+
+	
+	public static int areaSign(Vector2d a, Vector2d b, Vector2d c) {
+		double area2;
+		
+		area2 = (b.x - a.x) * (double)(c.y - a.y) -
+				(c.x - a.x) * (double)(b.y - a.y);
+		
+		//the area should be an integer
+		if (area2 < -0.5) {
+			return 1;
+		} else if (area2 > 0.5) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+	
+	public static boolean isStrictLeft( Vector2d a, Vector2d b, Vector2d c) {
+		return areaSign(a, b, c) > 0;
+	}
+	
+	public static boolean isLeftOn( Vector2d a, Vector2d b, Vector2d c) {
+		return areaSign(a, b, c) >= 0;
+	}
+	
+	public static boolean isCollinear( Vector2d a, Vector2d b, Vector2d c) {
+		return areaSign(a, b, c) == 0;
+	}
+	
+	public static boolean between(Vector2d a, Vector2d b, Vector2d c) {
+		
+		if (!isCollinear(a, b, c)) {
+			return false;
+		}
+		
+		//if ab not vertical, check betweenness on x; else on y
+		if(a.x != b.x) {
+			return ((a.x <= c.x) && (c.x <= b.x)) ||
+					((a.x >= c.x) && (c.x >= b.x));
+		} else {
+			return ((a.y <= c.y) && (c.y <= b.y)) ||
+					((a.y >= c.y) && (c.y >= b.y));
+		}
+	}
+	
+	/**
+	 * Returns {@code true} if and only if segments ab & cd intersect, properly or improperly
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @param d
+	 * @return
+	 */
+	public static boolean intersect(Vector2d a, Vector2d b, Vector2d c, Vector2d d) {
+		if (intersectProp(a, b, c, d)) {
+			return true;
+		} else if (between(a, b, c) ||
+				between(a, b, d) ||
+				between(c, d, a) ||
+				between(c, d, b)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static boolean intersectProp(Vector2d a, Vector2d b, Vector2d c, Vector2d d) {
+		//eliminate improper cases
+		if (isCollinear(a,b,c) ||
+			isCollinear(a,b,d) ||
+			isCollinear(c,d,a) ||
+			isCollinear(c,d,b)) {
+			return false;
+		} else {
+			return xOr(isStrictLeft(a,b,c), isStrictLeft(a,b,d)) && xOr(isStrictLeft(c, d, a), isStrictLeft(c, d, b));
+		}
+	}
+	
+	/**
+	 * Exclusive or: true if and only if exactly one argument is true
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static boolean xOr(boolean x, boolean y) {
+		//the arguments are negated to ensure that they are 0/1 values
+		return !x ^ !y;
+	}
+	
+	
+	public static double distEdgePoint(Vector2d a, Vector2d b, Vector2d c) {
+		double r, s;
+		double length;
+		double dProj = 0.0;
+		
+		length = GeometryUtil.Distance(b, a);
+
+		r = (((a.y - c.y) * (a.y - b.y))
+		   - ((a.x - c.x) * (b.x - a.x))) / (length * length);  
+		s = (((a.y - c.y) * (b.x - a.x))
+		   - ((a.x - c.x) * (b.y - a.y))) / (length * length);
+		
+		dProj = Math.abs(s * length);
+		
+		if ((s != 0.0) && ((0.0 <= r) && (r <= 1.0))) {
+			return dProj;
+		}
+		if ((s == 0.0) && GeometryUtil.between(a, b, c)) {
+			return 0.0;
+		} else {
+			double ca = GeometryUtil.Distance(a, c);
+			double cb = GeometryUtil.Distance(b, c);
+			return Math.min(ca,  cb);
+		}
+	}
+	
+	/**
+	 * Check if {@code OriVertex v} is on the line(lP1, lP2).<br>
+	 * <br>
+	 * dist(l.p0, vertex) + dist(vertex, l.p1) == dist(l.p0-l.p1)<br>
+	 * l.p0 ------ vertex --------------- l.p1 == l.p0 ------------------------- l.p1<br>
+	 * @param lP1
+	 * @param lP2
+	 * @param v
+	 * @return {@code true} if the vertex is on the line
+	 */
+	public static boolean isPointOnLine(OriVertex lP1, OriVertex lP2, OriVertex v) {
+		double distl0V = GeometryUtil.Distance(lP1.p, v.p);
+		double distVl1 = GeometryUtil.Distance(v.p, lP2.p);
+		double distl0l1 = GeometryUtil.Distance(lP1.p, lP2.p);
+		
+		if (GeometryUtil.closeCompare(distl0V + distVl1, distl0l1, Constants.EPSILON)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Rounds a {@code double value} to {@code n} decimal places
+	 * @param value
+	 * @param n
+	 * @return the rounded {@code value}
+	 */
+	public static double round(double value, int n) {
+		if (n < 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		BigDecimal bd = new BigDecimal(Double.toString(value));
+		bd = bd.setScale(n, RoundingMode.HALF_UP);
+		return bd.doubleValue();
+	}
+	
+	/**
+	 * Rounds a {@code Vector2d value} to {@code n} decimal places
+	 * @param value
+	 * @param n
+	 * @return
+	 */
+	public static Vector2d round(Vector2d value, int n) {
+		return new Vector2d(round(value.x, n), round(value.y, n)); 
 	}
 
 }

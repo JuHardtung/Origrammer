@@ -85,6 +85,8 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	private JButton resetViewButton = new JButton("Reset View");
 	private JCheckBox dispVerticesCB = new JCheckBox(Origrammer.res.getString("UI_ShowVertices"), true);
 	private JCheckBox dispFilledFacedCB = new JCheckBox(Origrammer.res.getString("UI_ShowFilledFaces"), true);
+	private JCheckBox dispPolygonsCB = new JCheckBox(Origrammer.res.getString("UI_ShowPolygons"), true);
+	private JCheckBox dispTriangulationCB = new JCheckBox(Origrammer.res.getString("UI_ShowTriangulation"), true);
 
 	private MainScreen screen;
 	private UITopPanel uiTopPanel;
@@ -348,11 +350,21 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		dispFilledFacedCB.setSelected(true);
 		Globals.dispFilledFaces = true;
 		
+		dispPolygonsCB.addActionListener(this);
+		dispPolygonsCB.setSelected(true);
+		Globals.dispPolygons = true;
+		
+		dispTriangulationCB.addActionListener(this);
+		dispTriangulationCB.setSelected(true);
+		Globals.dispTriangulation = true;
+		
 		JPanel buttonsPanel = new JPanel();
 		buttonsPanel.add(resetViewButton);
 		buttonsPanel.add(dispVerticesCB);
 		buttonsPanel.add(dispFilledFacedCB);
-		buttonsPanel.setLayout(new GridLayout(3, 1, 10, 2));
+		buttonsPanel.add(dispPolygonsCB);
+		buttonsPanel.add(dispTriangulationCB);
+		buttonsPanel.setLayout(new GridLayout(5, 1, 10, 2));
 		add(buttonsPanel);
 	}
 
@@ -483,6 +495,12 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 			screen.repaint();
 		} else if (e.getSource() == dispFilledFacedCB) {
 			Globals.dispFilledFaces = dispFilledFacedCB.isSelected();
+			screen.repaint();
+		} else if (e.getSource() == dispPolygonsCB) {
+			Globals.dispPolygons = dispPolygonsCB.isSelected();
+			screen.repaint();
+		} else if (e.getSource() == dispTriangulationCB) {
+			Globals.dispTriangulation = dispTriangulationCB.isSelected();
 			screen.repaint();
 		}
 	}

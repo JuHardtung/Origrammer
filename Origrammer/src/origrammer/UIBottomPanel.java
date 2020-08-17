@@ -30,6 +30,7 @@ import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
 import origrammer.geometry.OriLine;
 import origrammer.geometry.OriPleatCrimpSymbol;
+import origrammer.geometry.OriPolygon;
 import origrammer.geometry.OriVertex;
 
 public class UIBottomPanel extends JPanel implements ActionListener, PropertyChangeListener, KeyListener {
@@ -197,6 +198,11 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 		int prevStep = Globals.currentStep-1;
 		Step newStep = new Step();
 
+		for (int i = 0; i<Origrammer.diagram.steps.get(prevStep).polygons.size(); i++) {
+			OriPolygon tmpPolygon = new OriPolygon(Origrammer.diagram.steps.get(prevStep).polygons.get(i));
+			newStep.polygons.add(tmpPolygon);
+		}
+		
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).lines.size(); i++) {
 			OriLine tmpLine = new OriLine(Origrammer.diagram.steps.get(prevStep).lines.get(i));
 			newStep.lines.add(tmpLine);

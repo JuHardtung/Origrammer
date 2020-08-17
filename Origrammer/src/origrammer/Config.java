@@ -24,6 +24,8 @@ public class Config {
 	final public static BasicStroke STROKE_MOUNTAIN_DASH_DOT_DOT = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dash_dot_dot, 0.0f);
 	final public static BasicStroke STROKE_XRAY = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dotted, 0.0f);
 	final public static BasicStroke STROKE_CREASE = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+	final public static BasicStroke STROKE_DIAGONAL = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, dotted, 0.0f);
+
 	final public static BasicStroke STROKE_SELECTED = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	final public static BasicStroke STROKE_GRID = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	final public static BasicStroke STROKE_ARROWS = new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);

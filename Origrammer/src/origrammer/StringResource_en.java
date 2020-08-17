@@ -31,6 +31,8 @@ public class StringResource_en extends ListResourceBundle {
 			{"UI_gridSet", "Set"},
 			{"UI_ShowVertices", "Show Vertices"},
 			{"UI_ShowFilledFaces", "Show Filled Faces"},
+			{"UI_ShowPolygons", "Show Polygons"},
+			{"UI_ShowTriangulation", "Show Triangulation Lines"},
 			{"Pref_applyButton", "Apply"},
 			{"Pref_okButton", "Ok"},
 			{"Pref_cancelButton", "Cancel"},

@@ -4,12 +4,23 @@ import javax.vecmath.Vector2d;
 
 public class OriVertex {
 	
-	public Vector2d p = new Vector2d();
+	public OriVertex prev, next;
+	public Vector2d p;
 	private Vector2d offset = new Vector2d();
+	public boolean isEar = false;
+	int vnum;
+	boolean onHull;
+	boolean mark;
 	private boolean isSelected = false;
 
 	
 	public OriVertex() {
+		prev = next = null;
+		p = new Vector2d();
+		vnum = 0;
+		onHull = false;
+		mark = false;
+		
 	}
 	
 	public OriVertex(OriVertex v) {
@@ -22,7 +33,10 @@ public class OriVertex {
 	}
 	
 	public OriVertex(double x, double y) {
-		p.set(x, y);
+		p = new Vector2d();
+		p.x = x;
+		p.y = y;
+		prev = next = null;
 	}
 
 	public Vector2d getP() {
@@ -53,9 +67,39 @@ public class OriVertex {
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
+	
+//	public OriVertex getPrev() {
+//		return prev;
+//	}
+//
+//	public void setPrev(OriVertex prev) {
+//		this.prev = prev;
+//	}
+//
+//	public OriVertex getNext() {
+//		return next;
+//	}
+//
+//	public void setNext(OriVertex next) {
+//		this.next = next;
+//	}
+
+	public boolean isEar() {
+		return isEar;
+	}
+
+	public void setEar(boolean isEar) {
+		this.isEar = isEar;
+	}
+
+	public void printVertex(int index) {
+		System.out.println("V" + index + " = ");
+		System.out.println(" (" + p.x + "," + p.y + ")");
+	}
 
 	@Override
 	public String toString() {
-		return "OriVertex [p=" + p + "]";
+		return "OriVertex [p=" + p + ", offset=" + offset + ", isEar=" + isEar
+				+ ", isSelected=" + isSelected + "]";
 	}
 }
