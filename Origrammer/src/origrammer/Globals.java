@@ -31,8 +31,8 @@ public class Globals {
 	public static boolean bDispCrossLine = false;
 	public static boolean dispColoredLines = false;
 	public static boolean automatedArrowPlacement = false;
-	public static boolean automatedLinePlacement = false;
-	public static boolean automatedFolding = false;
+	public static boolean automatedLinePlacement = true;
+	public static boolean automatedFolding = true;
 	public static int inputLineType = OriLine.TYPE_VALLEY;
 	public static int inputArrowType = OriArrow.TYPE_VALLEY;
 	public static boolean renderStepPreview = false;
@@ -41,6 +41,4 @@ public class Globals {
 	public static double SCALE = 1.0;
 	
 	public static Color DEFAULT_PAPER_COLOR = new Color(133, 133, 133);
-
-
 }

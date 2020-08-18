@@ -81,8 +81,6 @@ public class GeometryUtil {
 	 */
 	public static Vector2d getCrossPoint(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4) {
 		
-		double epsilon = 1.0e-6;
-
 		// Line AB represented as a1x + b1y = c1 
         double a1 = p2.y - p1.y; 
         double b1 = p1.x - p2.x; 
@@ -116,56 +114,6 @@ public class GeometryUtil {
             }
             return cross; 
         } 
-		
-		
-		
-//		double a1 = p1.y - p0.y;
-//        double b1 = p0.x - p1.x;
-//        double c1 = a1 * p0.x + b1 * p0.y;
-// 
-//        double a2 = p3.y - p2.y;
-//        double b2 = p2.x - p3.x;
-//        double c2 = a2 * p2.x + b2 * p2.y;
-// 
-//        double delta = a1 * b2 - a2 * b1;
-//        
-//
-//       
-//        
-//        if (delta == 0) {
-//        	return null;
-//        }
-//        Vector2d crossPoint = new Vector2d((b2 * c1 - b1 * c2) / delta, (a1 * c2 - a2 * c1) / delta);
-        
-        
-        //return crossPoint;
-		
-		
-		
-//		Vector2d d0 = new Vector2d(p1.x - p0.x, p1.y - p0.y);
-//		Vector2d d1 = new Vector2d(p3.x - p2.x, p3.y - p2.y);
-//		Vector2d diff = new Vector2d(p2.x - p0.x, p3.y - p0.y);
-//		double det = d1.x * d0.y - d1.y * d0.x;
-//
-//		if (det * det > epsilon * d0.lengthSquared() * d1.lengthSquared()) {
-//			double invDet = 1.0 / det;
-//			double s = (d1.x * diff.y - d1.y * diff.x) * invDet;
-//			double t = (d0.x * diff.y - d0.y * diff.x) * invDet;
-//
-//			if(t < 0.0 - epsilon || t > 1.0 + epsilon) {
-//				return null;
-//			} else if (s < 0.0 - epsilon || s > 1.0 + epsilon) {
-//				return null;
-//			} else {
-//				Vector2d cp = new Vector2d();
-//				//TODO: rounding here is not elegant, but works for now
-//				cp.x = Math.round((1.0 - t) * p2.x + t * p3.x); 
-//				cp.y = Math.round((1.0 - t) * p2.y + t * p3.y);
-//				
-//				return cp;
-//			}
-//		}
-//		return null;
 	}
 	
 	public static double DistancePointToSegment(Vector2d p, Vector2d sp, Vector2d ep) {

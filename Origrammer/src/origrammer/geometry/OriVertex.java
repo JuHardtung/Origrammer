@@ -38,6 +38,14 @@ public class OriVertex {
 		p.y = y;
 		prev = next = null;
 	}
+	
+	public OriVertex(double x, double y, double offX, double offY) {
+		p = new Vector2d();
+		p.x = x;
+		p.y = y;
+		offset = new Vector2d(offX, offY);
+		prev = next = null;
+	}
 
 	public Vector2d getP() {
 		return p;

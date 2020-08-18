@@ -1630,23 +1630,36 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
 			
 			OriVertex curV = p.vertexList.head;
+			int vCount = 0;
 			do {
+				
 				if (GeometryUtil.isStrictLeft(lineV1, lineV2, curV.p)) {
-					System.out.println("isleft: " + curV.p.toString());
 
 					closest = GeometryUtil.getClosestPointOnLine(curV.p, foldingLine);
 					distToV = GeometryUtil.Distance(curV.p, closest)*2;
 					vertexMoveUv = GeometryUtil.getUnitVector(curV.p, closest);
 					//p.vertexList.setVertex(curV, curV.p.x + vertexMoveUv.x*distToV, curV.p.y + vertexMoveUv.y*distToV);
 					p.vertexList.removeVertex(curV);
-					p.vertexList.addVertex(curV.p.x + vertexMoveUv.x*distToV, curV.p.y + vertexMoveUv.y*distToV);
-					System.out.println("after moving: " + curV.p);
+					p.vertexList.addVertex(curV.p.x + vertexMoveUv.x*distToV, curV.p.y + vertexMoveUv.y*distToV, 5, 5);
 					p.setHeight(1);
 					curV = p.vertexList.head;
-					
+					vCount = 0;
+				} else {
+					curV = curV.next;
+					vCount++;
 				}
-				curV = curV.next;
-			} while(curV != p.vertexList.head);
+
+			} while(vCount < p.vertexList.n);
+
+
+			//at the end, check vertexList.head again
+			if (GeometryUtil.isStrictLeft(lineV1, lineV2, p.vertexList.head.p)) {
+				closest = GeometryUtil.getClosestPointOnLine(p.vertexList.head.p, foldingLine);
+				distToV = GeometryUtil.Distance(p.vertexList.head.p, closest)*2;
+				vertexMoveUv = GeometryUtil.getUnitVector(p.vertexList.head.p, closest);
+				p.vertexList.removeVertex(p.vertexList.head);
+				p.vertexList.addVertex(p.vertexList.head.p.x + vertexMoveUv.x*distToV, p.vertexList.head.p.y + vertexMoveUv.y*distToV, 5, 5);
+			}
 			
 		}
 		

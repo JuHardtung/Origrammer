@@ -48,6 +48,27 @@ public class OriVertexList {
 		}
 	}
 	
+	/**
+	 * Adds vertex, inserting in between vertices of the closest edge.
+	 * Adds an offset to the vertex.
+	 * @param v
+	 */
+	public void addVertex(double x, double y, double offX, double offY) {
+		
+		OriVertex v = new OriVertex(x, y, offX, offY);
+		if (head == null) {
+			initHead(v);
+		} else {
+			if (!isInputDuplicate(v)) {
+				//gets vertex of 1st vertex of the closest edge to the point
+				OriVertex vNear = getEdge(v);
+				if (vNear != null) {
+					insertBefore(v, vNear.next);
+				}
+			}
+		}
+	}
+	
 	public void setVertex(OriVertex vOld, double x, double y) {
 		OriVertex v = new OriVertex(x, y);
 
