@@ -320,25 +320,38 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 							for (OriLine curSharedL : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
 								if (curSharedL.isSameLine(curL)) { //only render the shared line of the current polygon to avoid height related render issues
 									ArrayList<OriPolygon> sharedPolys = Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.get(curSharedL);
+									if (curSharedL.isSelected()) {
+										g2d.setColor(Config.LINE_COLOR_SELECTED);
+									}
+									//change color if line selected for some symbol input
+									if (curSharedL.isSameLine(firstSelectedL) || curSharedL.isSameLine(secondSelectedL) || curSharedL.isSameLine(thirdSelectedL)) {
+										g2d.setColor(Color.RED);
+										g2d.setStroke(Config.STROKE_SELECTED);
+									} else if (curSharedL == selectedCandidateL) {
+										g2d.setColor(Config.LINE_COLOR_SELECTED);
+										g2d.setStroke(Config.STROKE_SELECTED);
+									}
+									
+									if (sharedPolys.get(0).getHeight() == sharedPolys.get(1).getHeight()
+											&& curP.equals(sharedPolys.get(0))) {
+										setLineStrokeByLineType(curSharedL.getType()); 
+										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
 
+										
+										
 									//only render the shared line, if the current polygon is the higher one of the 2
-									if ((sharedPolys.get(0).getHeight() > sharedPolys.get(1).getHeight() && curP.equals(sharedPolys.get(0)))
+									} else if ((sharedPolys.get(0).getHeight() > sharedPolys.get(1).getHeight() && curP.equals(sharedPolys.get(0)))
 											|| (sharedPolys.get(1).getHeight() > sharedPolys.get(0).getHeight() && curP.equals(sharedPolys.get(1)))) {
 
-										if (curSharedL.isSelected()) {
-											g2d.setColor(Config.LINE_COLOR_SELECTED);
-										}
-										//change color if line selected for some symbol input
-										if (curSharedL.isSameLine(firstSelectedL) || curSharedL.isSameLine(secondSelectedL) || curSharedL.isSameLine(thirdSelectedL)) {
-											g2d.setColor(Color.RED);
-											g2d.setStroke(Config.STROKE_SELECTED);
-										} else if (curSharedL == selectedCandidateL) {
-											g2d.setColor(Config.LINE_COLOR_SELECTED);
-											g2d.setStroke(Config.STROKE_SELECTED);
-										}
+										
 										
 										//the line type of the sharedLine
-										setLineStrokeByLineType(curSharedL.getType()); 
+										if (sharedPolys.get(0).getHeight() == sharedPolys.get(1).getHeight()) {
+											setLineStrokeByLineType(curSharedL.getType()); 
+										} else {
+											g2d.setStroke(Config.STROKE_EDGE);
+										}
+										
 										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
 									}
 								}
