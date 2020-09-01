@@ -3,18 +3,20 @@ package origrammer.geometry;
 import javax.vecmath.Vector2d;
 
 import origrammer.Constants;
+import origrammer.Globals;
+import origrammer.Origrammer;
 
 public class OriLine {
-	final public static int TYPE_NONE = 0;
-	final public static int TYPE_EDGE = 1;
-	final public static int TYPE_MOUNTAIN = 2;
-	final public static int TYPE_VALLEY = 3;
-	final public static int TYPE_XRAY = 4;
-	final public static int TYPE_CREASE = 5;
-	final public static int TYPE_DIAGONAL = 6;
+	final public static int NONE 	 = 0;
+	final public static int EDGE 	 = 1;
+	final public static int MOUNTAIN = 2;
+	final public static int VALLEY 	 = 3;
+	final public static int XRAY 	 = 4;
+	final public static int CREASE 	 = 5;
+	final public static int DIAGONAL = 6;
 	
 	private boolean isSelected;
-	private int type = TYPE_NONE;
+	private int type = NONE;
 	private OriVertex p0 = new OriVertex();
 	private OriVertex p1 = new OriVertex();
 	private boolean isStartOffset;
@@ -76,6 +78,30 @@ public class OriLine {
 	}
 	
 	/**
+	 * Checks if {@code line} is also an edgeLine.
+	 * @param line
+	 * @return returns {@code true} if {@code line} is an edgeLine
+	 */
+	public boolean isEdgeLine() {
+		for (OriPolygon curP : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+			for (OriLine curL : curP.lines) {
+				if (curL.getType() == OriLine.EDGE && isSameLine(curL)) {
+					System.out.println("is an edge line");
+					return true;
+				}
+			}
+		}
+//		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).edgeLines) {
+//			if (l.getP0().p.equals(p0.p) && l.getP1().p.equals(p1.p) 
+//				|| l.getP1().p.equals(p0.p) && l.getP0().p.equals(p1.p)) {
+//				System.out.println("is an edge line");
+//				return true;
+//			}
+//		}
+		return false;
+	}
+	
+	/**
 	 * Checks if the line intersects the {@code OriPolygon p}
 	 * @param p
 	 * @return {@code true}, if it intersects in at least one point. Otherwise {@code false}.
@@ -85,7 +111,6 @@ public class OriLine {
 		boolean cross;
 		
 		do {
-			//cross = GeometryUtil.getCrossPoint(p0.p, p1.p, curV.p, curV.next.p);
 			 cross = GeometryUtil.isIntersecting(p0.p, p1.p, curV.p, curV.next.p);
 			if (cross == true) {
 				return true;
@@ -102,6 +127,9 @@ public class OriLine {
 	 * @return {@code true} if both lines are the same
 	 */
 	public boolean isSameLine(OriLine l) {
+		if (l == null) {
+			return false;
+		}
 		if (GeometryUtil.closeCompareOriVertex(p0, l.getP0()) && GeometryUtil.closeCompareOriVertex(p1, l.getP1())) {	
 			return true;
 		} else if (GeometryUtil.closeCompareOriVertex(p0, l.getP1()) && GeometryUtil.closeCompareOriVertex(p1, l.getP0())) {
@@ -117,7 +145,7 @@ public class OriLine {
 	 * @return {@code true} if both lines are the same
 	 */
 	public boolean isSameLine(OriVertex v0, OriVertex v1) {
-		return isSameLine(new OriLine(v0, v1, OriLine.TYPE_NONE));
+		return isSameLine(new OriLine(v0, v1, OriLine.NONE));
 	}
 	
 	
@@ -142,25 +170,62 @@ public class OriLine {
 
 		if (isSameDirection) {
 			if (GeometryUtil.closeCompareOriVertex(p0, inputLine.getP0())) {
-				return GeometryUtil.isPointOnLine(p0, p1, inputLine.getP1());
+				return isPointOnLine(inputLine.getP1());
 				//splitLinesFromVertex(inputLine.getP1()); //check if second vertex of the line is splitting an existing one
 				//return true;
 			} else if (GeometryUtil.closeCompareOriVertex(p0, inputLine.getP1())) {
-				return GeometryUtil.isPointOnLine(p0, p1, inputLine.getP0());
+				return isPointOnLine(inputLine.getP0());
 //				splitLinesFromVertex(inputLine.getP1()); //check if second vertex of the line is splitting an existing one
 //				return true;
 			} else if (GeometryUtil.closeCompareOriVertex(p1, inputLine.getP0())) {
-				return GeometryUtil.isPointOnLine(p0, p1, inputLine.getP1());
+				return isPointOnLine(inputLine.getP1());
 //				splitLinesFromVertex(inputLine.getP0()); //check if second vertex of the line is splitting an existing one
 //				return true;
 			} else if (GeometryUtil.closeCompareOriVertex(p1, inputLine.getP1())) {
-				return GeometryUtil.isPointOnLine(p0, p1, inputLine.getP0());
+				return isPointOnLine(inputLine.getP0());
 //				splitLinesFromVertex(inputLine.getP0()); //check if second vertex of the line is splitting an existing one
 //				return true;
 			}
 		}
 		return false;
 	}
+	
+	
+	/**
+	 * Check if {@code Vector2d v} is on the line(lP1, lP2).<br>
+	 * <br>
+	 * dist(l.p0, vertex) + dist(vertex, l.p1) == dist(l.p0-l.p1)<br>
+	 * l.p0 ------ vertex --------------- l.p1 == l.p0 ------------------------- l.p1<br>
+	 * @param lP1
+	 * @param lP2
+	 * @param v
+	 * @return {@code true} if the vertex is on the line
+	 */
+	public boolean isPointOnLine(Vector2d v) {
+		double distl0V = GeometryUtil.Distance(p0.p, v);
+		double distVl1 = GeometryUtil.Distance(v, p1.p);
+		double distl0l1 = GeometryUtil.Distance(p0.p, p1.p);
+		
+		if (GeometryUtil.closeCompare(distl0V + distVl1, distl0l1, Constants.EPSILON)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check if {@code OriVertex v} is on the line(lP1, lP2).<br>
+	 * <br>
+	 * dist(l.p0, vertex) + dist(vertex, l.p1) == dist(l.p0-l.p1)<br>
+	 * l.p0 ------ vertex --------------- l.p1 == l.p0 ------------------------- l.p1<br>
+	 * @param lP1
+	 * @param lP2
+	 * @param v
+	 * @return {@code true} if the vertex is on the line
+	 */
+	public boolean isPointOnLine(OriVertex v) {
+		return isPointOnLine(v.p);
+	}
+	
 	
 	public double getLength() {
 		return GeometryUtil.Distance(p0.p, p1.p);

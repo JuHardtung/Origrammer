@@ -479,7 +479,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		OriVertex minusHundretMinus = new OriVertex(-100, -300);
 		
 		//STEP 0
-		lineList.add(new OriLine(minus300Zero, threeHundretZero, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minus300Zero, threeHundretZero, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(0, 300), new Vector2d(0, -300), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -491,8 +491,8 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusZero, plusZero, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusZero, plusZero, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -300), new Vector2d(300, 300), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -504,9 +504,9 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusZero, plusZero, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinus, plusZero, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusZero, plusZero, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusMinus, plusZero, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(150, -300), new Vector2d(-50, 50), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -520,10 +520,10 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		//leave out unused creaseline
 		//lineList.add(new OriLine(new Vector2d(-300, 0), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true)); 
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinus, plusZero, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.TYPE_VALLEY));
-		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusMinus, plusZero, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.VALLEY));
+		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.VALLEY));
 		
 		arrowList.add(new OriArrow(new Vector2d(-200, -300), new Vector2d(-200, 100), OriArrow.TYPE_VALLEY, false, true));
 		arrowList.add(new OriArrow(new Vector2d(300, 200), new Vector2d(-100, 200), OriArrow.TYPE_VALLEY, true, true));
@@ -543,10 +543,10 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		//lineList.add(new OriLine(new Vector2d(-300, 0), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
 		//lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
 		//lineList.add(new OriLine(new Vector2d(-300, -300), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusHundretMinus, minusHundretPlus, OriLine.TYPE_VALLEY));
-		lineList.add(new OriLine(minusHundret, plusHundret, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusHundretMinus, minusHundretPlus, OriLine.VALLEY));
+		lineList.add(new OriLine(minusHundret, plusHundret, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -200), new Vector2d(100, -200), OriArrow.TYPE_VALLEY, true, true));
 		arrowList.add(new OriArrow(new Vector2d(200, 300), new Vector2d(200, -100), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -562,10 +562,10 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		//lineList.add(new OriLine(new Vector2d(-300, 0), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
 		//lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
 		//lineList.add(new OriLine(new Vector2d(-300, -300), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusHundretMinus, minusHundretPlus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusHundret, plusHundret, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusHundretMinus, minusHundretPlus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusHundret, plusHundret, OriLine.CREASE, true, true));
 		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(300, -300), -40, 3);
 		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
 		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(-300, 300), 40, 3);
@@ -616,7 +616,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		
 		//STEP 0
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -300), new Vector2d(300, 300), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -628,8 +628,8 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -150), new Vector2d(0, 0), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -641,9 +641,9 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -187.5), new Vector2d(-112.5, -150), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -655,10 +655,10 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.TYPE_CREASE));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.CREASE));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(-60, -60), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -672,9 +672,9 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(-180, 0), OriArrow.TYPE_VALLEY, true, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
@@ -687,11 +687,11 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.TYPE_VALLEY));
-		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.VALLEY));
+		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(60, 0), OriArrow.TYPE_VALLEY, true, true));
 		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(180, -60), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -706,16 +706,16 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.CREASE, true, true));
 		
-		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.TYPE_VALLEY));
-		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.TYPE_VALLEY));
-		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.TYPE_VALLEY));
-		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.TYPE_VALLEY));
+		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.VALLEY));
+		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.VALLEY));
+		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.VALLEY));
+		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(60, -300), new Vector2d(60, -60), OriArrow.TYPE_VALLEY, true, true));
 		arrowList.add(new OriArrow(new Vector2d(-180, -300), new Vector2d(-180, 180), OriArrow.TYPE_VALLEY, false, true));
 		arrowList.add(new OriArrow(new Vector2d(180, 300), new Vector2d(180, -180), OriArrow.TYPE_VALLEY, false, true));
@@ -732,15 +732,15 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Globals.currentStep += 1;
 		lineList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.TYPE_CREASE, true, true));
+		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.CREASE, true, true));
+		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.CREASE, true, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
 		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Done.");
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();

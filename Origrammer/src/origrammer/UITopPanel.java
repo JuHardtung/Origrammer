@@ -682,15 +682,15 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 					String lineType = changeLineTypeCB.getSelectedItem().toString();
 
 					if (lineType == "Valley Fold") {
-						l.setType(OriLine.TYPE_VALLEY);
+						l.setType(OriLine.VALLEY);
 					} else if (lineType == "Mountain Fold") {
-						l.setType(OriLine.TYPE_MOUNTAIN);
+						l.setType(OriLine.MOUNTAIN);
 					} else if (lineType == "X-Ray Fold") {
-						l.setType(OriLine.TYPE_XRAY);
+						l.setType(OriLine.XRAY);
 					} else if (lineType == "Edge Line") {
-						l.setType(OriLine.TYPE_EDGE);
+						l.setType(OriLine.EDGE);
 					} else if (lineType == "Existing Crease") {
-						l.setType(OriLine.TYPE_CREASE);
+						l.setType(OriLine.CREASE);
 					}
 				}
 			}
@@ -734,15 +734,15 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 			Object selectedLine = menuLineCB.getSelectedItem();
 
 			if (selectedLine == "Valley Fold") {
-				Globals.inputLineType = OriLine.TYPE_VALLEY;
+				Globals.inputLineType = OriLine.VALLEY;
 			} else if (selectedLine == "Mountain Fold") {
-				Globals.inputLineType = OriLine.TYPE_MOUNTAIN;
+				Globals.inputLineType = OriLine.MOUNTAIN;
 			} else if (selectedLine == "X-Ray Fold") {				
-				Globals.inputLineType = OriLine.TYPE_XRAY;
+				Globals.inputLineType = OriLine.XRAY;
 			} else if (selectedLine == "Edge Line") {
-				Globals.inputLineType = OriLine.TYPE_EDGE;
+				Globals.inputLineType = OriLine.EDGE;
 			} else if (selectedLine == "Existing Crease") {
-				Globals.inputLineType = OriLine.TYPE_CREASE;
+				Globals.inputLineType = OriLine.CREASE;
 			}
 		}
 		modeChanged();
@@ -752,7 +752,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 
 		if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE) {
 			inputLinesPanel.setVisible(true);
-			if (Globals.inputLineType == OriLine.TYPE_CREASE) {
+			if (Globals.inputLineType == OriLine.CREASE) {
 				changeCreaseEndsPanel.setVisible(true);
 			} else {
 				changeCreaseEndsPanel.setVisible(false);
@@ -842,7 +842,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
 				if (l.isSelected()) {
 					changeLinePanel.setVisible(true);
-					if (l.getType() == OriLine.TYPE_CREASE) {
+					if (l.getType() == OriLine.CREASE) {
 						changeCreaseEndsPanel.setVisible(true);
 					}
 					break;

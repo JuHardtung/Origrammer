@@ -10,6 +10,9 @@ import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -203,9 +206,39 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 			newStep.polygons.add(tmpPolygon);
 		}
 		
+		HashMap<OriLine, ArrayList<OriPolygon>> tmpSharedLinesList = new HashMap<OriLine, ArrayList<OriPolygon>>();
+		for (Map.Entry<OriLine, ArrayList<OriPolygon>> entry : Origrammer.diagram.steps.get(prevStep).sharedLines.entrySet()) {
+			OriLine oldKey = entry.getKey();
+			ArrayList<OriPolygon> oldValueList = entry.getValue();
+			
+			OriLine newKey = new OriLine(oldKey);
+			ArrayList<OriPolygon> newValueList = new ArrayList<OriPolygon>();
+
+			for (OriPolygon p : newStep.polygons) {
+				if (p.vertexList.head.p.epsilonEquals(oldValueList.get(0).vertexList.head.p, Constants.EPSILON)
+						&& p.vertexList.head.next.p.epsilonEquals(oldValueList.get(0).vertexList.head.next.p, Constants.EPSILON)
+						&& p.vertexList.head.next.next.p.epsilonEquals(oldValueList.get(0).vertexList.head.next.next.p, Constants.EPSILON)) {
+					newValueList.add(0, p);
+				} else if (p.vertexList.head.p.epsilonEquals(oldValueList.get(1).vertexList.head.p, Constants.EPSILON)
+						&& p.vertexList.head.next.p.epsilonEquals(oldValueList.get(1).vertexList.head.next.p, Constants.EPSILON)
+						&& p.vertexList.head.next.next.p.epsilonEquals(oldValueList.get(1).vertexList.head.next.next.p, Constants.EPSILON)) {
+					newValueList.add(1, p);
+				}
+			}
+			
+			tmpSharedLinesList.put(newKey, newValueList);
+		}
+		newStep.sharedLines = tmpSharedLinesList;
+
+		
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).lines.size(); i++) {
 			OriLine tmpLine = new OriLine(Origrammer.diagram.steps.get(prevStep).lines.get(i));
 			newStep.lines.add(tmpLine);
+		}
+		
+		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).edgeLines.size(); i++) {
+			OriLine tmpLine = new OriLine(Origrammer.diagram.steps.get(prevStep).edgeLines.get(i));
+			newStep.edgeLines.add(tmpLine);
 		}
 
 		for (int i = 0; i < Origrammer.diagram.steps.get(prevStep).vertices.size(); i++) {

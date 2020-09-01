@@ -3,7 +3,7 @@
 \section{Planning Solutions}
 \label{sec:planningSolutions}
 
-This section will build on the discovered usability issues found during the initial evaluation process (see \ref{sec:evaluation}). On this basis, first solutions can be planned that fix the most impactful usability issues. Furthermore, new features can be developed that increase productivity (by automating processes and part of the workflow), while also fixing the current problems.
+This section will build on the discovered usability issues found during the initial evaluation process (see Section \ref{sec:evaluation}). On this basis, first solutions can be planned that fix the most impactful usability issues. Furthermore, new features can be developed that increase productivity (by automating processes and part of the workflow), while also fixing the current problems.
 
 
 \subsection{Graphical User Interface related changes}
@@ -138,3 +138,125 @@ As a result of the mentioned issues, the step navigation will be reworked to off
 \end{itemize}
 
 \textbf{Fixes: \#1.03; \#3.02;   \#7.07}
+
+
+\subsection{Virtual Folding of the Paper}
+\label{sec:virtualFolding}
+
+When creating diagrams with the Origrammer, the most time consuming activity is the placement of all required lines. All edges, current creases and existing creases have to be placed precicely, in order to allow the folder to closely follow the instructions simply by the visual cues. This large bottleneck in the diagramming process can only be eliminated by simulating the actual folding process virtually.
+
+Being able to drag and drop a corner or edge of the paper to the desired position would reduce the work required by a large amount.
+
+ \begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{virtualFoldingGoal}
+	\caption{Current workflow (top) \& Desired workflow (bottom)}
+	\label{fig:virtualFoldingGoal}
+\end{figure}
+
+In order to implement this automated folding, several parts of the Origrammer have to be reworked.\\
+
+\subsubsection*{Requirements}
+
+The following aspects have to be kept track of in order to implement the system of virtual folding.
+
+The paper lines have to be stored in a way, where their relations and connections to each other are stored and preserved. Then, as seen in Figure \ref{fig:virtualFoldingGoal}, the folding arrows have to be placed automatically when folding part of the paper. The folding line where the new crease is created should be created and placed automatically as well. This crease line might also have to go through multiple layers of paper, which will have to be checked against for each folding action. Lastly, the folded part of the paper has to actually change position and direction, and possibly show the differently colored side of the paper.\\
+
+\subsubsection*{Current Status}
+
+So far, every line got stored within a single \texttt{ArrayList<OriLine>} and was otherwise completely independent of the other lines. An additional \texttt{ArrayList<OriVertex>} was kept track of, in order to efficiently iterate through all vertices that can be used as an input point for new lines, arrows or symbols. All arrows and symbols got also stored within their respective \texttt{ArrayList<>} per folding step. Lastly, the folding steps themselves got stored within an \texttt{ArrayList<Step>} as well, which made saving the full diagram in a .xml-file simple and efficient.
+
+This approach worked while there were no dependencies between the lines and vertices. But when folding virtually, several dependencies and other values have to be kept track of. These include among others the edge lines, existing creases, newly made creases (all with their specific line types), correct layering when rendering folded paper, correct colouring of different paper sides, and the rendering with slight distortions to show hidden layers/flaps (as on p.7 \emph{Distort the model to show all the layers} \cite{origrammer}).
+
+\subsubsection*{Reworked System}
+
+The new implementation works by splitting the actual paper model into \texttt{OriPolygons} that can be folded, split up, and rendered (see Listing \ref{oriPolygon}).
+
+\begin{lstlisting}[label=oriPolygon,caption=OriPolygon]
+OriPolygon {
+        OriVertexList vertexList; 
+        ArrayList<OriLine> lines;
+        int height; /*height of the polygon for rendering order*/
+}
+\end{lstlisting}
+
+Once the user inputs a new fold line, the Origrammer checks which \texttt{OriPolygons} are affected by the fold and subsequently splits them at the points where the folding line crosses the edges of a given polygon. The resulting line at the newly created crease is now a shared line between the two smaller, split up polygons. This is more closely visualized at Figure \ref{fig:reworkedPaperRepresentation}.
+ \begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{reworkedPaperRepresentation}
+	\caption{Reworked Paper Representation through \texttt{OriPolygons} and \texttt{sharedLines}}
+	\label{fig:reworkedPaperRepresentation}
+\end{figure}
+
+Every \texttt{OriPolygon} in turn consists of a \texttt{OriVertexList}, which contains all vertices of said polygon in a counter-clockwise order. Additionally, an \texttt{ArrayList<OriLine>} is required to keep track of the edge lines of the paper. As an \texttt{OriLine} also includes the line type, the lines within the \texttt{OriPolygon.lines}-list can have the type \texttt{EDGE} or \texttt{SHARED}.
+
+For the case when a polygon is sharing a ling with another polygon, the \texttt{HashMap<OriLine, ArrayList<OriPolygon>> sharedLines} was added.
+
+\begin{lstlisting}[label=paperModelImplementation,caption=New Implementation of Paper Model]
+ArrayList<OriPolygon> polygons
+
+HashMap<OriLine, <ArrayList<OriPolygon>> sharedLines
+\end{lstlisting}
+
+This \emph{shared lines}-list contains all the shared lines in combination of which polygons are sharing the given line. Additionally, the real line type is stored here, which is later used for rendering. If the \texttt{OriPolygons} would store the actual line type instead of the mockup type \texttt{SHARED}, then there would be no programmable connection between several \texttt{OriPolygons}. This would make folding lines that go through multiple polygons at the same time harder to calculate and progress from.\\
+
+Alternatively, there could be a flag for each \texttt{OriLine} that would signalize if it also is a shared line. But then you would have to iterate through all \texttt{OriPolygons} and check every line in them when looking for the connected polygon of a given shared line. So even though the \texttt{HashMap} of shared lines has to be updated and kept track of at all times, it is still more flexible and efficient compared to the system of flagging an \texttt{OriLine} as a shared line.
+
+\begin{lstlisting}[label=oriVertexList,caption={OriVertexList, OriVertex, and OriLine}]
+OriVertexList {
+        int n; /*vertex count*/
+        OriVertex head;
+}
+
+OriVertex {
+        Vector2d p; /*Vector2d(x, y)*/
+        OriVertex prev;
+        OriVertex next;
+}
+
+OriLine {
+        OriVertex p0;
+        OriVertex p1;
+        int type; 
+        /*NONE, EDGE, MOUNTAIN, VALLEY, XRAY, CREASE, 
+        (SHARED), (DIAGONAL)*/
+}
+\end{lstlisting}
+
+\newpage
+
+ \begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{complexVirtualFolding}
+	\caption{A more complex example of splitting polygons and multiple layers}
+	\label{fig:complexVirtualFolding}
+\end{figure}
+
+The example in Figure \ref{fig:complexVirtualFolding} shows a slightly more complex example, on how the Origrammer splits the polygons and creates the correct shared lines. Additionally, in this case multiple layers of the paper have to be rendererd and kept track of. This height value is only preserved for each \texttt{OriPolygon} and is not used in the vertices, lines, or shared lines. It can be seen that for each shared line there can only be two \texttt{OriPolygon}s that share one edge. So when making a fold on one polygon and said fold crosses a shared line of this polygon, the Origrammer only has to search for the counterpart polygon, that shares the same line. This process can be seen in Figure \ref{fig:heightValuesWhenFolding}, where a fold through multiple layers is carried out. Internally, the Origrammer starts with a simple folding line on the top polygon that goes to its edges. If one or both endpoints of the folding line end in a shared line, it is clear that other polygons are also affected by this fold. Then one only has to iterate through the list of shared lines and find the connected polygon/s. Once the new \texttt{OriPolygon}/s have been found, the same process can then be repeated.
+
+
+\begin{itemize}
+\item Create the folding line on the top layer
+\item Check both endpoints if they are ending in a shared line
+\item Find the connected polygons on the sides that have a shared line
+\item Repeat until on layer 0 or no other polygons are found
+
+\end{itemize}
+
+
+
+ \begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{heightValuesWhenFolding}
+	\caption{The process of folding through multiple layers and the updated height values}
+	\label{fig:heightValuesWhenFolding}
+\end{figure}
+
+
+
+ \begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\textwidth]{updatingVerticesWhenFolding}
+	\caption{Process of updating the new vertex positions after folding and splitting existing shared lines}
+	\label{fig:updatingVerticesWhenFolding}
+\end{figure}

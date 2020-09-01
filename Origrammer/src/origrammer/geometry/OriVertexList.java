@@ -33,8 +33,15 @@ public class OriVertexList {
 	 * @param v
 	 */
 	public void addVertex(double x, double y) {
-		
 		OriVertex v = new OriVertex(x, y);
+		addVertex(v);
+	}
+	
+	/**
+	 * Adds vertex, inserting in between vertices of the closest edge
+	 * @param v
+	 */
+	public void addVertex (OriVertex v) {
 		if (head == null) {
 			initHead(v);
 		} else {
@@ -43,6 +50,7 @@ public class OriVertexList {
 				OriVertex vNear = getEdge(v);
 				if (vNear != null) {
 					insertBefore(v, vNear.next);
+
 				}
 			}
 		}
@@ -54,19 +62,8 @@ public class OriVertexList {
 	 * @param v
 	 */
 	public void addVertex(double x, double y, double offX, double offY) {
-		
 		OriVertex v = new OriVertex(x, y, offX, offY);
-		if (head == null) {
-			initHead(v);
-		} else {
-			if (!isInputDuplicate(v)) {
-				//gets vertex of 1st vertex of the closest edge to the point
-				OriVertex vNear = getEdge(v);
-				if (vNear != null) {
-					insertBefore(v, vNear.next);
-				}
-			}
-		}
+		addVertex(v);
 	}
 	
 	public void setVertex(OriVertex vOld, double x, double y) {
@@ -97,6 +94,11 @@ public class OriVertexList {
 		}
 	}
 	
+	/**
+	 * Inserts a new {@code OriVertex newV} before the {@code oldV}
+	 * @param newV
+	 * @param oldV
+	 */
 	public void insertBefore(OriVertex newV, OriVertex oldV) {
 		if (head == null) {
 			initHead(newV);

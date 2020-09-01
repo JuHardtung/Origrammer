@@ -43,19 +43,7 @@ public class GeometryUtil {
 			return true;
 		}
 		return false;
-	}
-	
-	/**
-	 * Gets the crossingPoint between two lines.
-	 * @param l0
-	 * @param l1
-	 * @return {@code Vector2d crossingPoint}<br>
-	 * 		   {@code null} if the two lines don't cross
-	 */
-	public static Vector2d getCrossPoint(OriLine l0, OriLine l1) {
-		return getCrossPoint(l0.getP0().p, l0.getP1().p, l1.getP0().p, l1.getP1().p);
-	}
-	
+	}	
 	
 	/**
 	 * Checks if the line segments {@code line(p1,p2)} and {@code line(p3,p4)} are intersecting
@@ -72,49 +60,6 @@ public class GeometryUtil {
 		return l1.intersectsLine(l2);
 	}
 	
-	/**
-	 * Gets the crossingPoint between {@code line(p0, p1)} and {@code line(p2, p3)}.
-	 * @param l0
-	 * @param l1
-	 * @return {@code Vector2d crossingPoint}<br>
-	 * 		   {@code null} if the two lines don't cross
-	 */
-	public static Vector2d getCrossPoint(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4) {
-		
-		// Line AB represented as a1x + b1y = c1 
-        double a1 = p2.y - p1.y; 
-        double b1 = p1.x - p2.x; 
-        double c1 = a1*(p1.x) + b1*(p1.y); 
-       
-        // Line CD represented as a2x + b2y = c2 
-        double a2 = p4.y - p3.y; 
-        double b2 = p3.x - p4.x; 
-        double c2 = a2*(p3.x)+ b2*(p3.y); 
-       
-        double determinant = a1*b2 - a2*b1; 
-       
-        if (determinant == 0) { 
-            //lines are parallel
-            return null;
-        } else { 
-            double x = (b2*c1 - b1*c2) / determinant; 
-            double y = (a1*c2 - a2*c1) / determinant;
-            Vector2d cross = new Vector2d(x, y);
-            
-            double distL1 = Distance(p1, p2);
-            double distL2 = Distance(p3, p4);
-            double distP1Cross = Distance(p1, cross);
-            double distP2Cross = Distance(p2, cross);
-            double distP3Cross = Distance(p3, cross);
-            double distP4Cross = Distance(p4, cross);
-            
-            if (distL1 < distP1Cross || distL1 < distP2Cross || distL2 < distP3Cross || distL2 < distP4Cross) {
-            	//System.out.println("crossPoint is outside of line segment");
-            	return null; //crossPoint is outside of the line segments
-            }
-            return cross; 
-        } 
-	}
 	
 	public static double DistancePointToSegment(Vector2d p, Vector2d sp, Vector2d ep) {
 		Vector2d sub0, sub, sub0b;
@@ -532,6 +477,10 @@ public class GeometryUtil {
 		uv.set(normal);
 		uv.normalize();
 		
+		if (Double.isNaN(uv.x) || Double.isNaN(uv.y)) {
+			uv.x = 0;
+			uv.y = 0;
+		}
 		return uv;
 	}
 	
@@ -554,6 +503,136 @@ public class GeometryUtil {
 	}
 	
 	
+	
+	/**
+	 * Gets the crossingPoint between two lines.
+	 * @param l0
+	 * @param l1
+	 * @return {@code Vector2d crossingPoint}<br>
+	 * 		   {@code null} if the two lines don't cross
+	 */
+	public static Vector2d getCrossPoint(OriLine l0, OriLine l1) {
+		return getCrossPoint(l0.getP0().p, l0.getP1().p, l1.getP0().p, l1.getP1().p);
+	}
+	
+	/**
+	 * Gets the crossingPoint between {@code line(p0, p1)} and {@code line(p2, p3)}.
+	 * @param l0
+	 * @param l1
+	 * @return {@code Vector2d crossingPoint}<br>
+	 * 		   {@code null} if the two lines don't cross
+	 */
+	public static Vector2d getCrossPoint(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4) {
+		
+		// Line AB represented as a1x + b1y = c1 
+        double a1 = p2.y - p1.y; 
+        double b1 = p1.x - p2.x; 
+        double c1 = a1*(p1.x) + b1*(p1.y); 
+       
+        // Line CD represented as a2x + b2y = c2 
+        double a2 = p4.y - p3.y; 
+        double b2 = p3.x - p4.x; 
+        double c2 = a2*(p3.x)+ b2*(p3.y); 
+       
+        double determinant = a1*b2 - a2*b1; 
+       
+        if (determinant == 0) { 
+            //lines are parallel
+            return null;
+        } else { 
+            double x = (b2*c1 - b1*c2) / determinant; 
+            double y = (a1*c2 - a2*c1) / determinant;
+            Vector2d cross = new Vector2d(x, y);
+            
+            //check if the found crossPoint is actually part of the line segment
+            double distL1 = Distance(p1, p2);
+            double distL2 = Distance(p3, p4);
+            double distP1Cross = Distance(p1, cross);
+            double distP2Cross = Distance(p2, cross);
+            double distP3Cross = Distance(p3, cross);
+            double distP4Cross = Distance(p4, cross);
+            
+            if (distL1 < distP1Cross || distL1 < distP2Cross || distL2 < distP3Cross || distL2 < distP4Cross) {
+            	return null; //crossPoint is outside of the line segments
+            }
+            return cross; 
+        } 
+	}
+	
+	
+	/**
+	 * Gets the closest crossing point of all polygons that are on the specified {@code height}
+	 * @param p1
+	 * @param uv
+	 * @param height
+	 * @return
+	 */
+	public static Vector2d getClosestCrossPoint(Vector2d p1, Vector2d uv, int height) {
+		double dist = 0;
+		double smallestDist = 1000; //TODO: make it more elegant and not with fixed value
+		Vector2d bestCrossPoint = null;
+		
+		for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+			if (p.getHeight() == height) {
+				for (OriLine l : p.lines) {
+					Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+					if (crossPoint2 != null) {
+						if (!crossPoint2.equals(p1)) {
+							//check if crossPoint2 is too close to bestCrossPoint
+							if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
+									&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+								dist = GeometryUtil.Distance(p1, crossPoint2);
+								if (dist < smallestDist) {
+									smallestDist = dist;
+									bestCrossPoint = crossPoint2;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return bestCrossPoint;
+	}
+	
+	/**
+	 * Returns the farthest {@code crossingPoint} of a line with origin {@code p1} and direction {@code uv} at {@code height}}.
+	 * Checks all lines of the current diagram step at {@code height}
+	 * @param p1
+	 * @param uv
+	 * @return
+	 */
+	public static Vector2d getFarthestCrossPoint(Vector2d p1, Vector2d uv, int height) {
+		double dist = 0;
+		double biggestDist = 0;
+		Vector2d bestCrossPoint = null;
+
+		for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+			if (p.getHeight() == height) {
+				for (OriLine l : p.lines) {
+					Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+					if (crossPoint2 != null) {
+						if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
+								&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+							dist = GeometryUtil.Distance(p1, crossPoint2);
+							if (dist > biggestDist) {
+								biggestDist = dist;
+								bestCrossPoint = crossPoint2;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return bestCrossPoint;
+	}
+	
+	
+	public static ArrayList<OriPolygon> getCrossPointsUntilEdge(OriLine l) {
+		return Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.get(l);
+	}
+	
 	/**
 	 * Returns the closest {@code crossingPoint} of a line with origin on {@code p1} and direction {@code uv}.
 	 * Checks all lines in the current diagram step
@@ -565,16 +644,12 @@ public class GeometryUtil {
 		double dist = 0;
 		double smallestDist = 1000; //TODO: make it more elegant and not with fixed value
 		Vector2d bestCrossPoint = null;
-
-		//check all OriLines for the earliest intersection with the new AngleBisectorLine
-		//set the first intersection as P2 of the AngleBisectorLine
-		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-
-			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
-			if (crossPoint2 != null) {
-				if (!crossPoint2.equals(p1)) {
+		for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+			for (OriLine l : p.lines) {
+				Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+				if (crossPoint2 != null && !crossPoint2.equals(p1)) {
 					//check if crossPoint2 is too close to bestCrossPoint
-					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
+					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
 							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
 						dist = GeometryUtil.Distance(p1, crossPoint2);
 						if (dist < smallestDist) {
@@ -585,6 +660,46 @@ public class GeometryUtil {
 				}
 			}
 		}
+		
+		
+//		//check all OriLines for the earliest intersection with the new AngleBisectorLine
+//		//set the first intersection as P2 of the AngleBisectorLine
+//		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+//			if (tmpLine.getType() != OriLine.TYPE_DIAGONAL) { //skip the diagonal lines
+//				Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+//				if (crossPoint2 != null) {
+//					if (!crossPoint2.equals(p1)) {
+//						//check if crossPoint2 is too close to bestCrossPoint
+//						if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
+//								&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+//							dist = GeometryUtil.Distance(p1, crossPoint2);
+//							if (dist < smallestDist) {
+//								smallestDist = dist;
+//								bestCrossPoint = crossPoint2;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		
+//		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).edgeLines) {
+//
+//			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+//			if (crossPoint2 != null) {
+//				if (!crossPoint2.equals(p1)) {
+//					//check if crossPoint2 is too close to bestCrossPoint
+//					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
+//							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+//						dist = GeometryUtil.Distance(p1, crossPoint2);
+//						if (dist < smallestDist) {
+//							smallestDist = dist;
+//							bestCrossPoint = crossPoint2;
+//						}
+//					}
+//				}
+//			}
+//		}
 		return bestCrossPoint;
 	}
 	
@@ -600,23 +715,29 @@ public class GeometryUtil {
 		double dist = 0;
 		double biggestDist = 0;
 		Vector2d bestCrossPoint = null;
+		int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount();
 		
-		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-			
-			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
-			if (crossPoint2 != null) {
-				if (!crossPoint2.equals(p1)) {
-					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
-							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
-						dist = GeometryUtil.Distance(p1, crossPoint2);
-						if (dist > biggestDist) {
-							biggestDist = dist;
-							bestCrossPoint = crossPoint2;
+		for (int i=highestPolygon; i>=0; i--) {
+			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+
+				if (p.getHeight() == i) {
+					for (OriLine l : p.lines) {
+						Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+						if (crossPoint2 != null) {
+							if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
+									&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+								dist = GeometryUtil.Distance(p1, crossPoint2);
+								if (dist > biggestDist) {
+									biggestDist = dist;
+									bestCrossPoint = crossPoint2;
+								}
+							}
 						}
 					}
 				}
 			}
 		}
+
 		return bestCrossPoint;
 	}
 	
@@ -642,20 +763,20 @@ public class GeometryUtil {
 				
 		Vector2d crossPoint = null;
 		
-		crossPoint = GeometryUtil.getCrossPoint(new OriLine(new OriVertex(newLp0), new OriVertex(newLp1), OriLine.TYPE_NONE), 
-				new OriLine(new OriVertex(vertex), new OriVertex(vertex.x + nv.x * 900, vertex.y + nv.y * 900), OriLine.TYPE_NONE));
+		crossPoint = GeometryUtil.getCrossPoint(new OriLine(new OriVertex(newLp0), new OriVertex(newLp1), OriLine.NONE), 
+				new OriLine(new OriVertex(vertex), new OriVertex(vertex.x + nv.x * 900, vertex.y + nv.y * 900), OriLine.NONE));
 
-				
+		//if no crossPoint was found, try the other direction
 		if (crossPoint == null) {
 			nv.negate();
 			crossPoint = GeometryUtil.getCrossPoint(line, new OriLine(new OriVertex(vertex), new OriVertex(vertex.x + nv.x * 900, vertex.y + nv.y * 900), Globals.inputLineType));
 		}
 		
-		if (crossPoint == null) {
-			System.out.println("NO CROSS POINT FOUND");
+		//if a crossPoint was finally found, round it to 10 decimal places
+		if (crossPoint != null) {
+			crossPoint = round(crossPoint, 10);
 		}
 		
-		crossPoint = round(crossPoint, 10);
 		return crossPoint;
 	}
 	
@@ -670,6 +791,19 @@ public class GeometryUtil {
 		double bestDist = 10000;
 		OriLine bestLine = null;
 		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+
+			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(vertex), new OriVertex(vertex.x + uv.x * 900, vertex.y + uv.y * 900), Globals.inputLineType));
+			if (crossPoint2 != null) {
+				if (!crossPoint2.equals(vertex)) {
+					double newDist = Distance(crossPoint2, vertex);
+					if (newDist < bestDist) {
+						bestDist = newDist;
+						bestLine =  tmpLine;
+					}
+				}
+			}
+		}
+		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).edgeLines) {
 
 			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(vertex), new OriVertex(vertex.x + uv.x * 900, vertex.y + uv.y * 900), Globals.inputLineType));
 			if (crossPoint2 != null) {
@@ -841,14 +975,24 @@ public class GeometryUtil {
 	}
 	
 	/**
-	 * Calculates the middlePoint of {@code OriLine l }
+	 * Calculates the middlePoint of {@code OriLine l}.
 	 * @param l
 	 * @return
 	 */
 	public static Vector2d getLineMiddlePoint(OriLine l) {
-		Vector2d uv = getUnitVector(l.getP0().p, l.getP1().p);
-		double halfdist = Distance(l.getP0().p, l.getP1().p) / 2;
-		Vector2d middlePoint = new Vector2d(l.getP0().p.x + uv.x * halfdist, l.getP0().p.y + uv.y * halfdist);
+		return getMiddlePointBetweenPoints(l.getP0().p, l.getP1().p);
+	}
+	
+	/**
+	 * Calculates the middlePoint of the {@code line(v0, v1)}.
+	 * @param v0
+	 * @param v1
+	 * @return
+	 */
+	public static Vector2d getMiddlePointBetweenPoints(Vector2d v0, Vector2d v1) {
+		Vector2d uv = getUnitVector(v0, v1);
+		double halfdist = Distance(v0, v1) / 2;
+		Vector2d middlePoint = new Vector2d(v0.x + uv.x * halfdist, v0.y + uv.y * halfdist);
 		return middlePoint;
 	}
 	
@@ -864,19 +1008,19 @@ public class GeometryUtil {
 		Vector2d nv = getNormalVector(uv);
 		Vector2d cross1 = null;
 		Vector2d cross2 = null;
-		cross1 = getCrossPoint(new OriLine(in.getP0(), new OriVertex(in.getP0().p.x + nv.x*1000, in.getP0().p.y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+		cross1 = getCrossPoint(new OriLine(in.getP0(), new OriVertex(in.getP0().p.x + nv.x*1000, in.getP0().p.y + nv.y*1000), OriLine.NONE), mirror);
 		if (cross1 == null) {
 			nv.negate();
-			cross1 = getCrossPoint(new OriLine(in.getP0(), new OriVertex(in.getP0().p.x + nv.x*1000, in.getP0().p.y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+			cross1 = getCrossPoint(new OriLine(in.getP0(), new OriVertex(in.getP0().p.x + nv.x*1000, in.getP0().p.y + nv.y*1000), OriLine.NONE), mirror);
 		}
 		double dist1 = Distance(in.getP0().p, cross1);
 		OriVertex newP0 = new OriVertex(cross1.x + nv.x * dist1, cross1.y + nv.y * dist1);
 
 
-		cross2 = getCrossPoint(new OriLine(in.getP1(), new OriVertex(in.getP1().p.x + nv.x*1000, in.getP1().p.y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+		cross2 = getCrossPoint(new OriLine(in.getP1(), new OriVertex(in.getP1().p.x + nv.x*1000, in.getP1().p.y + nv.y*1000), OriLine.NONE), mirror);
 		if (cross2 == null) {
 			nv.negate();
-			cross2 = getCrossPoint(new OriLine(in.getP1(), new OriVertex(in.getP1().p.x + nv.x*1000, in.getP1().p.y + nv.y*1000), OriLine.TYPE_NONE), mirror);
+			cross2 = getCrossPoint(new OriLine(in.getP1(), new OriVertex(in.getP1().p.x + nv.x*1000, in.getP1().p.y + nv.y*1000), OriLine.NONE), mirror);
 		}
 		double dist2 = Distance(in.getP1().p, cross2);
 		OriVertex newP1 = new OriVertex(cross2.x + nv.x * dist2, cross2.y + nv.y * dist2);
@@ -941,9 +1085,15 @@ public class GeometryUtil {
 	public static boolean isStrictLeft( Vector2d a, Vector2d b, Vector2d c) {
 		return areaSign(a, b, c) > 0;
 	}
+	public static boolean isStrictRight( Vector2d a, Vector2d b, Vector2d c) {
+		return areaSign(a, b, c) < 0;
+	}
 	
 	public static boolean isLeftOn( Vector2d a, Vector2d b, Vector2d c) {
 		return areaSign(a, b, c) >= 0;
+	}
+	public static boolean isRightOn( Vector2d a, Vector2d b, Vector2d c) {
+		return areaSign(a, b, c) <= 0;
 	}
 	
 	public static boolean isCollinear( Vector2d a, Vector2d b, Vector2d c) {
@@ -1037,26 +1187,7 @@ public class GeometryUtil {
 		}
 	}
 	
-	/**
-	 * Check if {@code OriVertex v} is on the line(lP1, lP2).<br>
-	 * <br>
-	 * dist(l.p0, vertex) + dist(vertex, l.p1) == dist(l.p0-l.p1)<br>
-	 * l.p0 ------ vertex --------------- l.p1 == l.p0 ------------------------- l.p1<br>
-	 * @param lP1
-	 * @param lP2
-	 * @param v
-	 * @return {@code true} if the vertex is on the line
-	 */
-	public static boolean isPointOnLine(OriVertex lP1, OriVertex lP2, OriVertex v) {
-		double distl0V = GeometryUtil.Distance(lP1.p, v.p);
-		double distVl1 = GeometryUtil.Distance(v.p, lP2.p);
-		double distl0l1 = GeometryUtil.Distance(lP1.p, lP2.p);
-		
-		if (GeometryUtil.closeCompare(distl0V + distVl1, distl0l1, Constants.EPSILON)) {
-			return true;
-		}
-		return false;
-	}
+
 	
 	/**
 	 * Rounds a {@code double value} to {@code n} decimal places
