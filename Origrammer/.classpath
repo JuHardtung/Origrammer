@@ -8,5 +8,6 @@
 			<attribute name="javadoc_location" value="jar:file:/libs/javadoc/commons-io-2.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/jars/jide-oss-3.7.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

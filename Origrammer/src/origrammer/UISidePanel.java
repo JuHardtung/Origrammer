@@ -27,6 +27,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.PlainDocument;
 
+
 public class UISidePanel extends JPanel implements ActionListener, PropertyChangeListener, KeyListener {	
 
 	public JRadioButton selectionToolRB = new JRadioButton(Origrammer.res.getString("UI_selectionTool"), false);
@@ -87,6 +88,12 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	private JCheckBox dispFilledFacedCB = new JCheckBox(Origrammer.res.getString("UI_ShowFilledFaces"), true);
 	private JCheckBox dispPolygonsCB = new JCheckBox(Origrammer.res.getString("UI_ShowPolygons"), true);
 	private JCheckBox dispTriangulationCB = new JCheckBox(Origrammer.res.getString("UI_ShowTriangulation"), true);
+	
+	//RENDER HEIGHT
+	private JTextField lowerRenderRangeTF = new JTextField();
+	private JTextField upperRenderRangeTF = new JTextField();
+	private JButton confirmRenderRange = new JButton("Set");
+	
 
 	private MainScreen screen;
 	private UITopPanel uiTopPanel;
@@ -104,6 +111,7 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		addGridPanel();
 		addScalingPanel();
 		addButtonsPanel();
+		addRenderHeightPanel();
 		
 		//addTestPanel();
 
@@ -367,6 +375,23 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		buttonsPanel.setLayout(new GridLayout(5, 1, 10, 2));
 		add(buttonsPanel);
 	}
+	
+	private void addRenderHeightPanel() {
+		JPanel renderHeightPanel = new JPanel();
+		confirmRenderRange.addActionListener(this);
+		lowerRenderRangeTF.setText("0");
+		upperRenderRangeTF.setText(Integer.toString(Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount()));
+		JLabel upperLimitLabel = new JLabel("Upper Limit:");
+		JLabel lowerLimitLabel = new JLabel("Lower Limit:");
+		renderHeightPanel.add(upperLimitLabel);
+		renderHeightPanel.add(upperRenderRangeTF);
+		renderHeightPanel.add(lowerLimitLabel);
+		renderHeightPanel.add(lowerRenderRangeTF);
+		renderHeightPanel.add(confirmRenderRange);
+		renderHeightPanel.setLayout(new GridLayout(3, 2, 10, 2));
+		renderHeightPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Render Range"));
+		add(renderHeightPanel);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -502,6 +527,19 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		} else if (e.getSource() == dispTriangulationCB) {
 			Globals.dispTriangulation = dispTriangulationCB.isSelected();
 			screen.repaint();
+		} else if (e.getSource() == confirmRenderRange) {
+			int newLower = Integer.parseInt(upperRenderRangeTF.getText());
+			int newUpper = Integer.parseInt(lowerRenderRangeTF.getText());
+			int highestStepCount = Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount();
+			if (newLower < 0) {
+				newLower = 0;
+			}
+			if (newUpper > highestStepCount) {
+				newUpper = highestStepCount;
+			}
+			Globals.upperRenderHeight = newLower;
+			Globals.lowerRenderHeight = newUpper;
+			screen.repaint();
 		}
 	}
 
@@ -529,6 +567,11 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		uiTopPanel.modeChanged();
 		screen.modeChanged();
 		repaint();
+	}
+	
+	public void updateRenderHeightPanel() {
+		upperRenderRangeTF.setText(Integer.toString(Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount()));
+		lowerRenderRangeTF.setText("0");
 	}
 
 

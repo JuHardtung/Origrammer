@@ -39,6 +39,8 @@ public class Globals {
 	
 	public static int currentStep = 0;
 	public static double SCALE = 1.0;
+	public static int lowerRenderHeight = 0;
+	public static int upperRenderHeight = 100;
 	
 	public static Color DEFAULT_PAPER_COLOR = new Color(133, 133, 133);
 }

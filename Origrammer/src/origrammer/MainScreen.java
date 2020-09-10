@@ -176,16 +176,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 	private void renderAllPolygons() {
 		if (Globals.dispPolygons) {
-			int highestPolygonHeight = 0;
 
-			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
-				if (p.getHeight() > highestPolygonHeight) {
-					highestPolygonHeight = p.getHeight();
-				}
-			}
-
-			//TODO: render the different heights
-			for (int i=0; i<= highestPolygonHeight; i++) {
+			for (int i=Globals.lowerRenderHeight; i<= Globals.upperRenderHeight; i++) {
 				for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
 					if (p.getHeight() == i) {
 						GeneralPath tmpPath = p.getShapesForDrawing();
@@ -286,6 +278,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private void renderAllEdgeLines() {
 		int highestStep = Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount();
 		int lowestStep = 0;
+		
+		highestStep = Globals.upperRenderHeight;
+		lowestStep = Globals.lowerRenderHeight;
 
 		//render in the correct height order (lowest to highest)
 		for (int i=lowestStep; i<=highestStep; i++) {
@@ -1501,7 +1496,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 						JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoCrossPointFound"),
 								"Error_NoCrossPointFound", JOptionPane.ERROR_MESSAGE);
 					} else {
-						Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(crossPoint, bestCrossPoint, Globals.inputLineType));
+						Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(new OriLine(crossPoint, bestCrossPoint, Globals.inputLineType));
 					}
 				}
 				firstSelectedL = null;
@@ -1536,7 +1531,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				v2 = new OriVertex(GeometryUtil.getClosestCrossPoint(v.p, new Vector2d(-nv.x, -nv.y)));
 			}
 			if (v != null && v2 != null) {
-				Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(v, v2, Globals.inputLineType));
+				Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(new OriLine(v, v2, Globals.inputLineType));
 			}
 		}
 
@@ -1603,7 +1598,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				uv.negate();
 				OriVertex crossPoint2 = new OriVertex(GeometryUtil.getClosestCrossPoint(crossPoint1.p, uv));
 				
-				Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(crossPoint2, crossPoint1, Globals.inputLineType));
+				Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(new OriLine(crossPoint2, crossPoint1, Globals.inputLineType));
 				
 				firstSelectedV = null;
 				secondSelectedV = null;
@@ -1637,7 +1632,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 					angle = Math.toRadians(angle);
 					OriVertex v2 = new OriVertex(length * Math.cos(angle) + firstSelectedV.x, length * Math.sin(angle) + firstSelectedV.y);
-					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(new OriVertex(firstSelectedV), v2, Globals.inputLineType));
+					Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(new OriLine(new OriVertex(firstSelectedV), v2, Globals.inputLineType));
 				} else {
 					JOptionPane.showMessageDialog(this,  Origrammer.res.getString("Error_NoLengthAngleSpecified"),
 							"Error_NoLengthAngleSpecified", JOptionPane.ERROR_MESSAGE);
@@ -1781,8 +1776,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 									}
 								}
 							}
-							//fold the polygon either to the front (valley fold)
-							if (inputL.getType() == OriLine.VALLEY) { //TODO: heightChanges are not always correct
+							//fold the polygon either to the front (valley fold) //TODO: heightChanges are not always correct
+							if (inputL.getType() == OriLine.VALLEY) { 
 								heightChange = 1;
 								//or to the back (mountain fold)
 							} else if (inputL.getType() == OriLine.MOUNTAIN) {
@@ -1794,9 +1789,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 							//has to be the top one and is only folded up one layer
 							if (lastFoldedHeight == 0) {
 								curP.setHeight(curP.getHeight() + heightChange);
-
 							} else if (lastPreFoldedHeight == curP.getHeight()) {
-								curP.setHeight(lastFoldedHeight);
+								curP.setHeight(lastFoldedHeight + heightChange);
 							} else {
 								curP.setHeight(lastFoldedHeight + heightChange);
 							}
@@ -1813,6 +1807,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 		Origrammer.diagram.steps.get(Globals.currentStep).arrows.remove(Origrammer.diagram.steps.get(Globals.currentStep).arrows.size()-1);
 		Origrammer.diagram.steps.get(Globals.currentStep).updateTriangulationDiagonals();
+		Origrammer.mainFrame.uiSidePanel.updateRenderHeightPanel();
 	}
 	
 	
