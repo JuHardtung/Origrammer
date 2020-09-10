@@ -8,7 +8,5 @@
 			<attribute name="javadoc_location" value="jar:file:/libs/javadoc/commons-io-2.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/jars/xml-apis-ext-1.3.04.jar"/>
-	<classpathentry kind="lib" path="libs/jars/xmlgraphics-commons-2.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

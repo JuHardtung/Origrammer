@@ -331,27 +331,21 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 										g2d.setColor(Config.LINE_COLOR_SELECTED);
 										g2d.setStroke(Config.STROKE_SELECTED);
 									}
-									
+
+									//sharedLines with polygons on the same height
 									if (sharedPolys.get(0).getHeight() == sharedPolys.get(1).getHeight()
 											&& curP.equals(sharedPolys.get(0))) {
 										setLineStrokeByLineType(curSharedL.getType()); 
 										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
 
-										
-										
 									//only render the shared line, if the current polygon is the higher one of the 2
 									} else if ((sharedPolys.get(0).getHeight() > sharedPolys.get(1).getHeight() && curP.equals(sharedPolys.get(0)))
 											|| (sharedPolys.get(1).getHeight() > sharedPolys.get(0).getHeight() && curP.equals(sharedPolys.get(1)))) {
 
-										
-										
-										//the line type of the sharedLine
-										if (sharedPolys.get(0).getHeight() == sharedPolys.get(1).getHeight()) {
-											setLineStrokeByLineType(curSharedL.getType()); 
-										} else {
-											g2d.setStroke(Config.STROKE_EDGE);
-										}
-										
+
+										g2d.setStroke(Config.STROKE_EDGE);
+
+
 										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
 									}
 								}
