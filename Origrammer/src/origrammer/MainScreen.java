@@ -276,8 +276,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	}
 
 	private void renderAllEdgeLines() {
-		int highestStep = Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount();
-		int lowestStep = 0;
+		int highestStep = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
+		int lowestStep = Origrammer.diagram.steps.get(Globals.currentStep).getLowestPolygonHeight();
 		
 		highestStep = Globals.upperRenderHeight;
 		lowestStep = Globals.lowerRenderHeight;
@@ -1740,7 +1740,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		Origrammer.mainFrame.uiBottomPanel.stepForth();
 		Vector2d arrowUV = GeometryUtil.getUnitVector(v1, v2);
 		arrowUV.negate();
-		int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount();
+		int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
 		OriVertex lV1 = new OriVertex(inputL.getP0().p);
 		OriVertex lV2 = new OriVertex(inputL.getP1().p);
 		OriLine foldingLine = new OriLine(lV1, lV2, OriLine.NONE);
@@ -1805,9 +1805,54 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			}
 		}
 
+		updatePolygonsBySharedLines(sharedLinesThatChange, inputL);
+		
 		Origrammer.diagram.steps.get(Globals.currentStep).arrows.remove(Origrammer.diagram.steps.get(Globals.currentStep).arrows.size()-1);
 		Origrammer.diagram.steps.get(Globals.currentStep).updateTriangulationDiagonals();
-		Origrammer.mainFrame.uiSidePanel.updateRenderHeightPanel();
+		Origrammer.mainFrame.uiSidePanel.modeChanged();
+	}
+	
+	private void updatePolygonsBySharedLines(ArrayList<OriLine> sharedLinesToUpdate, OriLine foldingLine) {
+		ArrayList<OriLine> sharedLines = new ArrayList<OriLine>();
+		for (OriLine curL : sharedLinesToUpdate) {
+			
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+				if (l.isSameLine(curL)) {
+					ArrayList<OriPolygon> curPolyList = Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.get(l);
+					
+					if (GeometryUtil.isStrictLeft(curPolyList.get(0), foldingLine.getP0().p, foldingLine.getP1().p)) {
+						System.out.println("Polygon 0 is strict left");
+						curPolyList.get(0).makeFold(foldingLine);
+						curPolyList.get(0).setHeight(curPolyList.get(1).getHeight());
+						curPolyList.get(1).setHeight(curPolyList.get(0).getHeight()+1);
+						
+						//if the folded polygon has more sharedLines --> need to potentially fold more polygons
+						for (OriLine lines : curPolyList.get(0).lines) {
+							if (lines.getType() == OriLine.NONE && !lines.isSameLine(lines)) {
+								sharedLines.add(lines);
+							}
+						}
+					}
+					if (GeometryUtil.isStrictLeft(curPolyList.get(1), foldingLine.getP0().p, foldingLine.getP1().p)) {
+						System.out.println("Polygon 1 is strict left");
+						curPolyList.get(1).makeFold(foldingLine);
+						curPolyList.get(1).setHeight(curPolyList.get(0).getHeight());
+						curPolyList.get(0).setHeight(curPolyList.get(1).getHeight()+1);
+
+						//if the folded polygon has more sharedLines --> need to potentially fold more polygons
+						for (OriLine lines : curPolyList.get(1).lines) {
+							if (lines.getType() == OriLine.NONE && !lines.isSameLine(lines)) {
+								sharedLines.add(lines);
+							}
+						}
+					}
+					
+				}
+			}
+		}
+		if (sharedLines.size() > 0) {
+			updatePolygonsBySharedLines(sharedLines, foldingLine);
+		}
 	}
 	
 	
@@ -2314,6 +2359,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		//select OriPleatSymbol or unselect all OriPleatSymbols if clicked on nothing
 		OriPolygon poly = pickPolygon(clickPoint);
 		if (poly != null) {
+			poly.printPoly();
 			if (!poly.isSelected()) {
 				poly.setSelected(true);
 			} else if (!isPressedOverSymbol) {

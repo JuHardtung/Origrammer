@@ -715,7 +715,7 @@ public class GeometryUtil {
 		double dist = 0;
 		double biggestDist = 0;
 		Vector2d bestCrossPoint = null;
-		int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount();
+		int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
 		
 		for (int i=highestPolygon; i>=0; i--) {
 			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
@@ -726,6 +726,9 @@ public class GeometryUtil {
 						if (crossPoint2 != null) {
 							if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
 									&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+								if (l.getType() == OriLine.EDGE) {
+									return crossPoint2;
+								}
 								dist = GeometryUtil.Distance(p1, crossPoint2);
 								if (dist > biggestDist) {
 									biggestDist = dist;
@@ -737,7 +740,6 @@ public class GeometryUtil {
 				}
 			}
 		}
-
 		return bestCrossPoint;
 	}
 	
@@ -1099,6 +1101,27 @@ public class GeometryUtil {
 	public static boolean isCollinear( Vector2d a, Vector2d b, Vector2d c) {
 		return areaSign(a, b, c) == 0;
 	}
+	
+	/**
+	 * Checks if the {@code OriPolygon p} is completely on the left side of the line {@code a-b}.
+	 * @param p
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static boolean isStrictLeft(OriPolygon p, Vector2d a, Vector2d b) {
+		OriVertex curV = p.vertexList.head;
+		
+		do {
+			if (!isStrictLeft(curV.p, a, b)) {
+				return false;
+			}
+			curV = curV.next;
+		} while (curV != p.vertexList.head);
+		
+		return true;
+	}
+	
 	
 	public static boolean between(Vector2d a, Vector2d b, Vector2d c) {
 		

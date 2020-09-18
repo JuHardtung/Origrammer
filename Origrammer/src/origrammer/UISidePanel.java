@@ -25,6 +25,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.PlainDocument;
 
 
@@ -93,7 +95,7 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	private JTextField lowerRenderRangeTF = new JTextField();
 	private JTextField upperRenderRangeTF = new JTextField();
 	private JButton confirmRenderRange = new JButton("Set");
-	
+	private RangeSlider rangeSlider = new RangeSlider(0,10);
 
 	private MainScreen screen;
 	private UITopPanel uiTopPanel;
@@ -378,9 +380,22 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	
 	private void addRenderHeightPanel() {
 		JPanel renderHeightPanel = new JPanel();
+		rangeSlider.setMaximum(5);
+		rangeSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				RangeSlider slider = (RangeSlider) e.getSource();
+                lowerRenderRangeTF.setText(String.valueOf(slider.getValue()));
+                upperRenderRangeTF.setText(String.valueOf(slider.getUpperValue()));
+				
+			}
+		});
+		
+		
 		confirmRenderRange.addActionListener(this);
 		lowerRenderRangeTF.setText("0");
-		upperRenderRangeTF.setText(Integer.toString(Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount()));
+		upperRenderRangeTF.setText(Integer.toString(Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight()));
 		JLabel upperLimitLabel = new JLabel("Upper Limit:");
 		JLabel lowerLimitLabel = new JLabel("Lower Limit:");
 		renderHeightPanel.add(upperLimitLabel);
@@ -388,9 +403,11 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		renderHeightPanel.add(lowerLimitLabel);
 		renderHeightPanel.add(lowerRenderRangeTF);
 		renderHeightPanel.add(confirmRenderRange);
+		
 		renderHeightPanel.setLayout(new GridLayout(3, 2, 10, 2));
 		renderHeightPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Render Range"));
 		add(renderHeightPanel);
+		add(rangeSlider);
 	}
 
 	@Override
@@ -530,7 +547,7 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		} else if (e.getSource() == confirmRenderRange) {
 			int newLower = Integer.parseInt(upperRenderRangeTF.getText());
 			int newUpper = Integer.parseInt(lowerRenderRangeTF.getText());
-			int highestStepCount = Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount();
+			int highestStepCount = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
 			if (newLower < 0) {
 				newLower = 0;
 			}
@@ -562,7 +579,8 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		} else {
 			measureOptionsPanel.setVisible(false);		
 		}
-
+		updateRenderHeightPanel();
+		System.out.println("rangeSlider: " + rangeSlider.getMaximum());
 		scalingCustomTF.setValue(Globals.SCALE * 100);
 		uiTopPanel.modeChanged();
 		screen.modeChanged();
@@ -570,8 +588,17 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	}
 	
 	public void updateRenderHeightPanel() {
-		upperRenderRangeTF.setText(Integer.toString(Origrammer.diagram.steps.get(Globals.currentStep).getHighestStepCount()));
-		lowerRenderRangeTF.setText("0");
+		
+		int highestHeight = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
+		int lowestHeight = Origrammer.diagram.steps.get(Globals.currentStep).getLowestPolygonHeight();
+		
+		lowerRenderRangeTF.setText(Integer.toString(lowestHeight));
+		rangeSlider.setMinimum(lowestHeight);
+		rangeSlider.setValue(lowestHeight);
+		upperRenderRangeTF.setText(Integer.toString(highestHeight));
+		rangeSlider.setMaximum(highestHeight);
+		rangeSlider.setUpperValue(highestHeight);
+
 	}
 
 

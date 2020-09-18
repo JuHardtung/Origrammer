@@ -159,10 +159,13 @@ public class Step {
 				//get the 2 crossPoints of the current polygon
 				for (OriLine curL : p.lines) {
 					Vector2d tmpCross = GeometryUtil.getCrossPoint(curL, inL);
-					if (cross0 == null) {
-						cross0 = tmpCross;
-					} else if (cross1 == null){
-						cross1 = tmpCross;
+					if (tmpCross != null) {
+
+						if (cross0 == null) {
+							cross0 = tmpCross;
+						} else if (cross0 != null && cross1 == null && !cross0.epsilonEquals(tmpCross, Constants.EPSILON)){
+							cross1 = tmpCross;
+						}
 					}
 				}
 				
@@ -171,20 +174,20 @@ public class Step {
 				//duplicate vertices are not getting checked, as they will be skipped in the addVertex() method
 				OriVertex inputV0 = new OriVertex(cross0);
 				OriVertex inputV1 = new OriVertex(cross1);
-				if (p.contains(inputV0)) {
+				if (inputV0.p != null && p.contains(inputV0)) {
 					p0Added = true;
 					p.addVertex(cross0.x, cross0.y);
 				}
-				if (p.contains(inputV1)) {
+				if (inputV1.p != null && p.contains(inputV1)) {
 					p1Added = true;
 					p.addVertex(cross1.x, cross1.y);
 				}
 				
-				OriLine tmpInputLine = new OriLine(inL);
-				tmpInputLine.setP0(inputV0);
-				tmpInputLine.setP1(inputV1);
 				//only split polygons if 2 new points are added
 				if (p0Added && p1Added) {
+					OriLine tmpInputLine = new OriLine(inL);
+					tmpInputLine.setP0(inputV0);
+					tmpInputLine.setP1(inputV1);
 					polygons.remove(p);
 					polygons.addAll(splitPolygon(tmpInputLine, p));
 				}
@@ -504,7 +507,7 @@ public class Step {
 	 * Checks at what height value the highest polygon is.
 	 * @return the value of the highest polygon
 	 */
-	public int getHighestStepCount() {
+	public int getHighestPolygonHeight() {
 		int highestHeight = 0;
 		for (OriPolygon p : polygons) {
 			int curHeight = p.getHeight();
@@ -513,6 +516,21 @@ public class Step {
 			}
 		}
 		return highestHeight;
+	}
+	
+	/**
+	 * Checks at what height value the lowest polygon is.
+	 * @return the value of the lowest polygon
+	 */
+	public int getLowestPolygonHeight() {
+		int lowestHeight = 0;
+		for (OriPolygon p : polygons) {
+			int curHeight = p.getHeight();
+			if (curHeight < lowestHeight) {
+				lowestHeight = curHeight;
+			}
+		}
+		return lowestHeight;
 	}
 	
 	/**
