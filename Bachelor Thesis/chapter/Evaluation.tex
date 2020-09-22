@@ -3,7 +3,7 @@
 \section{Evaluating Origrammer}
 \label{sec:evaluation}
 
-This evaluation of the Origrammer is supposed to give a basic feedback on which parts of the Origrammer are most problematic and could benefit from automating parts of their processes. The main metrics of the evaluation will be efficiency or speed of use, which can be measured and systematically determined. Consequently, user involvement in the evaluation is at this stage of development not hugely impactful and therefore not used here. Nonetheless, an evaluation with real users should be carried out at a later time before final release of the program, as even though the time spend for certain processes will be reduced during this work, some usability issues can still be overlooked.\\
+This evaluation of the Origrammer is supposed to give a basic feedback on which parts of the Origrammer are the most problematic and could benefit from automating parts of their processes. The main metrics of the evaluation will be efficiency or speed of use, which can be measured and systematically determined. Consequently, user involvement in the evaluation is at this stage of development not of significant impact and therefore not applied. Nonetheless, an evaluation with real users should be carried out at a later time before the final release of the program, as even though the duration of certain processes will be reduced during this work, some usability issues can still be overlooked.\\
 \newline
 As a result of the aforementioned reasons, the evaluation will be carried out using the \emph{10 usability heuristics} by Jakob Nielsen \cite{10usability_heuristics}. These heuristics offer clear reference points to accurately evaluate the Origrammer, though this apporach also brings limitations. This is mentioned by Nielsen and Molich in the proceedings of the SIGCHI Conference on Human Factors in Computing Systems from 1990.
 
@@ -11,21 +11,20 @@ As a result of the aforementioned reasons, the evaluation will be carried out us
 \enquote{\emph{A disadvantage of the method is that it sometimes identifies usability problems without providing direct suggestions for how to solve them.}} (Nielsen and Molich, 1990, p. 255 \cite{usability_heuristics})
 \end{center}
 
-\noindent This limitation of not providing direct solutions for the found flaws is why this chapter will focus on finding problems and shortcomings of the Origrammer first. Afterwards, solutions can be developed that optimally fix most, or all, discovered issues without contradicting or counteracting other measures. These solutions should prioritize efficiency, which gives a clear metric on which one of multiple changes should be implemented.
+\noindent This limitation of not providing direct solutions for the identified flaws is why this chapter will focus on finding problems and shortcomings of the Origrammer first. Afterwards, solutions can be developed that optimally address and fix most, or all, discovered issues without contradicting or counteracting other measures. These solutions should prioritize efficiency, giving a clear metric on which one of multiple changes should be implemented.
 
-As there won't be user involvement for this evaluation process, other measures have to be taken to ensure maximum efficiency and thoroughness. This is why the following section shows an exhaustive list of all parts and features of the Origrammer. Figure \ref{fig:origrammerMain} roughly displays what features are located where on the Origrammer.
+As I intentionally refrain from end user involvement for this evaluation process, other measures have to be applied to ensure maximum efficiency and thoroughness. This is why the following section shows an exhaustive list of all parts and features of the Origrammer. Figure \ref{fig:origrammerMain} briefly displays the features contained in the Origrammer and their respective location.
 
-\subsection{Origrammer Feature List}
+\subsection[Origrammer Feature List]{Origrammer Feature List\footnote{Cursive entries are not yet fully implemented features in the Origrammer}}
 \label{sec:featureList}
-\setstretch{1.1}
+\setstretch{1.15}
 \begin{enumerate}
 \item \textbf{Menu Bar (Purple)}
 
 \begin{tabular}{l l l}
 (a) New File & (b) Open File & (c) Save File \\
-\emph{(d) Export File}\footnotemark & (e) Model Preferences & (f) Origrammer Preferences \\
+\emph{(d) Export File} & (e) Model Preferences & (f) Origrammer Preferences \\
 \end{tabular}
-\footnotetext{Cursive entries are not yet fully implemented in the Origrammer}
 \item \textbf{Side Bar (Red)}
     \begin{enumerate}
         \item Selection Tool \\
@@ -38,7 +37,7 @@ As there won't be user involvement for this evaluation process, other measures h
         \end{tabular}
         \item Vertex Input \\
         \begin{tabular}{l l}
-        1. Absolute Position & 2. Fraction of a Line \\
+        1. Absolute Position & 2. Splitting an existing Line at a specified fraction \\
         \end{tabular}
         \item Arrow Input \\
         \begin{tabular}{l l l}
@@ -49,7 +48,7 @@ As there won't be user involvement for this evaluation process, other measures h
         \begin{tabular}{l l l}
         1. Leader & 2. Repetition Box & 3. Next View Here \\
         4. Rotations & 5. Hold Here & 6. Hold Here and Pull \\
-        7. X-Ray Circle & \emph{8. Fold Over \& Over}\footnotemark & 9. Equal Distances \\
+        7. X-Ray Circle & \emph{8. Fold Over \& Over} & 9. Equal Distances \\
         10. Equal Angles & 11. Crimps & 12. Pleats \\
         13. Closed Sinks
         \end{tabular}
@@ -61,7 +60,6 @@ As there won't be user involvement for this evaluation process, other measures h
         \item Grid Settings
         \item Scaling Settings
     \end{enumerate}
-    \footnotetext{See footnote 3}
 \item \textbf{Navigation Panel (Blue)} \\
 \begin{tabular}{l l l}
 1. Fold Instructions & 2. Step Navigation & 3. New Step Options \\
@@ -76,9 +74,7 @@ See Side Panel for related features, as the selected Side Panel Tools are being 
 \subsection{10 Usability Heuristics}
 \label{sec:usabilityHeuristics}
 
-With the Origrammer Feature List as a basis, the evalutation using the 10 Usability Heuristics can be carried out. Every feature from the list will be checked against all 10 heuristics in order to try and maximise the completeness of the result. The found usability issues will then lead to the planning of potential usability improvements. Additional focus should be set on the 7th heuristic \emph{Flexibility and Efficiency of Use}, as it includes the main goal of improving the efficiency of creating diagrams with the Origrammer.
-
-
+Based on the Origrammer Feature List, the evalutation using the 10 Usability Heuristics can be carried out. Every feature from the list will be checked against all 10 heuristics in order to try and maximise the completeness of the result. The identified usability issues will then lead to the planning of potential usability improvements. Additional focus should be set on the 7th heuristic \emph{Flexibility and Efficiency of Use}, as it includes the main goal of improving the efficiency of creating diagrams with the Origrammer.
 
 
 \subsubsection*{1. Visibility of System Status}
@@ -86,29 +82,28 @@ With the Origrammer Feature List as a basis, the evalutation using the 10 Usabil
 
         \begin{tabular}{l | p{0.2\textwidth} | c | p{0.5\textwidth}}
         Nr: & Affects & Impact & Description \\ \hline
-        1.01 & 2.b; 2.d-2.g & 3 & When an action requires multiple input points (e.g. placing a Fold Line by two endpoints), the user doesn't know where he is in the process. \\ \hline %maybe progressbar 
-        1.02 & 2.d; 2.e & 7 & Always show a preview of the \texttt{OriArrow} or \texttt{OriSymbol} before final placing\\ \hline
-        1.03 & 3.2; 3.3 & 6 & The user doesn't know how many diagram steps there are overall and where they are\\ \hline
+        1.01 & 2.b; 2.d-2.g & 3 & When an action requires multiple input points (e.g. placing a Fold Line by two endpoints), the user is not aware of his current state within the process. \\ \hline 
+        1.02 & 2.d; 2.e & 7 & Always show a preview of the \texttt{OriArrow} or \texttt{OriSymbol} before final placement of these objects within the diagram\\ \hline
+        1.03 & 3.2; 3.3 & 6 & The user doesn't know the overall amount of diagram steps and the current step within the process flow.\\ \hline
         \end{tabular}
-
 
 
 \subsubsection*{2. Aesthetic and Minimalist Design}
         \begin{tabular}{l | p{0.2\textwidth} | c | p{0.5\textwidth}}
         Nr: & Affects & Impact & Description \\ \hline
-        2.01 & 2.a-2.i  & 4 &  The text in the Tool Selection on the Side Panel should be replaced by icons\\ \hline 
-	2.02 & 4 & 3 & The text in the TopPanel for input and editing options should be replaced by icons\\ \hline
-	2.03 & 2.f; 3 & 6 & The User Interface should always fit properly (is currently not fitting in the SidePanel for MeasureTool \& for some settings in the TopPanel)\\ \hline
+        2.01 & 2.a-2.i  & 4 &  The text in the Tool Selection on the Side Panel should be replaced by icons (with additional tooltips)\\ \hline 
+	2.02 & 4 & 3 & The text in the TopPanel for input and editing options should be replaced by icons (with additional tooltips)\\ \hline
+	2.03 & 2.f; 3 & 6 & The User Interface should always fit properly (is currently not fitting in the SidePanel for MeasureTool and for some settings in the TopPanel)\\ \hline
         \end{tabular}
 
 \subsubsection*{3. User Control and Freedom}
 
         \begin{tabular}{l | p{0.2\textwidth} | c | p{0.5\textwidth}}
         Nr: & Affects & Impact & Description \\ \hline
-        3.01 & 2.a; 2.b; 2.d; 2.e; 2.g  & 5 & User should always be able to cancel an action (e.g. when inputting an object with multiple input points) )\\ \hline
+        3.01 & 2.a; 2.b; 2.d; 2.e; 2.g  & 5 & Users should always be able to cancel an action (e.g., when inputting an object with multiple input points)\\ \hline
         3.02 & 3.2; 3.3 & 8 & Navigating through the diagram steps is unflexible and slow\\ \hline
         3.03 & 2; 3; 4; 5; & 10 & Creating the individual diagram steps is slow due to the need of placing lines one by one\\ \hline
-        3.04 & 2.b; 5 & 7 & Some lines are impossible to input with only the existing vertices and the grid (give more line input variants)\\ \hline
+        3.04 & 2.b; 5 & 7 & Some lines are impossible to put-in with only the existing vertices and the grid (give more line input variants)\\ \hline
         \end{tabular}
 
 
@@ -117,9 +112,9 @@ With the Origrammer Feature List as a basis, the evalutation using the 10 Usabil
         \begin{tabular}{l | p{0.2\textwidth} | c | p{0.5\textwidth}}
         Nr: & Affects & Impact & Description \\ \hline
         4.01 & 2.a; 2.b; 2.d; 2.e; 2.g  & 2 & Editing options on the TopPanel should be labeled correctly (consistent naming scheme needed)\\ \hline 
-	4.02 & 2.a; 4; 5 & 6 & Selecting and editing too many Symbols/Arrows simultaneously , will overfill the TopPanel (e.g. selecting different OriObject types like OriArrows and OriSymbols at the same time)\\ \hline
-	4.03 & 1; 2; 3; 4 & 6 & UI elements should have consistent sizes (e.g. ``Set'' Buttons, \texttt{JTextFields})\\ \hline
-	4.04 & 1; 2; 3; 4 & 4 & The sequential placement of UI parts should be consistent (e.g. for Input and Editing options on the TopPanel, have \texttt{JTextFields} first and then \texttt{JCheckBoxes} to the right)\\ \hline
+	4.02 & 2.a; 4; 5 & 6 & Selecting and editing too many Symbols/Arrows simultaneously will overfill the TopPanel (e.g., selecting different OriObject types like OriArrows and OriSymbols at the same time)\\ \hline
+	4.03 & 1; 2; 3; 4 & 6 & UI elements should have consistent sizes (e.g., ``Set'' Buttons, \texttt{JTextFields})\\ \hline
+	4.04 & 1; 2; 3; 4 & 4 & The sequential placement of UI parts should be consistent (e.g., for Input and Editing options on the TopPanel, have \texttt{JTextFields} first and then \texttt{JCheckBoxes} to the right)\\ \hline
         \end{tabular}
 
 \subsubsection*{5. Error Prevention}
@@ -131,30 +126,29 @@ With the Origrammer Feature List as a basis, the evalutation using the 10 Usabil
         5.03 & 2.g & 7 & Selecting the same point multiple times breaks the FillTool \\ \hline
         5.04 & 1.a; 1.e; & 6 & Restrict the input of every JTextField (e.g. only allow numbers for number inputs)\\ \hline
         \end{tabular}
-%Choose good default values for JTextField
 
 \subsubsection*{6. Recognition Rather than Recall}
 
         \begin{tabular}{l | p{0.2\textwidth} | c | p{0.5\textwidth}}
         Nr: & Affects & Impact & Description \\ \hline
-        6.01 & 2.f  & 5 & User should not be forced to remember the measured values (currently the measured values are being hidden, once the user selects a different tool from the SideBar)\\ \hline
-        6.02 & 2.b; 2.d; 2.e; 5  & 6 & User should not be forced to remember the specific input sequences for all lines, arrows, symbols (Give input previews)\\ \hline 
+        6.01 & 2.f  & 5 & The user should not need to remember the measured values to remember the measured values (currently the measured values are being hidden, once the user selects a different tool from the SideBar)\\ \hline
+        6.02 & 2.b; 2.d; 2.e; 5  & 6 & The user should not need to remember the specific input sequences for all lines, arrows, symbols (give input previews)\\ \hline 
         \end{tabular}
 
 
 \subsubsection*{7. Flexibility and Efficiency of Use}
         \begin{tabular}{l | p{0.2\textwidth} | c | p{0.5\textwidth}}
         Nr: & Affects & Impact & Description \\ \hline
-        7.01 & 2.h & 3 & Give shortcuts for the Grid halve/ double buttons\\ \hline
-        7.02 & 2.i  & 3 & Give shortcuts for the ResetView button\\ \hline
-        7.03 & 2.i & 3 & Give shortcuts for the step by step zoom-in/zoom-out\\ \hline
-        7.04 & 2.b & 8 & Give more Line Input options to avoid tedious work with grid adjustments\\ \hline
-        7.05 & 2.d; 3; 4 & 8 & Give more flexibility when editing or placing arrows\\ \hline
-        7.06 & 2.e; 3; 4 & 8 & Give more flexibility when editing or placing symbols\\ \hline
+        7.01 & 2.h & 3 & Specify shortcuts for the Grid halve/ double buttons\\ \hline
+        7.02 & 2.i  & 3 & SpecifyGive shortcuts for the ResetView button\\ \hline
+        7.03 & 2.i & 3 & Specify shortcuts for the step-by-step zoom-in/zoom-out\\ \hline
+        7.04 & 2.b & 8 & Specify more Line Input options to avoid tedious work with grid adjustments\\ \hline
+        7.05 & 2.d; 3; 4 & 8 & Specify more flexibility when editing or placing arrows\\ \hline
+        7.06 & 2.e; 3; 4 & 8 & Specify more flexibility when editing or placing symbols\\ \hline
         7.07 & 3.2; 3.3 & 9 & The user can not change the order of steps, remove unwanted steps, or enter new steps between existing ones\\ \hline
         7.08 & 2.g & 7 & The user has to select the vertices by hand and is limited to triangles\\ \hline
         7.09 & 5 & 6 & The user has to repeat similar diagram beginning steps for every new diagram\\ \hline
-        7.10 & 2; 3; 4; 5 & 10 & Creating the individual diagram steps is slow, because lines have to be placed seperately\\ \hline
+        7.10 & 2; 3; 4; 5 & 10 & Creating the individual diagram steps is slow because lines have to be placed seperately\\ \hline
         7.11 & 5 & 10 & The diagramming rule of distorting the model in order to see hidden layers (Lang, 2011, para. \emph{Distort the model for clarity} \cite{Lang}) is unflexible when having to change every single line by hand\\ \hline
         \end{tabular}
 
@@ -169,7 +163,7 @@ With the Origrammer Feature List as a basis, the evalutation using the 10 Usabil
         \begin{tabular}{l | p{0.2\textwidth} | c | p{0.5\textwidth}}
         Nr: & Affects & Impact & Description \\ \hline
         9.01 & 2.a-2.i; 3; 4 & 6 & Show tooltips for all icons or non self-explanatory parts\\ \hline 
-        9.02 & 2.a-2.g & 7 & Show short explanation on how inputs work for every possible input feature (could be combined with Nr.01 --> \ref{sec:visibility} Visibility\\ \hline
+        9.02 & 2.a-2.g & 7 & Show brief explanation on how inputs work for every possible input feature (could be combined with Nr.01 → \ref{sec:visibility} Visibility)\\ \hline
         \end{tabular}
 
 \subsubsection*{10. Match between System and Real World}

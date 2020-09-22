@@ -276,14 +276,14 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	}
 
 	private void renderAllEdgeLines() {
-		int highestStep = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
+		int highestLayer = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
 		int lowestStep = Origrammer.diagram.steps.get(Globals.currentStep).getLowestPolygonHeight();
 		
-		highestStep = Globals.upperRenderHeight;
+		highestLayer = Globals.upperRenderHeight;
 		lowestStep = Globals.lowerRenderHeight;
 
 		//render in the correct height order (lowest to highest)
-		for (int i=lowestStep; i<=highestStep; i++) {
+		for (int i=lowestStep; i<=highestLayer; i++) {
 			for (OriPolygon curP : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
 				if (curP.getHeight() == i) { //only render the polygons of the currently rendered height
 					for (OriLine curL : curP.lines) {
@@ -334,8 +334,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
 
 									//only render the shared line, if the current polygon is the higher one of the 2
+								    // OR if the other polygon is higher than the highest layer that is to be rendered
 									} else if ((sharedPolys.get(0).getHeight() > sharedPolys.get(1).getHeight() && curP.equals(sharedPolys.get(0)))
-											|| (sharedPolys.get(1).getHeight() > sharedPolys.get(0).getHeight() && curP.equals(sharedPolys.get(1)))) {
+											|| (sharedPolys.get(1).getHeight() > sharedPolys.get(0).getHeight() && curP.equals(sharedPolys.get(1)))
+											|| (sharedPolys.get(0).getHeight() > highestLayer && curP.equals(sharedPolys.get(1)))
+											|| (sharedPolys.get(1).getHeight() > highestLayer && curP.equals(sharedPolys.get(0)))) {
 
 
 										g2d.setStroke(Config.STROKE_EDGE);
@@ -1716,10 +1719,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			finalLineP1 = new OriVertex(crossPoint);
 		}
 		
-	
+		OriLine inputLine = new OriLine(finalLineP0, finalLineP1, type);
+		Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(inputLine);
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
 		if (finalLineP0.p != null  && finalLineP1.p != null) {
-			OriLine inputLine = new OriLine(finalLineP0, finalLineP1, type);
-			Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(inputLine);
+			
 			//if the fold is being unfolded immediately, don't auto fold it
 			if (!isUnfold && Globals.automatedFolding) {
 				makeAutoFold(arrow, inputLine);
@@ -1737,7 +1741,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	private void makeAutoFold(OriArrow arrow, OriLine inputL) {
 		Vector2d v1 = arrow.getP0();
 		Vector2d v2 = arrow.getP1();
-		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		
 		Vector2d arrowUV = GeometryUtil.getUnitVector(v1, v2);
 		arrowUV.negate();
 		int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();

@@ -38,7 +38,13 @@ public class OriPolygon {
 	public OriPolygon(OriPolygon p) {
 		this.vertexList = new OriVertexList(p.vertexList);
 		vertexListCopy = new OriVertexList();
-		lines = new ArrayList<OriLine>(p.lines);
+		lines = new ArrayList<OriLine>();
+		for (OriLine l : p.lines) {
+			OriLine newL = new OriLine(l);
+			lines.add(newL);
+		}
+		
+		
 		this.diagList = p.diagList;
 		this.intCount = p.intCount;
 		this.height = p.height;
