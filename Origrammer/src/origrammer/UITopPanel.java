@@ -636,7 +636,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void creaseStartTranslation() {
-		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
 			if (l.isSelected()) {
 				if (startCreaseCB.isSelected()) {
 					l.setStartOffset(true);
@@ -648,7 +648,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void creaseEndTranslation() {
-		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
 			if (l.isSelected()) {
 				if (endCreaseCB.isSelected()) {
 					l.setEndOffset(true);

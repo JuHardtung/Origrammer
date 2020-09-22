@@ -326,6 +326,19 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 										g2d.setColor(Config.LINE_COLOR_SELECTED);
 										g2d.setStroke(Config.STROKE_SELECTED);
 									}
+									
+									if (curSharedL.getType() == OriLine.CREASE) {
+										if (curSharedL.isStartOffset()) {
+											p0 = curSharedL.getTranslatedP0();
+										} else {
+											p0 = curSharedL.getP0().p;
+										}
+										if (curSharedL.isEndOffset()) {
+											p1 = curSharedL.getTranslatedP1();
+										} else {
+											p1 = curSharedL.getP1().p;
+										}
+									}
 
 									//sharedLines with polygons on the same height
 									if (sharedPolys.get(0).getHeight() == sharedPolys.get(1).getHeight()
@@ -1012,8 +1025,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			break;
 		case OriLine.CREASE:
 			g2d.setStroke(Config.STROKE_CREASE);
+			break;
 		case OriLine.DIAGONAL:
 			g2d.setStroke(Config.STROKE_DIAGONAL);
+			break;
 		}
 	}
 	
