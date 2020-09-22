@@ -117,7 +117,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		renderAllLines();
 		renderAllArrows();
 
-		renderAllVertices();
+		//renderAllVertices();
 
 
 		//Symbols
@@ -342,8 +342,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 
 										g2d.setStroke(Config.STROKE_EDGE);
-
-
 										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
 									}
 								}
@@ -1190,6 +1188,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				bestLine = l;
 			}
 		}
+		
+		
 
 //		for (OriLine line : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
 //			double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), line.getP0().p, line.getP1().p);
@@ -1719,11 +1719,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			finalLineP1 = new OriVertex(crossPoint);
 		}
 		
-		OriLine inputLine = new OriLine(finalLineP0, finalLineP1, type);
-		Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(inputLine);
-		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		
 		if (finalLineP0.p != null  && finalLineP1.p != null) {
-			
+			OriLine inputLine = new OriLine(finalLineP0, finalLineP1, type);
+			Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(inputLine);
+			Origrammer.mainFrame.uiBottomPanel.stepForth();
 			//if the fold is being unfolded immediately, don't auto fold it
 			if (!isUnfold && Globals.automatedFolding) {
 				makeAutoFold(arrow, inputLine);
@@ -2234,7 +2234,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		selectOriEqualDistSymbol(clickPoint);
 		selectOriEqualAnglSymbol(clickPoint);
 		selectOriPleatCrimpSymbol(clickPoint);
-		selectOriPolygon(clickPoint);
+		//selectOriPolygon(clickPoint);
 
 		Origrammer.mainFrame.uiTopPanel.modeChanged();
 	}
@@ -2801,11 +2801,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				repaint();
 			}
 			
-			OriPolygon prePolygon = selectedCandidatePolygon;
-			selectedCandidatePolygon = pickPolygon(currentMousePointLogic);
-			if (prePolygon != selectedCandidatePolygon) {
-				repaint();
-			}
+//			OriPolygon prePolygon = selectedCandidatePolygon;
+//			selectedCandidatePolygon = pickPolygon(currentMousePointLogic);
+//			if (prePolygon != selectedCandidatePolygon) {
+//				repaint();
+//			}
 
 		} else if (Globals.toolbarMode == Constants.ToolbarMode.MEASURE_TOOL) {
 			Vector2d firstV = selectedCandidateV;
@@ -2895,12 +2895,12 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				repaint();
 			}
 			
-			OriPolygon pickedPolygon = pickPolygon(currentMousePointLogic);
-			if (pickedPolygon != null) {
-				pickedPolygon.setSelected(true);
-				isPressedOverSymbol = true;
-				repaint();
-			}
+//			OriPolygon pickedPolygon = pickPolygon(currentMousePointLogic);
+//			if (pickedPolygon != null) {
+//				pickedPolygon.setSelected(true);
+//				isPressedOverSymbol = true;
+//				repaint();
+//			}
 		}
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 	}

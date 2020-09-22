@@ -38,6 +38,7 @@ import origrammer.geometry.OriFace;
 import origrammer.geometry.OriGeomSymbol;
 import origrammer.geometry.OriLine;
 import origrammer.geometry.OriPleatCrimpSymbol;
+import origrammer.geometry.OriPolygon;
 
 public class UITopPanel extends JPanel implements ActionListener, PropertyChangeListener, KeyListener {
 
@@ -677,7 +678,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == changeLineButton) {
-			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
 				if (l.isSelected()) {
 					String lineType = changeLineTypeCB.getSelectedItem().toString();
 
@@ -839,18 +840,32 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 
 		if (Globals.toolbarMode == Constants.ToolbarMode.SELECTION_TOOL) {
 			
-			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-				if (l.isSelected()) {
-					changeLinePanel.setVisible(true);
-					if (l.getType() == OriLine.CREASE) {
-						changeCreaseEndsPanel.setVisible(true);
+			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+				for (OriLine curL : p.lines) {
+					if (curL.isSelected()) {
+						changeLinePanel.setVisible(true);
+						if (curL.getType() == OriLine.CREASE) {
+							changeCreaseEndsPanel.setVisible(true);
+						}
+						break;
+					} else {
+						for (OriLine sharedL : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+							if (sharedL.isSelected()) {
+								changeLinePanel.setVisible(true);
+								if (sharedL.getType() == OriLine.CREASE) {
+									changeCreaseEndsPanel.setVisible(true);
+								}
+								break;
+							} else {
+								changeLinePanel.setVisible(false);
+								changeCreaseEndsPanel.setVisible(false);
+							}
+						}
 					}
-					break;
-				} else {
-					changeLinePanel.setVisible(false);
-					changeCreaseEndsPanel.setVisible(false);
 				}
 			}
+			
+			
 			for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
 				if (a.isSelected()) {
 					changeArrowPanel.setVisible(true);

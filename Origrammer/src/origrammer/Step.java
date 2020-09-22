@@ -309,7 +309,8 @@ public class Step {
 				newPoly1.vertexList.insertBeforeHead(curV); //insert 2nd vertex of folding line
 				
 			} else {
-				newPoly1.addVertex(curV.p.x, curV.p.y); //add all vertices until p0 or p1
+				newPoly1.vertexList.insertBeforeHead(curV);
+				//newPoly1.addVertex(curV.p.x, curV.p.y); //add all vertices until p0 or p1
 			}
 			curV = curV.next;
 		} while (!curV.p.epsilonEquals(tmpOldList.head.p, Constants.EPSILON));
@@ -799,7 +800,7 @@ public class Step {
 	
 	public void addLines(ArrayList<OriLine> lineList) {
 		for (OriLine l : lineList) {
-			addLine(l);
+			addNewLine(l);
 		}
 	}
 

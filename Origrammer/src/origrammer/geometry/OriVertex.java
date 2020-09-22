@@ -75,22 +75,6 @@ public class OriVertex {
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
-	
-//	public OriVertex getPrev() {
-//		return prev;
-//	}
-//
-//	public void setPrev(OriVertex prev) {
-//		this.prev = prev;
-//	}
-//
-//	public OriVertex getNext() {
-//		return next;
-//	}
-//
-//	public void setNext(OriVertex next) {
-//		this.next = next;
-//	}
 
 	public boolean isEar() {
 		return isEar;

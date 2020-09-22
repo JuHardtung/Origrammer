@@ -625,7 +625,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		//STEP 1
 		Globals.currentStep += 1;
-		lineList.clear();
+//		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
@@ -638,7 +638,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		//STEP 2
 		Globals.currentStep += 1;
-		lineList.clear();
+//		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
@@ -652,7 +652,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		//STEP 3
 		Globals.currentStep += 1;
-		lineList.clear();
+//		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
@@ -669,7 +669,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		
 		//STEP 4
 		Globals.currentStep += 1;
-		lineList.clear();
+//		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
@@ -684,7 +684,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		
 		//STEP 5
 		Globals.currentStep += 1;
-		lineList.clear();
+//		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
@@ -703,7 +703,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		
 		//STEP 6
 		Globals.currentStep += 1;
-		lineList.clear();
+//		lineList.clear();
 		arrowList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
@@ -730,7 +730,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		
 		//STEP 7
 		Globals.currentStep += 1;
-		lineList.clear();
+//		lineList.clear();
 		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
 		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
