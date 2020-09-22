@@ -1181,20 +1181,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		double minDistance = Double.MAX_VALUE;
 		OriLine bestLine = null;
 		
-		for (OriPolygon curP : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
-			for (OriLine curL : curP.lines) {
-				double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), curL.getP0().p, curL.getP1().p);
-				if (dist < minDistance) {
-					minDistance = dist;
-					bestLine = curL;
-				}
-			}
-		}
-		
 		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
-			if (bestLine.isSameLine(l)) {
-				bestLine = l;
-			}
 			double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), l.getP0().p, l.getP1().p);
 			if (dist < minDistance) {
 				minDistance = dist;
@@ -1203,24 +1190,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				bestLine = l;
 			}
 		}
-		
-		
-
-//		for (OriLine line : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-//			double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), line.getP0().p, line.getP1().p);
-//			if (dist < minDistance) {
-//				minDistance = dist;
-//				bestLine = line;
-//			}
-//		}
-//		
-//		for (OriLine line : Origrammer.diagram.steps.get(Globals.currentStep).edgeLines) {
-//			double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), line.getP0().p, line.getP1().p);
-//			if (dist < minDistance) {
-//				minDistance = dist;
-//				bestLine = line;
-//			}
-//		}
 
 		if (minDistance / Globals.SCALE < 10) {
 			return bestLine;
@@ -2943,18 +2912,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			int maxY = (int) Math.round(Math.max(sp.y, ep.y));
 			Rectangle selectRect = new Rectangle(minX, minY, maxX-minX, maxY-minY);
 
-			//Check if there is a line in the selection rectangle
-			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
-				for (OriLine l : p.lines) {
-					Line2D tmpL = new Line2D.Double(l.getP0().p.x, l.getP0().p.y, l.getP1().p.x, l.getP1().p.y);
-					if (tmpL.intersects(selectRect)) {
-						l.setSelected(true);
-					} else {
-						l.setSelected(false);
-					}
-				}
-			}
-			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).edgeLines) {
+			//Check if there is a shared line in the selection rectangle
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
 				Line2D tmpL = new Line2D.Double(l.getP0().p.x, l.getP0().p.y, l.getP1().p.x, l.getP1().p.y);
 				if (tmpL.intersects(selectRect)) {
 					l.setSelected(true);
