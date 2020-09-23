@@ -1,1 +1,4 @@
-# Hardtung_BA_SoSe20
+# Origrammer
+## An Origami Diagramming Tool
+
+The Origrammer is a desktop application for the digital origami diagram creation.
