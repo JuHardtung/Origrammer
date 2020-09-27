@@ -14,6 +14,7 @@ public class OriLine {
 	final public static int XRAY 	 = 4;
 	final public static int CREASE 	 = 5;
 	final public static int DIAGONAL = 6;
+	final public static int HIDDEN   = 7;
 	
 	private boolean isSelected;
 	private int type = NONE;

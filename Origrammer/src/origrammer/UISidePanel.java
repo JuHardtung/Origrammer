@@ -580,7 +580,6 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 			measureOptionsPanel.setVisible(false);		
 		}
 		updateRenderHeightPanel();
-		System.out.println("rangeSlider: " + rangeSlider.getMaximum());
 		scalingCustomTF.setValue(Globals.SCALE * 100);
 		uiTopPanel.modeChanged();
 		screen.modeChanged();

@@ -97,27 +97,13 @@ public class Step {
 	}
 
 	public void initFirstStep() {
-		
-		OriPolygon paperPolygon = getInitPolygon();
-
-		polygons.add(paperPolygon);
-
-		initEdgeLines();
-		updateTriangulationDiagonals();
-	}
-	
-	@Deprecated
-	public void initEdgeLines() {
-		if (polygons.size() == 1) {
-			OriPolygon curP = polygons.get(0);
+		if (Globals.virtualFolding) {
+			OriPolygon paperPolygon = getInitPolygon();
+			paperPolygon.triangulate();
+			polygons.add(paperPolygon);
 			
-			OriVertex curV = curP.vertexList.head;
-			OriLine tmpLine;
-			do {
-				tmpLine = new OriLine(curV, curV.next, OriLine.EDGE);
-				curP.addLine(tmpLine);
-				curV = curV.next;
-			} while (curV != curP.vertexList.head);			
+		} else {
+			lines.addAll(getEdgeLines());
 		}
 	}
 	
@@ -131,15 +117,22 @@ public class Step {
 		inputLine.getP0().setP(GeometryUtil.round(inputLine.getP0().p, 10));
 		inputLine.getP1().setP(GeometryUtil.round(inputLine.getP1().p, 10));
 		
-		addLineToPolygons(inputLine);
-		updateTriangulationDiagonals();
+		
+		if (Globals.virtualFolding) {
+			addLineToPolygons(inputLine);
+			updateTriangulationDiagonals();
+		} else {
+			addNormalLine(inputLine);
+		}
+		
 	}
 	
 	
 	/**
-	 * Adds a new {@code OriLine inL} and checks which polygons are <br>
-	 * affected by it (which polygons have to be split). <br>
-	 * Then splits up all affected polygons and updates the corresponding vertices, lines, and sharedLines.
+	 * Adds a new {@code OriLine inL} and checks which polygons are affected by it 
+	 * (which polygons have to be split up). Then splits up all affected polygons <br>
+	 * and updates the corresponding vertices, lines, and sharedLines. <br>
+	 * For simulated folding mode.
 	 * 
 	 * @param inL
 	 */
@@ -217,36 +210,8 @@ public class Step {
 	 * Updates all the triangulation diagonals. Use after updates to the polygons happened.
 	 */
 	public void updateTriangulationDiagonals() {
-		removeTriangulationDiagonals();
-		addTriangulationDiagonals();
-	}
-	
-	/**
-	 * Goes through all polygons in the current step, triangulates <br>
-	 * them and adds the diagonals to the {@code lines}.
-	 */
-	private void addTriangulationDiagonals() {
-		for (OriPolygon p : polygons) {
-			p.triangulate();
-			OriDiagonal curDia = p.diagList.head;
-
-			for (int i=0; i<p.diagList.n; i++) {
-				lines.add(new OriLine(curDia.v1, curDia.v2, OriLine.DIAGONAL));
-				curDia = curDia.next;
-			}
-		}
-	}
-	
-	/**
-	 * Removes all lines of type {@code OriLine.TYPE_DIAGONAL} in the current step.
-	 */
-	private void removeTriangulationDiagonals() {
-		for (int i=0; i<lines.size(); i++) {
-			OriLine curL = lines.get(i);
-			if (curL.getType() == OriLine.DIAGONAL) {
-				lines.remove(curL);
-				i = -1;
-			}
+		for (OriPolygon curP : polygons) {
+			curP.triangulate();
 		}
 	}
 
@@ -450,11 +415,12 @@ public class Step {
 	}
 	
 	
-	/**Adds a new OriLine and checks for intersections with others
+	/**Adds a new OriLine and checks for intersections with other existing lines. <br>
+	 * For classic diagramming mode.
 	 * 
 	 * @param inL
 	 */
-	public void addLine(OriLine inputLine) {
+	public void addNormalLine(OriLine inputLine) {
 		//don't add the line if it already exists
 		for (OriLine l : lines) {
 			if (inputLine.isSameLine(l)) {
@@ -553,13 +519,12 @@ public class Step {
 	 * @param inputVertex
 	 */
 	public void addVertex(OriVertex inputVertex) {
-		//vertices.add(inputVertex);
-		//vertexList.addVertex(inputVertex.p.x, inputVertex.p.y);
+		vertices.add(inputVertex);
 		
 //		paperPolygon.diagList.head = null;
 //		paperPolygon.listCopy(); 	//TODO: add vertex doesn't work with the polygonList
 //		paperPolygon.triangulate();
-		updateTriangulationDiagonals();
+		//updateTriangulationDiagonals();
 
 	}
 	
@@ -597,7 +562,7 @@ public class Step {
 			
 			inL.setP0(new OriVertex(l.getP0().p.x + 20, l.getP0().p.y + 20));
 			inL.setP1(new OriVertex(l.getP1().p.x + 20, l.getP1().p.y + 20));	//TODO: maybe snapping to grid? --> issue with copy/pasting multiple different OriObjects
-			addLine(inL);													//TODO: could use line-snapping-to-grid only when lines are copied --> else just move everything by (20, 20)
+			addNormalLine(inL);													//TODO: could use line-snapping-to-grid only when lines are copied --> else just move everything by (20, 20)
 		}
 //		for (OriVertex v : copiedObjects.vertices) {
 //			OriVertex inV = new OriVertex(v);			//TODO: doesn't make sense as you can simply add more vertices  --> don't include them
@@ -693,12 +658,16 @@ public class Step {
 	}
 	
 
+	/**
+	 * Initializes the paper for virtual folding by creating a polygon with the specified shape.
+	 * @return OriPolygon in the specified paper shape {@code Globals.paperShape}
+	 */
 	public OriPolygon getInitPolygon() {
 		if (Globals.paperShape == Constants.PaperShape.SQUARE) {
 			//TODO: this is setup for default square paper --> todo for different shapes like octagonal etc.
-			return getSquareEdgeLines();
+			return getSquareEdgePolygon();
 		} else if (Globals.paperShape == Constants.PaperShape.RECTANGLE) {
-			return getRectEdgeLines();
+			return getRectEdgePolygon();
 		} else {
 			return null;
 		}
@@ -708,20 +677,19 @@ public class Step {
 	 * Creates the {@code OriVertexList} with the vertices for a square paper.
 	 * @return
 	 */
-	public OriPolygon getSquareEdgeLines() {
+	public OriPolygon getSquareEdgePolygon() {
 		
 		OriVertexList vertexList = new OriVertexList();
 		OriVertex v0 = new OriVertex(-size/2.0, size/2.0);
 		vertexList.initHead(v0);
 		
 		OriPolygon poly = new OriPolygon(vertexList);
-		
-		
-
 
 		poly.addVertex(size/2.0, size/2.0);
 		poly.addVertex(size/2.0, -size/2.0);
 		poly.addVertex(-size/2.0, -size/2.0);
+		
+		poly.addLine(new OriLine(poly.vertexList.head, poly.vertexList.head.prev, OriLine.EDGE));
 		
 		return poly;
 	}
@@ -731,7 +699,7 @@ public class Step {
 	 * Creates the {@code OriVertexList} with the vertices for a rectangular paper.
 	 * @return
 	 */
-	public OriPolygon getRectEdgeLines() {
+	public OriPolygon getRectEdgePolygon() {
 
 		OriVertexList vertexList = new OriVertexList();
 		OriPolygon poly = new OriPolygon(vertexList);
@@ -753,8 +721,61 @@ public class Step {
 		poly.addVertex(size/2.0, size/2.0*ratio);
 		poly.addVertex(size/2.0, -size/2.0*ratio);
 		poly.addVertex(-size/2.0, -size/2.0*ratio);
+		poly.addLine(new OriLine(poly.vertexList.head, poly.vertexList.head.prev, OriLine.EDGE));
+
 		
 		return poly;	
+	}
+	
+	public ArrayList<OriLine> getEdgeLines() {
+		if (Globals.paperShape == Constants.PaperShape.SQUARE) {
+			//TODO: this is setup for default square paper --> todo for different shapes like octagonal etc.
+			return getSquareEdgeLines();
+		} else if (Globals.paperShape == Constants.PaperShape.RECTANGLE) {
+			return getRectEdgeLines();
+		} else {
+			return null;
+		}
+	}
+	
+	public ArrayList<OriLine> getSquareEdgeLines() {
+		ArrayList<OriLine> newLines = new ArrayList<>();
+
+		OriLine l0 = new OriLine(-size/2.0, size/2.0, size/2.0, size/2.0, OriLine.EDGE);
+		OriLine l1 = new OriLine(size/2.0, size/2.0, size/2.0, -size/2.0, OriLine.EDGE);
+		OriLine l2 = new OriLine(size/2.0, -size/2.0, -size/2.0, -size/2.0, OriLine.EDGE);
+		OriLine l3 = new OriLine(-size/2.0, -size/2.0, -size/2.0, size/2.0, OriLine.EDGE);
+		newLines.add(l0);
+		newLines.add(l1);
+		newLines.add(l2);
+		newLines.add(l3);
+		return newLines;
+	}
+
+
+	public ArrayList<OriLine> getRectEdgeLines() {
+		ArrayList<OriLine> newLines = new ArrayList<>();
+
+		double width = Origrammer.diagram.recPaperWidth;
+		double height = Origrammer.diagram.recPaperHeight;
+		double ratio = 0;
+
+		if (width > height) {
+			ratio =  height / width;
+		} else {
+			ratio = width / height;
+		}
+
+		OriLine l0 = new OriLine(-size/2.0, size/2.0*ratio, size/2.0, size/2.0*ratio, OriLine.EDGE);
+		OriLine l1 = new OriLine(size/2.0, size/2.0*ratio, size/2.0, -size/2.0*ratio, OriLine.EDGE);
+		OriLine l2 = new OriLine(size/2.0, -size/2.0*ratio, -size/2.0, -size/2.0*ratio, OriLine.EDGE);
+		OriLine l3 = new OriLine(-size/2.0, -size/2.0*ratio, -size/2.0, size/2.0*ratio, OriLine.EDGE);
+		newLines.add(l0);
+		newLines.add(l1);
+		newLines.add(l2);
+		newLines.add(l3);
+
+		return newLines;
 	}
 	
 	
@@ -969,9 +990,9 @@ public class Step {
 			System.out.println("Failed to calculate the incenter of the triangle");
 		}
 		Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-		addLine(new OriLine(incenter, v0, Globals.inputLineType));
-		addLine(new OriLine(incenter, v1, Globals.inputLineType));
-		addLine(new OriLine(incenter, v2, Globals.inputLineType));
+		addNormalLine(new OriLine(incenter, v0, Globals.inputLineType));
+		addNormalLine(new OriLine(incenter, v1, Globals.inputLineType));
+		addNormalLine(new OriLine(incenter, v2, Globals.inputLineType));
 	}
 
 

@@ -214,15 +214,23 @@ public class UIBottomPanel extends JPanel implements ActionListener, PropertyCha
 			OriLine newKey = new OriLine(oldKey);
 			ArrayList<OriPolygon> newValueList = new ArrayList<OriPolygon>();
 
-			for (OriPolygon p : newStep.polygons) {
-				if (p.vertexList.head.p.epsilonEquals(oldValueList.get(0).vertexList.head.p, Constants.EPSILON)
+			//for (OriPolygon p : newStep.polygons) {
+			for (int i=0; i<newStep.polygons.size(); i++) {
+				OriPolygon p = newStep.polygons.get(i);
+				if (newValueList.size() < 1 
+						&& p.vertexList.head.p.epsilonEquals(oldValueList.get(0).vertexList.head.p, Constants.EPSILON)
 						&& p.vertexList.head.next.p.epsilonEquals(oldValueList.get(0).vertexList.head.next.p, Constants.EPSILON)
 						&& p.vertexList.head.next.next.p.epsilonEquals(oldValueList.get(0).vertexList.head.next.next.p, Constants.EPSILON)) {
 					newValueList.add(0, p);
+					i=0;
 				} else if (p.vertexList.head.p.epsilonEquals(oldValueList.get(1).vertexList.head.p, Constants.EPSILON)
 						&& p.vertexList.head.next.p.epsilonEquals(oldValueList.get(1).vertexList.head.next.p, Constants.EPSILON)
 						&& p.vertexList.head.next.next.p.epsilonEquals(oldValueList.get(1).vertexList.head.next.next.p, Constants.EPSILON)) {
-					newValueList.add(1, p);
+					if (newValueList.size() == 1) {
+						newValueList.add(1, p);
+						break;
+					}
+					
 				}
 			}
 			

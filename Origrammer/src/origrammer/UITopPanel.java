@@ -42,7 +42,7 @@ import origrammer.geometry.OriPolygon;
 
 public class UITopPanel extends JPanel implements ActionListener, PropertyChangeListener, KeyListener {
 
-	private String[] lineInputOptions = {"Valley Fold", "Mountain Fold", "X-Ray Fold", "Edge Line",  "Existing Crease"};
+	private String[] lineInputOptions = {"Valley Fold", "Mountain Fold", "X-Ray Fold", "Edge Line",  "Existing Crease", "Hidden"};
 	private Object[] arrowInputOptions = {"Valley Fold", "Mountain Fold", "Turn over", 
 			new JSeparator(JSeparator.HORIZONTAL),
 			"Push here", "Pull out", "Inflate here"};
@@ -692,6 +692,8 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 						l.setType(OriLine.EDGE);
 					} else if (lineType == "Existing Crease") {
 						l.setType(OriLine.CREASE);
+					} else if (lineType == "Hidden") {
+						l.setType(OriLine.HIDDEN);
 					}
 				}
 			}

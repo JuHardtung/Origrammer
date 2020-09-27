@@ -20,9 +20,9 @@ public class Globals {
 	
 	public static Constants.NewStepOptions newStepOptions = Constants.NewStepOptions.COPY_LAST_STEP;
 	public static Constants.PaperShape paperShape = Constants.PaperShape.SQUARE;
-	public static Constants.FoldingPreset foldingPreset = Constants.FoldingPreset.NONE;
 	public static Constants.FaceInputDirection faceInputDirection = Constants.FaceInputDirection.FACE_DOWN;
 	
+	public static boolean virtualFolding = true;
 	public static int gridDivNum = Config.DEFAULT_GRID_DIV_NUM;
 	public static boolean dispVertex = true;
 	public static boolean dispFilledFaces = true;

@@ -112,15 +112,18 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			g2d.transform(affineTransform);
 		}
 		
-		renderAllPolygons();		
-		renderAllFilledFaces();
-		renderAllLines();
+		if (Globals.virtualFolding) {
+			renderAllPolygons();
+			renderVirtualFoldingLines();
+		} else {
+			renderAllVertices();
+			renderAllFilledFaces();
+			renderNormalLines();
+		}
+		
+		//Symbols
 		renderAllArrows();
 
-		//renderAllVertices();
-
-
-		//Symbols
 		renderAllOriGeomSymbols();
 		renderAllEquDistSymbols();
 		renderAllEquAnglSymbols();
@@ -221,37 +224,124 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		}
 	}
 
-	private void renderAllLines() {
-		renderAllEdgeLines();
+	/**
+	 * Renders all diagonal lines from a given polygon.diaList. <br>
+	 * Diagonal lines get created by triangulating a polygon.
+	 * @param diaList
+	 */
+	private void renderDiagonalLine(OriDiagonalList diaList) {
+		g2d.setColor(Config.LINE_COLOR_DIAGONAL);
+		g2d.setStroke(Config.STROKE_DIAGONAL);
+		OriDiagonal curL = diaList.head;
+		do {
+			g2d.draw(new Line2D.Double(curL.v1.p.x, curL.v1.p.y, curL.v2.p.x, curL.v2.p.y));
+			curL = curL.next;
+		} while (curL != diaList.head);
 
+	}
+	
+	private void renderSharedLine(OriPolygon curP, OriLine curL) {
+		Vector2d p0 = curL.getP0().p;
+		Vector2d p1 = curL.getP1().p;
+		int highestLayer = Globals.upperRenderHeight;
+		
+		for (OriLine curSharedL : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+			if (curSharedL.isSameLine(curL)) { //only render the shared line of the current polygon to avoid height related render issues
+				ArrayList<OriPolygon> sharedPolys = Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.get(curSharedL);
+				int sPoly0Height = sharedPolys.get(0).getHeight();
+				int sPoly1Height = sharedPolys.get(1).getHeight();
+				setColorStrokeByLine(curSharedL);
+				
+				//if a crease line has to be rendered, check for start-/end- offsets and update p0 and p1
+				if (curSharedL.getType() == OriLine.CREASE) {
+					if (curSharedL.isStartOffset()) {
+						p0 = curSharedL.getTranslatedP0();
+					} else {
+						p0 = curSharedL.getP0().p;
+					}
+					if (curSharedL.isEndOffset()) {
+						p1 = curSharedL.getTranslatedP1();
+					} else {
+						p1 = curSharedL.getP1().p;
+					}
+				}
+
+				//sharedLines with polygons on the same height
+				if (sPoly0Height == sPoly1Height
+						&& curP.equals(sharedPolys.get(0))) {
+					g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+
+
+					//sharedLines with polygons on different heights
+					// Only render if curP is the highest one 
+					// OR if the potential other polygon is higher than the highest rendered layer 
+				} else if (curP.equals(sharedPolys.get(0))) {
+
+					if (sPoly0Height > sPoly1Height) {
+						g2d.setStroke(Config.STROKE_EDGE);
+						g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+					} else if (sPoly1Height > highestLayer) {
+						g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+					}
+
+				} else if (curP.equals(sharedPolys.get(1))) {
+					if (sPoly1Height > sPoly0Height) {
+						g2d.setStroke(Config.STROKE_EDGE);
+						g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+					} else if (sPoly0Height > highestLayer) {
+						g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+					}
+				}
+			}
+		}
+	}
+	
+	private void renderEdgeLines(OriPolygon curP) {
+		for (OriLine curL : curP.lines) {
+
+			Vector2d p0 = curL.getP0().p;
+			Vector2d p1 = curL.getP1().p;
+			int type = curL.getType();
+			
+			if (type == OriLine.NONE) { //OriLine.NONE == Shared Line
+				renderSharedLine(curP, curL);
+				
+			} else if (type == OriLine.EDGE) {
+				setLineColorByLine(curL);          //set color
+				g2d.setStroke(Config.STROKE_EDGE); //set stroke
+
+				g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
+			}
+		}	
+	}
+	
+	private void renderVirtualFoldingLines() {
+		int highestLayer = Globals.upperRenderHeight;
+		int lowestStep = Globals.lowerRenderHeight;
+
+		//render in the correct height order (lowest to highest)
+		for (int i=lowestStep; i<=highestLayer; i++) {
+			for (OriPolygon curP : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+				if (curP.getHeight() == i) { //only render the polygons of the currently rendered height
+										
+					if (Globals.dispTriangulation && curP.diagList.n > 0) {
+						renderDiagonalLine(curP.diagList);
+					}
+					
+					renderEdgeLines(curP);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Renders all lines of the current step when NOT in virtual folding mode
+	 */
+	private void renderNormalLines() {
 		for (OriLine line : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
 
-			//render lines according to their LINE_TYPE
-			setColorStrokeByLineType(line.getType());
+			setColorStrokeByLine(line);
 
-			if (!Globals.dispColoredLines) {
-				g2d.setColor(Config.LINE_COLOR_EDGE);
-			}
-
-			//if line is selected during INPUT_LINE/SELECTION_TOOL mode, render GREEN
-			if ((Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE
-					&& line.isSelected())
-					|| (Globals.toolbarMode == Constants.ToolbarMode.SELECTION_TOOL
-					&& line.isSelected())
-					|| (Globals.toolbarMode == Constants.ToolbarMode.FILL_TOOL
-					&& line.isSelected())) {
-
-				g2d.setColor(Config.LINE_COLOR_SELECTED);
-				g2d.setStroke(Config.STROKE_SELECTED);
-			}
-
-			if (line == firstSelectedL || line == secondSelectedL || line == thirdSelectedL) {
-				g2d.setColor(Color.RED);
-				g2d.setStroke(Config.STROKE_SELECTED);
-			} else if (line == selectedCandidateL) {
-				g2d.setColor(Config.LINE_COLOR_SELECTED);
-				g2d.setStroke(Config.STROKE_SELECTED);
-			}
 			Vector2d p0 = line.getP0().p;
 			Vector2d p1 = line.getP1().p;
 
@@ -268,101 +358,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				}
 			}
 
-			if (line.getType() != OriLine.DIAGONAL || Globals.dispTriangulation) {
-				g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
-			}
-
-		}
-	}
-
-	private void renderAllEdgeLines() {
-		int highestLayer = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
-		int lowestStep = Origrammer.diagram.steps.get(Globals.currentStep).getLowestPolygonHeight();
-		
-		highestLayer = Globals.upperRenderHeight;
-		lowestStep = Globals.lowerRenderHeight;
-
-		//render in the correct height order (lowest to highest)
-		for (int i=lowestStep; i<=highestLayer; i++) {
-			for (OriPolygon curP : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
-				if (curP.getHeight() == i) { //only render the polygons of the currently rendered height
-					for (OriLine curL : curP.lines) {
-						Vector2d p0 = curL.getP0().p;
-						Vector2d p1 = curL.getP1().p;
-
-						//change color if line selected
-						if (curL.isSelected()) {
-							g2d.setColor(Config.LINE_COLOR_SELECTED);
-						} else {
-							g2d.setColor(Config.LINE_COLOR_EDGE);
-						}
-						//change color if line selected for some symbol input
-						if (curL.isSameLine(firstSelectedL) || curL.isSameLine(secondSelectedL) || curL.isSameLine(thirdSelectedL)) {
-							g2d.setColor(Color.RED);
-							g2d.setStroke(Config.STROKE_SELECTED);
-						} else if (curL == selectedCandidateL) {
-							g2d.setColor(Config.LINE_COLOR_SELECTED);
-							g2d.setStroke(Config.STROKE_SELECTED);
-						}
-
-						//RENDER EDGE LINE
-						if (curL.getType() == OriLine.EDGE) {
-							g2d.setStroke(Config.STROKE_EDGE);
-							g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
-
-						//RENDER SHARED LINE
-						} else if (curL.getType() == OriLine.NONE) {
-							for (OriLine curSharedL : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
-								if (curSharedL.isSameLine(curL)) { //only render the shared line of the current polygon to avoid height related render issues
-									ArrayList<OriPolygon> sharedPolys = Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.get(curSharedL);
-									if (curSharedL.isSelected()) {
-										g2d.setColor(Config.LINE_COLOR_SELECTED);
-									}
-									//change color if line selected for some symbol input
-									if (curSharedL.isSameLine(firstSelectedL) || curSharedL.isSameLine(secondSelectedL) || curSharedL.isSameLine(thirdSelectedL)) {
-										g2d.setColor(Color.RED);
-										g2d.setStroke(Config.STROKE_SELECTED);
-									} else if (curSharedL == selectedCandidateL) {
-										g2d.setColor(Config.LINE_COLOR_SELECTED);
-										g2d.setStroke(Config.STROKE_SELECTED);
-									}
-									
-									if (curSharedL.getType() == OriLine.CREASE) {
-										if (curSharedL.isStartOffset()) {
-											p0 = curSharedL.getTranslatedP0();
-										} else {
-											p0 = curSharedL.getP0().p;
-										}
-										if (curSharedL.isEndOffset()) {
-											p1 = curSharedL.getTranslatedP1();
-										} else {
-											p1 = curSharedL.getP1().p;
-										}
-									}
-
-									//sharedLines with polygons on the same height
-									if (sharedPolys.get(0).getHeight() == sharedPolys.get(1).getHeight()
-											&& curP.equals(sharedPolys.get(0))) {
-										setLineStrokeByLineType(curSharedL.getType()); 
-										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
-
-									//only render the shared line, if the current polygon is the higher one of the 2
-								    // OR if the other polygon is higher than the highest layer that is to be rendered
-									} else if ((sharedPolys.get(0).getHeight() > sharedPolys.get(1).getHeight() && curP.equals(sharedPolys.get(0)))
-											|| (sharedPolys.get(1).getHeight() > sharedPolys.get(0).getHeight() && curP.equals(sharedPolys.get(1)))
-											|| (sharedPolys.get(0).getHeight() > highestLayer && curP.equals(sharedPolys.get(1)))
-											|| (sharedPolys.get(1).getHeight() > highestLayer && curP.equals(sharedPolys.get(0)))) {
-
-
-										g2d.setStroke(Config.STROKE_EDGE);
-										g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			g2d.draw(new Line2D.Double(p0.x, p0.y, p1.x, p1.y));
 		}
 	}
 	
@@ -986,6 +982,15 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	//#######################################################################################
 	
 	
+	/**
+	 * Sets the {@code Graphics2D Color} and {@code Stroke} depending on {@code l.getType()} <br>
+	 * (which is the {@code OriLine.type})
+	 * @param l
+	 */
+	private void setColorStrokeByLine(OriLine l) {
+		setLineColorByLine(l);
+		setLineStrokeByLine(l);
+	}
 	
 	/**
 	 * Sets the {@code Graphics2D Color} and {@code Stroke} depending on {@code type} <br>
@@ -997,6 +1002,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		setLineColorByLineType(type);
 	}
 
+	
+	private void setLineStrokeByLine(OriLine l) {
+		setLineStrokeByLineType(l.getType());
+	}
+	
 	/**
 	 * Sets the {@code Graphics2D Stroke} depending on {@code type} <br>
 	 * (which is the {@code OriLine.type}
@@ -1029,6 +1039,23 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		case OriLine.DIAGONAL:
 			g2d.setStroke(Config.STROKE_DIAGONAL);
 			break;
+		case OriLine.HIDDEN:
+			g2d.setStroke(Config.STROKE_HIDDEN);
+			break;
+		}
+	}
+	
+	private void setLineColorByLine(OriLine l) {
+		int type = l.getType();
+
+		if (l.isSelected() || l.isSameLine(selectedCandidateL)) {
+			g2d.setColor(Config.LINE_COLOR_SELECTED);
+		} else if (l.isSameLine(firstSelectedL) 
+				|| l.isSameLine(secondSelectedL) 
+				|| l.isSameLine(thirdSelectedL)) {
+			g2d.setColor(Color.RED);
+		} else {
+			setLineColorByLineType(type);
 		}
 	}
 	
@@ -1052,15 +1079,26 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				break;
 			case OriLine.XRAY:
 				g2d.setColor(Config.LINE_COLOR_XRAY);
+				break;
 			case OriLine.EDGE:
 				g2d.setColor(Config.LINE_COLOR_EDGE);
+				break;
 			case OriLine.CREASE:
 				g2d.setColor(Config.LINE_COLOR_CREASE);
+				break;
 			case OriLine.DIAGONAL:
 				g2d.setColor(Config.LINE_COLOR_CREASE);
+				break;
+			case OriLine.HIDDEN:
+				g2d.setColor(Config.LINE_COLOR_HIDDEN);
+				break;
 			}
 		} else {
-			g2d.setColor(Config.LINE_COLOR_EDGE);
+			if (type == OriLine.HIDDEN) {
+				g2d.setColor(Config.LINE_COLOR_HIDDEN);
+			} else {
+				g2d.setColor(Config.LINE_COLOR_EDGE);
+			}
 		}
 	}
 
@@ -1354,8 +1392,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			OriLine first = new OriLine(l.getP0(), newVertex, l.getType());
 			OriLine second = new OriLine(newVertex, l.getP1(), l.getType());
 			Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-			Origrammer.diagram.steps.get(Globals.currentStep).addLine(first);
-			Origrammer.diagram.steps.get(Globals.currentStep).addLine(second);
+			Origrammer.diagram.steps.get(Globals.currentStep).addNormalLine(first);
+			Origrammer.diagram.steps.get(Globals.currentStep).addNormalLine(second);
 			Origrammer.diagram.steps.get(Globals.currentStep).lines.remove(l);
 
 		}
@@ -1426,7 +1464,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 					}
 				}
 				Origrammer.diagram.steps.get(Globals.currentStep).pushUndoInfo();
-				//Origrammer.diagram.steps.get(Globals.currentStep).addLine(line);
 				Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(line);
 
 				if (Globals.automatedArrowPlacement) {
@@ -1549,9 +1586,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				if (incenter.p == null) {
 					System.out.println("Failed to calculate the incenter of the triangle");
 				} else {
-					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(incenter, new OriVertex(firstSelectedV), Globals.inputLineType));
-					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(incenter, new OriVertex(secondSelectedV), Globals.inputLineType));
-					Origrammer.diagram.steps.get(Globals.currentStep).addLine(new OriLine(incenter, new OriVertex(thirdSelectedV), Globals.inputLineType));
+					Origrammer.diagram.steps.get(Globals.currentStep).addNormalLine(new OriLine(incenter, new OriVertex(firstSelectedV), Globals.inputLineType));
+					Origrammer.diagram.steps.get(Globals.currentStep).addNormalLine(new OriLine(incenter, new OriVertex(secondSelectedV), Globals.inputLineType));
+					Origrammer.diagram.steps.get(Globals.currentStep).addNormalLine(new OriLine(incenter, new OriVertex(thirdSelectedV), Globals.inputLineType));
 				}
 				
 				firstSelectedV = null;
@@ -1659,7 +1696,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				}
 
 				for (OriLine l : tmpMirroredLineList) {
-					Origrammer.diagram.steps.get(Globals.currentStep).addLine(l);
+					Origrammer.diagram.steps.get(Globals.currentStep).addNormalLine(l);
 				}
 				
 				firstSelectedV = null;
@@ -1713,6 +1750,8 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				makeAutoFold(arrow, inputLine);
 			}
 		}
+		Origrammer.diagram.steps.get(Globals.currentStep).arrows.remove(Origrammer.diagram.steps.get(Globals.currentStep).arrows.size()-1);
+		Origrammer.diagram.steps.get(Globals.currentStep).updateTriangulationDiagonals();
 	}
 
 	
@@ -1795,8 +1834,7 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 		updatePolygonsBySharedLines(sharedLinesThatChange, inputL);
 		
-		Origrammer.diagram.steps.get(Globals.currentStep).arrows.remove(Origrammer.diagram.steps.get(Globals.currentStep).arrows.size()-1);
-		Origrammer.diagram.steps.get(Globals.currentStep).updateTriangulationDiagonals();
+		
 		Origrammer.mainFrame.uiSidePanel.modeChanged();
 	}
 	

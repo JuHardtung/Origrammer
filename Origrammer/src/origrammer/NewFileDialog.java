@@ -75,11 +75,22 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	
 	//FOLDING PRESETS
 	private JPanel foldingPresetsPanel = new JPanel();
-	private JLabel foldingPresetsLabel = new JLabel("Folding Presets:");
-	private Object[] foldingPresetOptions = {"None", "Divide into 3rds", "Divide into 5th", "Divide into 7th", 
-			new JSeparator(JSeparator.HORIZONTAL),
-			"Bird Base", "Waterbomb Base", "Kite Base", "Fish Base", "Frog Base", "Preliminary Fold"};
-	private JComboBox<Object> foldingPresetsCB = new JComboBox<Object>(foldingPresetOptions);
+	private JRadioButton noPresetRB = new JRadioButton("None", true);
+	private JRadioButton divide3rdRB = new JRadioButton("Divide into 3rds", false);
+	private JRadioButton divide5thRB = new JRadioButton("Divide into 5th", false);
+	private JRadioButton divide7thRB = new JRadioButton("Divide into 7th", false);
+	private JRadioButton birdBaseRB = new JRadioButton("Bird Base", false);
+	private JRadioButton waterbombRB = new JRadioButton("Waterbomb Base", false);
+	private JRadioButton kiteBaseRB = new JRadioButton("Kite Base", false);
+	private JRadioButton fishBaseRB = new JRadioButton("Fish Base", false);
+	private JRadioButton frogBaseRB = new JRadioButton("Frog Base", false);
+	private JRadioButton preliminaryRB = new JRadioButton("Preliminary Fold", false);
+	private ButtonGroup foldingPresetsBG = new ButtonGroup();
+	
+	//VIRTUAL FOLDING
+	private JPanel virtualFoldingPanel = new JPanel();
+	private JLabel virtualFoldingLabel = new JLabel("Simulate real folding of the paper");
+	private JCheckBox virtualFoldingCB = new JCheckBox();
 
 	//PAPER COLOR
 	private JPanel paperColorPanel = new JPanel();
@@ -94,6 +105,8 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	
 	//PAPER OPTIONS
 	private JPanel paperOptionsPanel = new JPanel();
+	
+	private JPanel diagramOptionsPanel = new JPanel();
 
 	private JButton okButton = new JButton(Origrammer.res.getString("Pref_okButton"));
 	private JButton cancelButton = new JButton(Origrammer.res.getString("Pref_cancelButton"));
@@ -135,6 +148,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		if (jContentPane == null) {
 			addModelPanel();
 			addPaperOptionsPanel();
+			addDiagramOptionsPanel();
 			
 			SpringLayout buttonLayout = new SpringLayout();
 			JPanel buttonPanel = new JPanel();
@@ -149,7 +163,9 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 			jContentPane = new JPanel();
 			jContentPane.add(modelPanel);
 			jContentPane.add(paperOptionsPanel);
-			jContentPane.add(buttonPanel);
+			jContentPane.add(diagramOptionsPanel);
+
+			diagramOptionsPanel.add(buttonPanel);
 
 			SpringLayout layout = new SpringLayout();
 			jContentPane.setLayout(layout);
@@ -216,6 +232,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		paperShapePanel.setLayout(new GridLayout(5, 1, 1, 0));
 		paperShapePanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Paper Shape"));
+		paperOptionsPanel.add(paperShapePanel);
 	}
 	
 	private void addPaperSizeSquarePanel() {
@@ -230,6 +247,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		paperSizePanel.add(paperSizeTF);
 		paperSizePanel.add(paperSizeUnit);
 		paperSizePanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Paper Size"));
+		paperOptionsPanel.add(paperSizePanel);
 	}
 	
 	private void addPaperSizeRectPanel() {
@@ -258,17 +276,53 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		paperSizeRectPanel.add(paperHeightRect);
 		paperSizeRectPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Paper Size"));
 		paperSizeRectPanel.setLayout(new BoxLayout(paperSizeRectPanel, BoxLayout.PAGE_AXIS));
+		paperOptionsPanel.add(paperSizeRectPanel);
 	}
 	
 	private void addFoldingPresetsPanel() {
-		//foldingPresetsLabel
-		foldingPresetsCB.addActionListener(this);
-		foldingPresetsCB.setRenderer(new SeparatorComboBoxRenderer());
-		foldingPresetsCB.setSelectedIndex(0);
-		foldingPresetsPanel.add(foldingPresetsLabel);
-		foldingPresetsPanel.add(foldingPresetsCB);
-		foldingPresetsPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Folding Presets"));
+	
+		foldingPresetsBG.add(noPresetRB);
+		foldingPresetsBG.add(divide3rdRB);
+		foldingPresetsBG.add(divide5thRB);
+		foldingPresetsBG.add(divide7thRB);
+		foldingPresetsBG.add(birdBaseRB);
+		foldingPresetsBG.add(waterbombRB);
+		foldingPresetsBG.add(kiteBaseRB);
+		foldingPresetsBG.add(fishBaseRB);
+		foldingPresetsBG.add(frogBaseRB);
+		foldingPresetsBG.add(preliminaryRB);
+		
+		foldingPresetsPanel.add(noPresetRB);
+		foldingPresetsPanel.add(divide3rdRB);
+		foldingPresetsPanel.add(divide5thRB);
+		foldingPresetsPanel.add(divide7thRB);
+		foldingPresetsPanel.add(birdBaseRB);
+		foldingPresetsPanel.add(waterbombRB);
+		foldingPresetsPanel.add(kiteBaseRB);
+		foldingPresetsPanel.add(fishBaseRB);
+		foldingPresetsPanel.add(frogBaseRB);
+		foldingPresetsPanel.add(preliminaryRB);
+		
+		divide7thRB.setEnabled(false);
+		birdBaseRB.setEnabled(false);
+		waterbombRB.setEnabled(false);
+		kiteBaseRB.setEnabled(false);
+		fishBaseRB.setEnabled(false);
+		fishBaseRB.setEnabled(false);
+		frogBaseRB.setEnabled(false);
+		preliminaryRB.setEnabled(false);
 
+		foldingPresetsPanel.setLayout(new GridLayout(10, 1, 1, 0));
+		foldingPresetsPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Folding Presets"));
+		diagramOptionsPanel.add(foldingPresetsPanel);
+	}
+	
+	private void addVirtualFoldingPanel() {
+		virtualFoldingCB.setSelected(true);
+		virtualFoldingPanel.add(virtualFoldingLabel);
+		virtualFoldingPanel.add(virtualFoldingCB);
+		virtualFoldingPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Virtual Folding"));
+		diagramOptionsPanel.add(virtualFoldingPanel);
 	}
 	
 	private void addPaperColorPanel() {
@@ -289,6 +343,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		paperColorPanel.setLayout(new GridLayout(2, 3, 0, 0));
 		paperColorPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Paper Color"));
+		paperOptionsPanel.add(paperColorPanel);
 	}
 	
 	private void addInstructionsPanel() {
@@ -303,23 +358,25 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		instructPanel.add(scroll2);
 		instructPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Instructions"));
+		//paperOptionsPanel.add(instructPanel);
 	}
+	
 	
 	private void addPaperOptionsPanel() {
 		addPaperShapePanel();
 		addPaperSizeSquarePanel();
 		addPaperSizeRectPanel();
-		addFoldingPresetsPanel();
 		addPaperColorPanel();
+
 		addInstructionsPanel();
 		
-		paperOptionsPanel.add(paperShapePanel);
-		paperOptionsPanel.add(paperSizePanel);
-		paperOptionsPanel.add(paperSizeRectPanel);
-		paperOptionsPanel.add(foldingPresetsPanel);
-		paperOptionsPanel.add(paperColorPanel);
-		//paperOptionsPanel.add(instructPanel);
 		paperOptionsPanel.setLayout(new BoxLayout(paperOptionsPanel, BoxLayout.PAGE_AXIS));
+	}
+	
+	private void addDiagramOptionsPanel() {
+		addFoldingPresetsPanel();
+		addVirtualFoldingPanel();
+		diagramOptionsPanel.setLayout(new BoxLayout(diagramOptionsPanel, BoxLayout.PAGE_AXIS));
 	}
 
 	@Override
@@ -386,27 +443,6 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		} else if (e.getSource() == cancelButton) {
 			dispose();		
 		}
-		
-		Object selectedPreset = foldingPresetsCB.getSelectedItem();
-		if (selectedPreset == "Divide into 3rds") {
-			Globals.foldingPreset = Constants.FoldingPreset.INTO_3;
-		} else if (selectedPreset == "Divide into 5th") {
-			Globals.foldingPreset = Constants.FoldingPreset.INTO_5;
-		}  else if (selectedPreset == "Divide into 7th") {
-			Globals.foldingPreset = Constants.FoldingPreset.INTO_7;
-		}  else if (selectedPreset == "Bird Base") {
-			Globals.foldingPreset = Constants.FoldingPreset.BIRD_BASE;
-		}  else if (selectedPreset == "Waterbomb Base") {
-			Globals.foldingPreset = Constants.FoldingPreset.WATERBOMB_BASE;
-		}  else if (selectedPreset == "Kite Base") {
-			Globals.foldingPreset = Constants.FoldingPreset.KITE_BASE;
-		}  else if (selectedPreset == "Fish Base") {
-			Globals.foldingPreset = Constants.FoldingPreset.FISH_BASE;
-		}  else if (selectedPreset == "Frog Base") {
-			Globals.foldingPreset = Constants.FoldingPreset.FROG_BASE;
-		}  else if (selectedPreset == "FoldingPreset") {
-			Globals.foldingPreset = Constants.FoldingPreset.PRELIMINARY_FOLD;
-		}
 	}
 	
 	public void modeChanged() {
@@ -420,33 +456,39 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	}
 	
 	private void createFromFoldingPreset() {
-		switch (Globals.foldingPreset) {
-		case NONE:
-			break;
-		case INTO_3:
+		
+		if (noPresetRB.isSelected()) {
+			System.out.println("No folding preset");
+		} else if (divide3rdRB.isSelected()) {
 			createDivideInto3Preset();
-			break;
-		case INTO_5:
+		} else if (divide5thRB.isSelected()) {
 			createDivideInto5Preset();
-			break;
-		case INTO_7:
-			break;
-		case BIRD_BASE:
-			break;
-		case FISH_BASE:
-			break;
-		case FROG_BASE:
-			break;
-		case KITE_BASE:
-			break;
-		case PRELIMINARY_FOLD:
-			break;
-		case WATERBOMB_BASE:
-			break;
-		default:
-			break;
+		} else if (divide7thRB.isSelected()) {
+			
+		} else if (birdBaseRB.isSelected()) {
+			
+		} else if (waterbombRB.isSelected()) {
+			
+		} else if (kiteBaseRB.isSelected()) {
+			
+		} else if (fishBaseRB.isSelected()) {
+			
+		} else if (frogBaseRB.isSelected()) {
+			
+		} else if (preliminaryRB.isSelected()) {
 			
 		}
+	
+	}
+	
+	private void makeLineExistingCreases() {
+		if (Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet().size() > 0) {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+				l.setType(OriLine.CREASE);
+//				l.setStartOffset(true);
+//				l.setEndOffset(true);
+			}	
+		}		
 	}
 	
 	private void createDivideInto3Preset() {
@@ -487,11 +529,10 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 		
 		//STEP 1
-		Globals.currentStep += 1;
 		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusZero, plusZero, OriLine.CREASE, true, true));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
 		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -300), new Vector2d(300, 300), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -500,12 +541,10 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 		
 		//STEP 2
-		Globals.currentStep += 1;
 		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusZero, plusZero, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
 		lineList.add(new OriLine(minusMinus, plusZero, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(150, -300), new Vector2d(-50, 50), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -514,14 +553,12 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 		
 		//STEP 3
-		Globals.currentStep += 1;
 		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+
 		//leave out unused creaseline
-		//lineList.add(new OriLine(new Vector2d(-300, 0), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true)); 
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusMinus, plusZero, OriLine.CREASE, true, true));
 		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.VALLEY));
 		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.VALLEY));
 		
@@ -536,15 +573,11 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 		
 		//STEP 4
-		Globals.currentStep += 1;
 		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		//lineList.add(new OriLine(new Vector2d(-300, 0), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
-		//lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-		//lineList.add(new OriLine(new Vector2d(-300, -300), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.CREASE, true, true));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+
 		lineList.add(new OriLine(minusHundretMinus, minusHundretPlus, OriLine.VALLEY));
 		lineList.add(new OriLine(minusHundret, plusHundret, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -200), new Vector2d(100, -200), OriArrow.TYPE_VALLEY, true, true));
@@ -555,17 +588,11 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 		
 		//STEP 5
-		Globals.currentStep += 1;
 		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		//lineList.add(new OriLine(new Vector2d(-300, 0), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
-		//lineList.add(new OriLine(new Vector2d(-300, 300), new Vector2d(300, -300), OriLine.TYPE_CREASE, true, true));
-		//lineList.add(new OriLine(new Vector2d(-300, -300), new Vector2d(300, 0), OriLine.TYPE_CREASE, true, true));
-		lineList.add(new OriLine(minusMinusHundret, plusMinusHundret, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(hundretMinus, hundretPlus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusHundretMinus, minusHundretPlus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusHundret, plusHundret, OriLine.CREASE, true, true));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+
 		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(300, -300), -40, 3);
 		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
 		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(-300, 300), 40, 3);
@@ -624,11 +651,11 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 
 		//STEP 1
-		Globals.currentStep += 1;
-//		lineList.clear();
+		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+//		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
 		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -150), new Vector2d(0, 0), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -637,12 +664,12 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 
 		//STEP 2
-		Globals.currentStep += 1;
-//		lineList.clear();
+		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.CREASE, true, true));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+//		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+//		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.CREASE, true, true));
 		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -187.5), new Vector2d(-112.5, -150), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -651,13 +678,13 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 
 		//STEP 3
-		Globals.currentStep += 1;
-//		lineList.clear();
+		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.CREASE));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+//		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+//		lineList.add(new OriLine(minusPlus, minus51Minus, OriLine.CREASE, true, true));
+//		lineList.add(new OriLine(minusPlus, minus180Minus, OriLine.CREASE));
 		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(-60, -60), OriArrow.TYPE_VALLEY, false, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -668,12 +695,12 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 		
 		//STEP 4
-		Globals.currentStep += 1;
-//		lineList.clear();
+		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+//		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+//		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
 		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(-180, 0), OriArrow.TYPE_VALLEY, true, true));
 		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
@@ -683,14 +710,11 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 
 		
 		//STEP 5
-		Globals.currentStep += 1;
-//		lineList.clear();
+		lineList.clear();
 		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.VALLEY));
+		Origrammer.mainFrame.uiBottomPanel.stepForth();
+		makeLineExistingCreases();
+		lineList.add(new OriLine(minus60Minus, minus60Plus, OriLine.VALLEY));
 		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.VALLEY));
 		arrowList.add(new OriArrow(new Vector2d(300, 0), new Vector2d(60, 0), OriArrow.TYPE_VALLEY, true, true));
 		arrowList.add(new OriArrow(new Vector2d(-300, -60), new Vector2d(180, -60), OriArrow.TYPE_VALLEY, false, true));
@@ -701,54 +725,56 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
 		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 		
-		//STEP 6
-		Globals.currentStep += 1;
+//		//STEP 6
 //		lineList.clear();
-		arrowList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.CREASE, true, true));
-		
-		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.VALLEY));
-		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.VALLEY));
-		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.VALLEY));
-		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.VALLEY));
-		arrowList.add(new OriArrow(new Vector2d(60, -300), new Vector2d(60, -60), OriArrow.TYPE_VALLEY, true, true));
-		arrowList.add(new OriArrow(new Vector2d(-180, -300), new Vector2d(-180, 180), OriArrow.TYPE_VALLEY, false, true));
-		arrowList.add(new OriArrow(new Vector2d(180, 300), new Vector2d(180, -180), OriArrow.TYPE_VALLEY, false, true));
-		arrowList.add(new OriArrow(new Vector2d(-60, 300), new Vector2d(-60, 60), OriArrow.TYPE_VALLEY, false, true));
-		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
-		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(-300, 300), 40, 5);
-		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
-		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
-		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
-		
-		
-		//STEP 7
-		Globals.currentStep += 1;
+//		arrowList.clear();
+//		Origrammer.mainFrame.uiBottomPanel.stepForth();
+//		makeLineExistingCreases();
+////		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.CREASE, true, true));
+//		
+//		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.VALLEY));
+//		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.VALLEY));
+//		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.VALLEY));
+//		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.VALLEY));
+//		arrowList.add(new OriArrow(new Vector2d(60, -300), new Vector2d(60, -60), OriArrow.TYPE_VALLEY, true, true));
+//		arrowList.add(new OriArrow(new Vector2d(-180, -300), new Vector2d(-180, 180), OriArrow.TYPE_VALLEY, false, true));
+//		arrowList.add(new OriArrow(new Vector2d(180, 300), new Vector2d(180, -180), OriArrow.TYPE_VALLEY, false, true));
+//		arrowList.add(new OriArrow(new Vector2d(-60, 300), new Vector2d(-60, 60), OriArrow.TYPE_VALLEY, false, true));
+//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+//		Origrammer.diagram.steps.get(Globals.currentStep).addArrows(arrowList);
+//		equalDistSymbol = new OriEqualDistSymbol(new Vector2d(-300, -300), new Vector2d(-300, 300), 40, 5);
+//		Origrammer.diagram.steps.get(Globals.currentStep).addEqualDistSymbol(equalDistSymbol);
+//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Fold and unfold the last 2 lines.");
+//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+//		
+//		
+//		//STEP 7
 //		lineList.clear();
-		Origrammer.mainFrame.uiBottomPanel.createStepPaperShape(Globals.currentStep);
-		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.CREASE, true, true));
-		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.CREASE, true, true));
-		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
-		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Done.");
-		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
+//		arrowList.clear();
+//		Origrammer.mainFrame.uiBottomPanel.stepForth();
+//		makeLineExistingCreases();
+////		lineList.add(new OriLine(minusPlus, plusMinus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minus180Minus, minus180Plus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(plus60Minus, plus60Plus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minus60Plus, minus60Minus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(plus180Minus, plus180Plus, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minusMinus180, plusMinus180, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minusMinus60, plusMinus60, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minusPlus60, plusPlus60, OriLine.CREASE, true, true));
+////		lineList.add(new OriLine(minusPlus180, plusPlus180, OriLine.CREASE, true, true));
+//		Origrammer.diagram.steps.get(Globals.currentStep).addLines(lineList);
+//		Origrammer.diagram.steps.get(Globals.currentStep).setStepDescription("Done.");
+//		Origrammer.mainFrame.uiStepOverviewPanel.updateStepOverViewPanel();
 	}
 	
 	private void createNewDiagram() {
 
 		Globals.newStepOptions = Constants.NewStepOptions.PASTE_DEFAULT_PAPER;
+		Globals.virtualFolding = virtualFoldingCB.isSelected();
 
 		Diagram tmpDiagram = new Diagram(Constants.DEFAULT_PAPER_SIZE, 
 										faceUpColor.getBackground(), 
@@ -773,12 +799,13 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 		Origrammer.mainFrame.uiStepOverviewPanel.removeAllStepPreviews();
 		Step step = new Step();
 		Origrammer.diagram.steps.add(step);
+		Globals.newStepOptions = Constants.NewStepOptions.COPY_LAST_STEP;
 		createFromFoldingPreset();
 		
 		
 		__screen.modeChanged();
 		
-		Globals.newStepOptions = Constants.NewStepOptions.COPY_LAST_STEP;
+		
 
 		Origrammer.mainFrame.uiSidePanel.dispGridCheckBox.setSelected(true);
 		Origrammer.mainFrame.mainScreen.setDispGrid(true);

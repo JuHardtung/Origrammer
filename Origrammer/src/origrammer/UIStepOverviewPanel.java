@@ -82,12 +82,12 @@ public class UIStepOverviewPanel extends JPanel implements ActionListener, Mouse
 		ActionMap amMovingDown = stepOverviewPanel.getActionMap();
 		amMovingDown.put(MOVE_STEP_DOWN, new MoveStepDownAction());
 		
-		setPreferredSize(new Dimension(250, 700));
+		setPreferredSize(new Dimension(280, 700));
 		setBackground(new Color(230, 230, 230));
 		stepOverviewPanel.setLayout(new BoxLayout(stepOverviewPanel, BoxLayout.PAGE_AXIS));
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setPreferredSize(new Dimension(250, 700));
+		scrollPane.setPreferredSize(new Dimension(270, 700));
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		
 		addStepPreviewOptionsPanel();

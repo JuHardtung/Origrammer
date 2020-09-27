@@ -474,7 +474,7 @@ public class OriPolygon {
 			OriLine l = lines.get(i);
 			if (l.isSameLine(sharedL)) {
 				l.setType(OriLine.NONE);
-			}//TODO: UPDARTE THE LINES CORRECTLY; NOT ALL SHAREDLINES ARE GETTING SIGNED AS THAT
+			}//TODO: UPDATE THE LINES CORRECTLY; NOT ALL SHAREDLINES ARE GETTING SIGNED AS THAT
 			for (OriLine curL : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
 				if (curL.isSameLine(l)) {
 					l.setType(OriLine.NONE);
