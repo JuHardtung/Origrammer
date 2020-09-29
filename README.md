@@ -2,7 +2,6 @@
 ## An Origami Diagramming Tool
 
 The Origrammer is a desktop application for the digital origami diagram creation.
-![Image of the Origrammer](https://i.imgur.com/5XJtGua.png =171x149)
 
 <img src="https://i.imgur.com/zeusscs.png" align="center" width="800">
 It implements the established origami notation developed by Akira Yoshizawa with additional modifications proposed by Robert J. Lang in [Origami Diagramming Conventions](https://langorigami.com/article/origami-diagramming-conventions/). Refer to the [Origrammer Wiki](https://github.com/JuHardtung/Origrammer/wiki) for more details of all lines, arrows, and symbols and how to use them.
