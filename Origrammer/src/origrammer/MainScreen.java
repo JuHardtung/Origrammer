@@ -116,9 +116,9 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			renderAllPolygons();
 			renderVirtualFoldingLines();
 		} else {
-			renderAllVertices();
 			renderAllFilledFaces();
 			renderNormalLines();
+			renderAllVertices();
 		}
 		
 		//Symbols
@@ -1219,15 +1219,42 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		double minDistance = Double.MAX_VALUE;
 		OriLine bestLine = null;
 		
-		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
-			double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), l.getP0().p, l.getP1().p);
-			if (dist < minDistance) {
-				minDistance = dist;
-				bestLine = l;
-			} else if (dist == minDistance) {
-				bestLine = l;
+		if (Globals.virtualFolding) {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+				double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), l.getP0().p, l.getP1().p);
+				if (dist < minDistance) {
+					minDistance = dist;
+					bestLine = l;
+				} else if (dist == minDistance) {
+					bestLine = l;
+				}
+			}
+			for (OriPolygon curP : Origrammer.diagram.steps.get(Globals.currentStep).polygons)
+			for (OriLine l : curP.lines) {
+				if (l.getType() != OriLine.NONE) {
+					double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), l.getP0().p, l.getP1().p);
+					if (dist < minDistance) {
+						minDistance = dist;
+						bestLine = l;
+					} else if (dist == minDistance) {
+						bestLine = l;
+					}
+				}
+				
+			}
+		} else {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+				double dist = GeometryUtil.DistancePointToSegment(new Vector2d(p.x, p.y), l.getP0().p, l.getP1().p);
+				if (dist < minDistance) {
+					minDistance = dist;
+					bestLine = l;
+				} else if (dist == minDistance) {
+					bestLine = l;
+				}
 			}
 		}
+		
+		
 
 		if (minDistance / Globals.SCALE < 10) {
 			return bestLine;
@@ -1688,15 +1715,25 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 
 				ArrayList<OriLine> tmpMirroredLineList = new ArrayList<OriLine>();
 
-				for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-					if (l.isSelected()) {
-						OriLine mirroredLine = GeometryUtil.mirrorLine(l, new OriLine(new OriVertex(firstSelectedV), new OriVertex(secondSelectedV), OriLine.NONE));
-						tmpMirroredLineList.add(mirroredLine);
+				if (Globals.virtualFolding) {
+					for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+						if (l.isSelected()) {
+							OriLine mirroredLine = GeometryUtil.mirrorLine(l, new OriLine(new OriVertex(firstSelectedV), new OriVertex(secondSelectedV), OriLine.NONE));
+							tmpMirroredLineList.add(mirroredLine);
+						}
+					}
+				} else {
+					for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+						if (l.isSelected()) {
+							OriLine mirroredLine = GeometryUtil.mirrorLine(l, new OriLine(new OriVertex(firstSelectedV), new OriVertex(secondSelectedV), OriLine.NONE));
+							tmpMirroredLineList.add(mirroredLine);
+						}
 					}
 				}
+				
 
 				for (OriLine l : tmpMirroredLineList) {
-					Origrammer.diagram.steps.get(Globals.currentStep).addNormalLine(l);
+					Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(l);
 				}
 				
 				firstSelectedV = null;
@@ -2950,15 +2987,42 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 			int maxY = (int) Math.round(Math.max(sp.y, ep.y));
 			Rectangle selectRect = new Rectangle(minX, minY, maxX-minX, maxY-minY);
 
-			//Check if there is a shared line in the selection rectangle
-			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
-				Line2D tmpL = new Line2D.Double(l.getP0().p.x, l.getP0().p.y, l.getP1().p.x, l.getP1().p.y);
-				if (tmpL.intersects(selectRect)) {
-					l.setSelected(true);
-				} else {
-					l.setSelected(false);
+			
+			if (Globals.virtualFolding) {
+				//Check if there is a shared line in the selection rectangle
+				for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+					Line2D tmpL = new Line2D.Double(l.getP0().p.x, l.getP0().p.y, l.getP1().p.x, l.getP1().p.y);
+					if (tmpL.intersects(selectRect)) {
+						l.setSelected(true);
+					} else {
+						l.setSelected(false);
+					}
+				}
+				//Check if there is an edge line in the selection rectangle
+				for (OriPolygon curP : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+					for (OriLine l : curP.lines) {
+						if (l.getType() != OriLine.NONE) {
+							Line2D tmpL = new Line2D.Double(l.getP0().p.x, l.getP0().p.y, l.getP1().p.x, l.getP1().p.y);
+							if (tmpL.intersects(selectRect)) {
+								l.setSelected(true);
+							} else {
+								l.setSelected(false);
+							}
+						}
+					}
+				}
+			} else {
+				//Check if there are lines in the selection rectangle
+				for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+					Line2D tmpL = new Line2D.Double(l.getP0().p.x, l.getP0().p.y, l.getP1().p.x, l.getP1().p.y);
+					if (tmpL.intersects(selectRect)) {
+						l.setSelected(true);
+					} else {
+						l.setSelected(false);
+					}
 				}
 			}
+			
 
 			//Check if there is a vertex in the selection rectangle
 			for (OriVertex v : Origrammer.diagram.steps.get(Globals.currentStep).vertices) {

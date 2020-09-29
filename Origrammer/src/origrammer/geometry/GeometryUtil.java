@@ -644,62 +644,45 @@ public class GeometryUtil {
 		double dist = 0;
 		double smallestDist = 1000; //TODO: make it more elegant and not with fixed value
 		Vector2d bestCrossPoint = null;
-		for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
-			for (OriLine l : p.lines) {
-				Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
-				if (crossPoint2 != null && !crossPoint2.equals(p1)) {
-					//check if crossPoint2 is too close to bestCrossPoint
-					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
-							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
-						dist = GeometryUtil.Distance(p1, crossPoint2);
-						if (dist < smallestDist) {
-							smallestDist = dist;
-							bestCrossPoint = crossPoint2;
+		
+		if (Globals.virtualFolding) {
+			//Check all lines of the polygons for the earliest intersection with the linepoint p1 + direction uv
+			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+				for (OriLine l : p.lines) {
+					Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+					if (crossPoint2 != null && !crossPoint2.equals(p1)) {
+						//check if crossPoint2 is too close to bestCrossPoint
+						if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
+								&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+							dist = GeometryUtil.Distance(p1, crossPoint2);
+							if (dist < smallestDist) {
+								smallestDist = dist;
+								bestCrossPoint = crossPoint2;
+							}
+						}
+					}
+				}
+			}
+		} else {
+			//check all OriLines for the earliest intersection with the new AngleBisectorLine
+			//set the first intersection as P2 of the AngleBisectorLine
+			for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+				Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+				if (crossPoint2 != null) {
+					if (!crossPoint2.equals(p1)) {
+						//check if crossPoint2 is too close to bestCrossPoint
+						if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
+								&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+							dist = GeometryUtil.Distance(p1, crossPoint2);
+							if (dist < smallestDist) {
+								smallestDist = dist;
+								bestCrossPoint = crossPoint2;
+							}
 						}
 					}
 				}
 			}
 		}
-		
-		
-//		//check all OriLines for the earliest intersection with the new AngleBisectorLine
-//		//set the first intersection as P2 of the AngleBisectorLine
-//		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
-//			if (tmpLine.getType() != OriLine.TYPE_DIAGONAL) { //skip the diagonal lines
-//				Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
-//				if (crossPoint2 != null) {
-//					if (!crossPoint2.equals(p1)) {
-//						//check if crossPoint2 is too close to bestCrossPoint
-//						if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
-//								&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
-//							dist = GeometryUtil.Distance(p1, crossPoint2);
-//							if (dist < smallestDist) {
-//								smallestDist = dist;
-//								bestCrossPoint = crossPoint2;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		
-//		for (OriLine tmpLine : Origrammer.diagram.steps.get(Globals.currentStep).edgeLines) {
-//
-//			Vector2d crossPoint2 = GeometryUtil.getCrossPoint(tmpLine, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
-//			if (crossPoint2 != null) {
-//				if (!crossPoint2.equals(p1)) {
-//					//check if crossPoint2 is too close to bestCrossPoint
-//					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON) 
-//							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
-//						dist = GeometryUtil.Distance(p1, crossPoint2);
-//						if (dist < smallestDist) {
-//							smallestDist = dist;
-//							bestCrossPoint = crossPoint2;
-//						}
-//					}
-//				}
-//			}
-//		}
 		return bestCrossPoint;
 	}
 	

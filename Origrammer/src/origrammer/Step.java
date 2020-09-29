@@ -1180,14 +1180,21 @@ public class Step {
 	}
 
 	public void unselectAllLines() {
-		for (OriPolygon p : polygons) {
-			for (OriLine l : p.lines) {
+		if (Globals.virtualFolding) {
+			for (OriPolygon p : polygons) {
+				for (OriLine l : p.lines) {
+					l.setSelected(false);
+				}
+			}
+			for (OriLine l : sharedLines.keySet()) {
+				l.setSelected(false);
+			}
+		} else {
+			for (OriLine l : lines) {
 				l.setSelected(false);
 			}
 		}
-		for (OriLine l : sharedLines.keySet()) {
-			l.setSelected(false);
-		}
+		
 	}
 
 	public void unselectAllVertices() {

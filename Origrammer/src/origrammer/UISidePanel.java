@@ -220,10 +220,12 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		lineInputPanel.add(lineInputTwoVerticesRB);
 		lineInputPanel.add(lineInputAngleBisectorRB);
 		lineInputPanel.add(lineInputPerpendicularRB);
-		lineInputPanel.add(lineInputIncenterRB);
 		lineInputPanel.add(lineInputExtendLineRB);
-		lineInputPanel.add(lineInputLengthAngleRB);
 		lineInputPanel.add(lineInputMirrorLinesRB);
+		lineInputPanel.add(lineInputIncenterRB);
+		lineInputPanel.add(lineInputLengthAngleRB);
+
+
 		lineInputPanel.setLayout(new GridLayout(7, 1, 10, 2));
 		add(lineInputPanel);
 	}
@@ -562,6 +564,19 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 
 
 	public void modeChanged() {
+		if (Globals.virtualFolding) {
+			fillToolRB.setEnabled(false);
+
+			lineInputIncenterRB.setEnabled(false);
+			lineInputLengthAngleRB.setEnabled(false);
+		} else {
+			fillToolRB.setEnabled(true);
+
+			
+			lineInputIncenterRB.setEnabled(true);
+			lineInputLengthAngleRB.setEnabled(true);
+		}
+		
 		if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE) {
 			lineInputPanel.setVisible(true);
 		} else {

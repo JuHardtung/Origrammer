@@ -21,6 +21,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
 
 import origrammer.Constants.NewStepOptions;
@@ -73,7 +75,7 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 		uiBottomPanel = new UIBottomPanel(mainScreen);
 
 		try {
-			BufferedImage img = ImageIO.read(new File("./images/origrammer.gif"));
+			BufferedImage img = ImageIO.read(new File("Origrammer/images/origrammer.gif"));
 			this.setIconImage(img);
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -149,6 +151,20 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 		});
 		menuItemUnselectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
 
+		menuAbout.addMenuListener(new MenuListener() {
+			
+			@Override
+			public void menuSelected(MenuEvent e) {
+				openAboutDialog();
+			}
+
+			@Override
+			public void menuCanceled(MenuEvent e) {				
+			}
+			@Override
+			public void menuDeselected(MenuEvent e) {				
+			}
+		});
 
 		//##### MENU BAR #####
 		JMenuBar menuBar = new JMenuBar();
@@ -377,20 +393,46 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 			}
 			repaint();
 		} else if (e.getSource() == menutItemModelPreferences) {
-			ModelPreferenceDialog mpd = new ModelPreferenceDialog(this, mainScreen);
-			Rectangle rec = getBounds();
-			mpd.setLocation((int) (rec.getCenterX() - mpd.getWidth() / 2),
-                    (int) (rec.getCenterY() - mpd.getHeight() / 2));
-			//mpd.setModal(true);
-			mpd.setVisible(true);
+			openModelPref();
+			
 		} else if (e.getSource() == menuItemOrigrammerPreferences) {
-			PreferenceDialog pd = new PreferenceDialog(this, mainScreen);
-			Rectangle rec = getBounds();
-            pd.setLocation((int) (rec.getCenterX() - pd.getWidth() / 2),
-                    (int) (rec.getCenterY() - pd.getHeight() / 2));
-			//pd.setModal(true);
-			pd.setVisible(true);
+			openOrigrammerPref();
+			
 		}
+	}
+	
+	/**
+	 * Opens the Diagram Options Dialog
+	 */
+	private void openModelPref() {
+		ModelPreferenceDialog mpd = new ModelPreferenceDialog(this, mainScreen);
+		Rectangle rec = getBounds();
+		mpd.setLocation((int) (rec.getCenterX() - mpd.getWidth() / 2),
+                (int) (rec.getCenterY() - mpd.getHeight() / 2));
+		//mpd.setModal(true);
+		mpd.setVisible(true);
+	}
+	
+	/**
+	 * Opens the Origrammer Preferences Dialog
+	 */
+	private void openOrigrammerPref() {
+		PreferenceDialog pd = new PreferenceDialog(this, mainScreen);
+		Rectangle rec = getBounds();
+        pd.setLocation((int) (rec.getCenterX() - pd.getWidth() / 2),
+                (int) (rec.getCenterY() - pd.getHeight() / 2));
+		pd.setVisible(true);
+	}
+	
+	/**
+	 * Opens the About Dialog
+	 */
+	private void openAboutDialog() {
+		AboutDialog aboutD = new AboutDialog(this, mainScreen);
+		Rectangle rec = getBounds();
+		aboutD.setLocation((int) (rec.getCenterX() - aboutD.getWidth() / 2),
+                (int) (rec.getCenterY() - aboutD.getHeight() / 2));
+		aboutD.setVisible(true);
 	}
 	
 	class FileFilterEx extends FileFilter {
