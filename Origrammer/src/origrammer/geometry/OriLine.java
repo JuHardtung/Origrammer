@@ -32,6 +32,8 @@ public class OriLine {
 		this.p0 = l.getP0();
 		this.p0 = l.getP0();
 		this.p1 = l.getP1();
+		this.isStartOffset = l.isStartOffset();
+		this.isEndOffset = l.isEndOffset();
 	}
 	
 	public OriLine(OriVertex p0, OriVertex p1, int type) {
@@ -287,6 +289,7 @@ public class OriLine {
 	}
 	
 	public String toStringSmall() {
-		return "OriLine [p0=" + p0.p + ", p1=" + p1.p + "]";
+		return "OriLine [p0=" + p0.p + ", p1=" + p1.p + ", isStartOffset="
+				+ isStartOffset + ", isEndOffset=" + isEndOffset + "]";
 	}
 }

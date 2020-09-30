@@ -14,7 +14,7 @@ public class Globals {
 	public static Constants.InputSymbolMode inputSymbolMode = Constants.InputSymbolMode.LEADER;
 	public static Constants.MeasureMode measureMode = Constants.MeasureMode.MEASURE_LENGTH;
 	
-	public static Constants.MountainFoldStyle  mountainFoldStyle = Constants.MountainFoldStyle.DASH_DOT;
+	public static Constants.MountainFoldStyle  mountainFoldStyle = Constants.MountainFoldStyle.DASH_DOT_DOT;
 	public static Constants.OutsideReverseStyle outsideReverseStyle = Constants.OutsideReverseStyle.AOM_AOA;
 	public static Constants.RabbitEarStyle rabbitEarStyle = Constants.RabbitEarStyle.SAOM_SAOM_BAOM;
 	

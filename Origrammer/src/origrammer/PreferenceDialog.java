@@ -20,7 +20,7 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 
 	//PREFERENCE PANEL
 	private JPanel preferencePanel = new JPanel();
-	private String[] mountainStyleOptions = {"Dash Dot", "Dash Dot Dot"};
+	private String[] mountainStyleOptions = {"Dash Dot Dot", "Dash Dot"};
 	private String[] outsideReverseOptions = {"AoM + AoA", "2 AoM"};
 	private String[] rabbitEarOptions = {"2 small AoM + 1 big AoM", "3 small AoM"};
 	private JComboBox<String> mountainStyleCB = new JComboBox<>(mountainStyleOptions);
@@ -57,10 +57,9 @@ public class PreferenceDialog extends JDialog implements ActionListener, Compone
 	}
 
 	private JPanel getJContentPane() {
-
-		if (Globals.mountainFoldStyle == Constants.MountainFoldStyle.DASH_DOT) {
+		if (Globals.mountainFoldStyle == Constants.MountainFoldStyle.DASH_DOT_DOT) {
 			mountainStyleCB.setSelectedIndex(0);
-		} else if (Globals.mountainFoldStyle == Constants.MountainFoldStyle.DASH_DOT_DOT) {
+		} else if (Globals.mountainFoldStyle == Constants.MountainFoldStyle.DASH_DOT) {
 			mountainStyleCB.setSelectedIndex(1);
 		}
 

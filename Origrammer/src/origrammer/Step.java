@@ -1,6 +1,7 @@
 package origrammer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -436,37 +437,57 @@ public class Step {
 			}
 		}
 		
-		// Check if the vertices of inputLine already exist or not
-		// and split existing lines, if the vertices of 
-		// inputLine lie on an existing line			
-		boolean isNewVertexP0 = true;
-		boolean isNewVertexP1 = true;
-
-		for (OriVertex v : vertices) {
-			if (GeometryUtil.closeCompareOriVertex(inputLine.getP0(), v)) {
-				//CASE input.p0 is similar to existing v -> just make input.p0 = v as to avoid rounding issues
-				inputLine.setP0(v);
-				isNewVertexP0 = false;
-			} else if (GeometryUtil.closeCompareOriVertex(inputLine.getP1(), v)) {
-				//CASE input.p1 is similar to existing v -> just make input.p1 = v as to avoid rounding issues
-				inputLine.setP1(v);
-				isNewVertexP1 = false;
-			}
-		}
-
-		if (isNewVertexP0) { 
-			//CASE input.p0 is a new vertex and might split existing lines
-			vertices.add(inputLine.getP0());
-			splitLinesFromVertex(inputLine.getP0());
-		}
-		if (isNewVertexP1) { 
-			//CASE input.p1 is a new vertex and might split existing lines
-			vertices.add(inputLine.getP1());
-			splitLinesFromVertex(inputLine.getP1());
-		}
 		splitExistingLines(inputLine);
 
-		lines.add(inputLine);
+		//points contains p0 and p1 of inputLine
+		ArrayList<Vector2d> points = new ArrayList<>();
+		points.add(inputLine.getP0().p);
+		points.add(inputLine.getP1().p);
+		points.addAll(splitInputLine(inputLine));
+
+		//sort ArrayList<Vector2d> points
+		boolean sortByX = Math.abs(inputLine.getP0().p.x - inputLine.getP1().p.x) > Math.abs(inputLine.getP0().p.y - inputLine.getP1().p.y);
+		if (sortByX) {
+			Collections.sort(points, new PointComparatorX());
+		} else {
+			Collections.sort(points, new PointComparatorY());
+		}
+
+		addInputLine(points, inputLine);
+		
+		
+		
+//		// Check if the vertices of inputLine already exist or not
+//		// and split existing lines, if the vertices of 
+//		// inputLine lie on an existing line			
+//		boolean isNewVertexP0 = true;
+//		boolean isNewVertexP1 = true;
+//
+//		for (OriVertex v : vertices) {
+//			if (GeometryUtil.closeCompareOriVertex(inputLine.getP0(), v)) {
+//				//CASE input.p0 is similar to existing v -> just make input.p0 = v as to avoid rounding issues
+//				inputLine.setP0(v);
+//				isNewVertexP0 = false;
+//			} else if (GeometryUtil.closeCompareOriVertex(inputLine.getP1(), v)) {
+//				//CASE input.p1 is similar to existing v -> just make input.p1 = v as to avoid rounding issues
+//				inputLine.setP1(v);
+//				isNewVertexP1 = false;
+//			}
+//		}
+//
+//		if (isNewVertexP0) { 
+//			//CASE input.p0 is a new vertex and might split existing lines
+//			vertices.add(inputLine.getP0());
+//			splitLinesFromVertex(inputLine.getP0());
+//		}
+//		if (isNewVertexP1) { 
+//			//CASE input.p1 is a new vertex and might split existing lines
+//			vertices.add(inputLine.getP1());
+//			splitLinesFromVertex(inputLine.getP1());
+//		}
+//		splitExistingLines(inputLine);
+//
+//		lines.add(inputLine);
 	}
 	
 	
@@ -834,7 +855,7 @@ public class Step {
 				continue;
 			}
 
-			OriLine newLine = new OriLine(prePoint, p, inputLine.getType());
+			OriLine newLine = new OriLine(prePoint, p, inputLine.getType(), inputLine.isStartOffset(), inputLine.isEndOffset());
 
 			//update isStartOffset and isEndOffset if p0 and p1 got switched after sorting
 			if (prePoint == inputLine.getP0()) {
@@ -858,64 +879,96 @@ public class Step {
 	 * @param inputLine
 	 * @return
 	 */
-	public ArrayList<OriLine> splitInputLine(OriLine inputLine) {
+	private ArrayList<Vector2d> splitInputLine(OriLine inputLine) {
+		
+		
 		ArrayList<Vector2d> points = new ArrayList<>();
 		//split up the inputLine where it crosses existing lines
-		for (OriPolygon p : polygons) {
-			OriVertex curV = p.vertexList.head;
-			OriVertex curV1 = curV.next;
-			do {
-				Vector2d crossPoint = GeometryUtil.getCrossPoint(inputLine, new OriLine(curV, curV1, OriLine.NONE));
-				if (crossPoint != null && !points.contains(crossPoint)) {
-					points.add(new Vector2d(GeometryUtil.round(crossPoint.x, 10), GeometryUtil.round(crossPoint.y, 10)));
-				}
-				curV = curV.next;
-				curV1 = curV.next;
-			} while (curV != p.vertexList.head);
-
-		}
-		
-		ArrayList<Vector2d> sortedList = new ArrayList<Vector2d>();
-
-		//sort points
-		sortedList.add(inputLine.getP0().p);
-
-		boolean didAdd = false;
-		
-		for (Vector2d p : points) {
-			if (p.epsilonEquals(inputLine.getP0().p, Constants.EPSILON)) {
+		for (OriLine line : lines) {
+			if (GeometryUtil.Distance(inputLine.getP0().p,  line.getP0().p) < POINT_EPS) {
 				continue;
 			}
-			double curDist = GeometryUtil.Distance(inputLine.getP0().p, p);
-			if (sortedList.size() == 1) {
-				sortedList.add(p);
+			if (GeometryUtil.Distance(inputLine.getP0().p,  line.getP1().p) < POINT_EPS) {
 				continue;
 			}
-			for (int i=1; i<sortedList.size(); i++) {
-				double checkDist = GeometryUtil.Distance(inputLine.getP0().p, sortedList.get(i));
-				if (curDist < checkDist) {
-					sortedList.add(i, p);
-					didAdd = true;
-					break;
-				}
+			if (GeometryUtil.Distance(inputLine.getP1().p,  line.getP0().p) < POINT_EPS) {
+				continue;
 			}
-			if (!didAdd) {
-				sortedList.add(p);
+			if (GeometryUtil.Distance(inputLine.getP1().p,  line.getP1().p) < POINT_EPS) {
+				continue;
 			}
-			didAdd = false;
-			
+			if (GeometryUtil.DistancePointToSegment(line.getP0().p, inputLine.getP0().p, inputLine.getP1().p) < POINT_EPS) {
+				points.add(line.getP0().p);
+			}
+			if (GeometryUtil.DistancePointToSegment(line.getP1().p, inputLine.getP0().p, inputLine.getP1().p) < POINT_EPS) {
+				points.add(line.getP1().p);
+			}
+
+			Vector2d crossPoint = GeometryUtil.getCrossPoint(inputLine, line);
+			if (crossPoint != null) {
+				points.add(crossPoint);
+			}
 		}
+		return points;
 		
-		ArrayList<OriLine> inLines = new ArrayList<>();
 		
-		for (int i=0; i<sortedList.size()-1; i++) {
-			OriVertex tmpV1 = new OriVertex(sortedList.get(i));
-			OriVertex tmpV2 = new OriVertex(sortedList.get(i+1));
-			OriLine tmpLine = new OriLine(tmpV1, tmpV2, inputLine.getType());
-			inLines.add(tmpLine);
-		}
-		
-		return inLines;
+//		ArrayList<Vector2d> points = new ArrayList<>();
+//		//split up the inputLine where it crosses existing lines
+//		for (OriPolygon p : polygons) {
+//			OriVertex curV = p.vertexList.head;
+//			OriVertex curV1 = curV.next;
+//			do {
+//				Vector2d crossPoint = GeometryUtil.getCrossPoint(inputLine, new OriLine(curV, curV1, OriLine.NONE));
+//				if (crossPoint != null && !points.contains(crossPoint)) {
+//					points.add(new Vector2d(GeometryUtil.round(crossPoint.x, 10), GeometryUtil.round(crossPoint.y, 10)));
+//				}
+//				curV = curV.next;
+//				curV1 = curV.next;
+//			} while (curV != p.vertexList.head);
+//
+//		}
+//		
+//		ArrayList<Vector2d> sortedList = new ArrayList<Vector2d>();
+//
+//		//sort points
+//		sortedList.add(inputLine.getP0().p);
+//
+//		boolean didAdd = false;
+//		
+//		for (Vector2d p : points) {
+//			if (p.epsilonEquals(inputLine.getP0().p, Constants.EPSILON)) {
+//				continue;
+//			}
+//			double curDist = GeometryUtil.Distance(inputLine.getP0().p, p);
+//			if (sortedList.size() == 1) {
+//				sortedList.add(p);
+//				continue;
+//			}
+//			for (int i=1; i<sortedList.size(); i++) {
+//				double checkDist = GeometryUtil.Distance(inputLine.getP0().p, sortedList.get(i));
+//				if (curDist < checkDist) {
+//					sortedList.add(i, p);
+//					didAdd = true;
+//					break;
+//				}
+//			}
+//			if (!didAdd) {
+//				sortedList.add(p);
+//			}
+//			didAdd = false;
+//			
+//		}
+//		
+//		ArrayList<OriLine> inLines = new ArrayList<>();
+//		
+//		for (int i=0; i<sortedList.size()-1; i++) {
+//			OriVertex tmpV1 = new OriVertex(sortedList.get(i));
+//			OriVertex tmpV2 = new OriVertex(sortedList.get(i+1));
+//			OriLine tmpLine = new OriLine(tmpV1, tmpV2, inputLine.getType());
+//			inLines.add(tmpLine);
+//		}
+//		
+//		return inLines;
 	}
 
 	/** Checks if the inputLine crosses any existing lines and splits them if necessary.

@@ -1253,8 +1253,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 				}
 			}
 		}
-		
-		
 
 		if (minDistance / Globals.SCALE < 10) {
 			return bestLine;
@@ -2017,8 +2015,11 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	}
 	
 	private void createHoldSymbol(Point2D.Double clickPoint) {
-		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
-		
+		 
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			v = new Vector2d(clickPoint.x, clickPoint.y);
+		}
 		if (v != null) {
 			if (firstSelectedV == null) {
 				firstSelectedV = v;
@@ -2036,7 +2037,10 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	}
 	
 	private void createHoldAndPullSymbol(Point2D.Double clickPoint) {
-		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
+		Vector2d v = pickVertex(clickPoint);
+		if (v == null) {
+			v = new Vector2d(clickPoint.x, clickPoint.y);
+		}
 		if (v != null) {
 			if (firstSelectedV == null) {
 				firstSelectedV = v;
@@ -2124,7 +2128,6 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 	}
 	
 	private void createLeaderSymbol(Point2D.Double clickPoint) {
-		
 		Vector2d v = new Vector2d(clickPoint.x, clickPoint.y);
 		if (v != null) {
 			if (firstSelectedV == null) {

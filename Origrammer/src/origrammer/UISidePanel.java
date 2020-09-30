@@ -1,7 +1,11 @@
 package origrammer;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -82,8 +86,8 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	private JLabel percentLabel = new JLabel("%");
 	private JButton scalingCustomButton = new JButton("Set");
 	private JButton scaling100 = new JButton("100%");
-	private JButton scalingMinus = new JButton("-");
-	private JButton scalingPlus = new JButton("+");
+	private JButton scalingMinus = new JButton("-10");
+	private JButton scalingPlus = new JButton("+10");
 
 	private JButton resetViewButton = new JButton("Reset View");
 	private JCheckBox dispVerticesCB = new JCheckBox(Origrammer.res.getString("UI_ShowVertices"), true);
@@ -92,6 +96,7 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	private JCheckBox dispTriangulationCB = new JCheckBox(Origrammer.res.getString("UI_ShowTriangulation"), true);
 	
 	//RENDER HEIGHT
+	JPanel renderHeightPanel = new JPanel();
 	private JTextField lowerRenderRangeTF = new JTextField();
 	private JTextField upperRenderRangeTF = new JTextField();
 	private JButton confirmRenderRange = new JButton("Set");
@@ -312,11 +317,13 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		scaling100.addActionListener(this);
 		scalingMinus.addActionListener(this);
 		scalingPlus.addActionListener(this);
-		
+		resetViewButton.addActionListener(this);
+
 		scalingCustomTF = new JFormattedTextField(new DecimalFormat("###.#"));
 		scalingCustomTF.setColumns(4);
 		scalingCustomTF.setValue(100);
-		scalingCustomTF.setHorizontalAlignment(JTextField.RIGHT);
+		scalingCustomTF.setPreferredSize(new Dimension(50, 26));
+		scalingCustomTF.setHorizontalAlignment(JTextField.CENTER);
 		PlainDocument docScalingCustom = (PlainDocument) scalingCustomTF.getDocument();
 		docScalingCustom.setDocumentFilter(new IntFilter());
 
@@ -324,35 +331,48 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		scalingCustom.add(scalingCustomTF);
 		scalingCustom.add(percentLabel);
 
-		JPanel scalingCustomPanel = new JPanel();
-		//scalingCustomPanel.add(scalingCustomTF);
-		scalingCustomPanel.add(scalingCustom);
-		scalingCustomPanel.add(scalingCustomButton);
-		scalingCustomPanel.setLayout(new BoxLayout(scalingCustomPanel, BoxLayout.LINE_AXIS));
-
-		JPanel scalingButtonsPanel = new JPanel();
-		//scalingButtonsPanel.add(scaling100);
-		scalingButtonsPanel.add(scalingMinus);
-		scalingButtonsPanel.add(scalingPlus);
-		scalingButtonsPanel.setLayout(new BoxLayout(scalingButtonsPanel, BoxLayout.LINE_AXIS));
-
 		JPanel scalingPanel = new JPanel();
-		scalingPanel.add(scalingCustomPanel);
-		scalingPanel.add(scalingButtonsPanel);
-		scalingPanel.setLayout(new BoxLayout(scalingPanel, BoxLayout.PAGE_AXIS));
-
-		//scalingPanel.add(scalingCustom);
-		//scalingPanel.add(scalingCustomButton);
-		//scalingPanel.add(scaling100);
-		//scalingPanel.add(scalingMinus);
-		//scalingPanel.add(scalingPlus);
-		//scalingPanel.setLayout(new GridLayout(2, 3, 5, 5));
+		scalingPanel.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		gbc.insets = new Insets(3,2,3,2);
+		
+		gbc.gridx = 0;
+		gbc.gridwidth = 1;
+		gbc.gridy = 0;
+		scalingPanel.add(scalingCustomTF, gbc);
+		
+//		gbc.gridx = 1;
+//		gbc.gridwidth = 1;
+//		gbc.gridy = 0;
+//		scalingPanel.add(percentLabel, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		gbc.gridy = 0;
+		scalingPanel.add(scalingCustomButton, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridwidth = 1;
+		gbc.gridy = 1;
+		scalingPanel.add(scalingMinus, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		gbc.gridy = 1;
+		scalingPanel.add(scalingPlus, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridwidth = 2;
+		gbc.gridy = 2;
+		scalingPanel.add(resetViewButton, gbc);
+		
 		scalingPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Scaling"));
 		add(scalingPanel);
 	}
 	
 	private void addButtonsPanel(){
-		resetViewButton.addActionListener(this);
 
 		dispVerticesCB.addActionListener(this);
 		dispVerticesCB.setSelected(true);
@@ -371,20 +391,18 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		Globals.dispTriangulation = true;
 		
 		JPanel buttonsPanel = new JPanel();
-		buttonsPanel.add(resetViewButton);
 		buttonsPanel.add(dispVerticesCB);
 		buttonsPanel.add(dispFilledFacedCB);
 		buttonsPanel.add(dispPolygonsCB);
 		buttonsPanel.add(dispTriangulationCB);
-		buttonsPanel.setLayout(new GridLayout(5, 1, 10, 2));
+		buttonsPanel.setLayout(new GridLayout(4, 1, 10, 2));
 		add(buttonsPanel);
 	}
 	
 	private void addRenderHeightPanel() {
-		JPanel renderHeightPanel = new JPanel();
 		rangeSlider.setMaximum(5);
+		rangeSlider.setPreferredSize(new Dimension(100, 25));
 		rangeSlider.addChangeListener(new ChangeListener() {
-			
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				RangeSlider slider = (RangeSlider) e.getSource();
@@ -396,20 +414,55 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 		
 		
 		confirmRenderRange.addActionListener(this);
+		lowerRenderRangeTF.setPreferredSize(new Dimension(40, 25));
+		upperRenderRangeTF.setPreferredSize(new Dimension(40, 25));
+		lowerRenderRangeTF.setHorizontalAlignment(JTextField.CENTER);
+		upperRenderRangeTF.setHorizontalAlignment(JTextField.CENTER);
+
 		lowerRenderRangeTF.setText("0");
 		upperRenderRangeTF.setText(Integer.toString(Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight()));
 		JLabel upperLimitLabel = new JLabel("Upper Limit:");
 		JLabel lowerLimitLabel = new JLabel("Lower Limit:");
-		renderHeightPanel.add(upperLimitLabel);
-		renderHeightPanel.add(upperRenderRangeTF);
-		renderHeightPanel.add(lowerLimitLabel);
-		renderHeightPanel.add(lowerRenderRangeTF);
-		renderHeightPanel.add(confirmRenderRange);
+
+		renderHeightPanel.setLayout(new GridBagLayout());
 		
-		renderHeightPanel.setLayout(new GridLayout(3, 2, 10, 2));
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		
+		gbc.gridx = 0;
+		gbc.gridwidth = 1;
+		gbc.gridy = 0;
+		renderHeightPanel.add(upperLimitLabel, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		gbc.gridy = 0;
+		renderHeightPanel.add(upperRenderRangeTF, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridwidth = 1;
+		gbc.gridy = 1;
+		renderHeightPanel.add(lowerLimitLabel, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		gbc.gridy = 1;
+		renderHeightPanel.add(lowerRenderRangeTF, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridwidth = 1;
+		gbc.gridy = 2;
+		renderHeightPanel.add(rangeSlider, gbc);
+
+		gbc.gridx = 1;
+		gbc.gridwidth = 1;
+		gbc.gridy = 2;
+		renderHeightPanel.add(confirmRenderRange, gbc);
+		
 		renderHeightPanel.setBorder(new TitledBorder(new EtchedBorder(BevelBorder.RAISED, getBackground().darker(), getBackground().brighter()), "Render Range"));
 		add(renderHeightPanel);
-		add(rangeSlider);
 	}
 
 	@Override
@@ -566,15 +619,15 @@ public class UISidePanel extends JPanel implements ActionListener, PropertyChang
 	public void modeChanged() {
 		if (Globals.virtualFolding) {
 			fillToolRB.setEnabled(false);
-
 			lineInputIncenterRB.setEnabled(false);
 			lineInputLengthAngleRB.setEnabled(false);
+			renderHeightPanel.setVisible(true);
+			
 		} else {
 			fillToolRB.setEnabled(true);
-
-			
 			lineInputIncenterRB.setEnabled(true);
 			lineInputLengthAngleRB.setEnabled(true);
+			renderHeightPanel.setVisible(false);
 		}
 		
 		if (Globals.toolbarMode == Constants.ToolbarMode.INPUT_LINE) {

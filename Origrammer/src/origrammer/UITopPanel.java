@@ -48,8 +48,8 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 			"Push here", "Pull out", "Inflate here"};
 	private Object[] symbolInputOptions = {"Leader", "Repetition Box", "Next View Here", "Rotations", 
 			"Hold Here", "Hold Here and Pull", new JSeparator(JSeparator.HORIZONTAL),  
-			"X-Ray Circle", "Fold over and over", "Equal Distances", "Equal Angles", 
-			new JSeparator(JSeparator.HORIZONTAL),  "Crimping & Pleating", "Sinks"};
+			"X-Ray Circle", "Equal Distances", "Equal Angles", 
+			new JSeparator(JSeparator.HORIZONTAL),  "Crimping & Pleating", "Sinks", "Fold over and over"};
 
 
 	//INPUT LINES/ ARROWS/ SYMBOLS
@@ -132,7 +132,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	//ROTATION SETTINGS
 	private JPanel rotationPanel = new JPanel();
 	public JTextField rotationTF = new JTextField();
-	private JLabel rotationLabel = new JLabel("Â° Rotation");
+	private JLabel rotationLabel = new JLabel("° Rotation");
 	private JButton setRotationTextButton = new JButton("Set");
 	public JCheckBox reverseRotSymbol = new JCheckBox("Reverse");
 	
@@ -557,6 +557,41 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 		inputVertexFractionTF.setText(Integer.toString(inputVertexFractionSlider.getValue()));
 	}
 
+	private void changeLineType() {
+		String lineType = changeLineTypeCB.getSelectedItem().toString();
+
+		if (Globals.virtualFolding) {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+				if (l.isSelected()) {
+
+					setLineType(l, lineType);
+				}
+			}
+		} else {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+				if (l.isSelected()) {
+					setLineType(l, lineType);
+				}
+			}
+		}
+		screen.repaint();
+	}
+	private void setLineType(OriLine l, String lineType) {
+		if (lineType == "Valley Fold") {
+			l.setType(OriLine.VALLEY);
+		} else if (lineType == "Mountain Fold") {
+			l.setType(OriLine.MOUNTAIN);
+		} else if (lineType == "X-Ray Fold") {
+			l.setType(OriLine.XRAY);
+		} else if (lineType == "Edge Line") {
+			l.setType(OriLine.EDGE);
+		} else if (lineType == "Existing Crease") {
+			l.setType(OriLine.CREASE);
+		} else if (lineType == "Hidden") {
+			l.setType(OriLine.HIDDEN);
+		}
+	}
+	
 	private void changeArrowType() {
 		for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
 			if (a.isSelected()) {
@@ -636,24 +671,49 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void creaseStartTranslation() {
-		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
-			if (l.isSelected()) {
-				if (startCreaseCB.isSelected()) {
-					l.setStartOffset(true);
-				} else if (!startCreaseCB.isSelected()) {
-					l.setStartOffset(false);
+		if (Globals.virtualFolding) {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+				if (l.isSelected()) {
+					if (startCreaseCB.isSelected()) {
+						l.setStartOffset(true);
+					} else if (!startCreaseCB.isSelected()) {
+						l.setStartOffset(false);
+					}
+				}
+			}
+		} else {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+				if (l.isSelected()) {
+					if (startCreaseCB.isSelected()) {
+						l.setStartOffset(true);
+					} else if (!startCreaseCB.isSelected()) {
+						l.setStartOffset(false);
+					}
 				}
 			}
 		}
+		
 	}
 
 	private void creaseEndTranslation() {
-		for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
-			if (l.isSelected()) {
-				if (endCreaseCB.isSelected()) {
-					l.setEndOffset(true);
-				} else if (!endCreaseCB.isSelected()) {
-					l.setEndOffset(false);
+		if (Globals.virtualFolding) {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
+				if (l.isSelected()) {
+					if (endCreaseCB.isSelected()) {
+						l.setEndOffset(true);
+					} else if (!endCreaseCB.isSelected()) {
+						l.setEndOffset(false);
+					}
+				}
+			}
+		} else {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+				if (l.isSelected()) {
+					if (endCreaseCB.isSelected()) {
+						l.setEndOffset(true);
+					} else if (!endCreaseCB.isSelected()) {
+						l.setEndOffset(false);
+					}
 				}
 			}
 		}
@@ -678,26 +738,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == changeLineButton) {
-			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
-				if (l.isSelected()) {
-					String lineType = changeLineTypeCB.getSelectedItem().toString();
-
-					if (lineType == "Valley Fold") {
-						l.setType(OriLine.VALLEY);
-					} else if (lineType == "Mountain Fold") {
-						l.setType(OriLine.MOUNTAIN);
-					} else if (lineType == "X-Ray Fold") {
-						l.setType(OriLine.XRAY);
-					} else if (lineType == "Edge Line") {
-						l.setType(OriLine.EDGE);
-					} else if (lineType == "Existing Crease") {
-						l.setType(OriLine.CREASE);
-					} else if (lineType == "Hidden") {
-						l.setType(OriLine.HIDDEN);
-					}
-				}
-			}
-			screen.repaint();
+			changeLineType();
 		} else if (e.getSource() == changeArrowButton) {
 			changeArrowType();
 		} else if (e.getSource() == arrowIsMirrored) {
@@ -842,6 +883,36 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 
 		if (Globals.toolbarMode == Constants.ToolbarMode.SELECTION_TOOL) {
 			
+			setEditingPanelVisibility();
+		}
+		screen.modeChanged();
+	}
+	
+	/**
+	 * Checks all lines, arrows, and symbols and displays the editing panels for the objects that are selected.
+	 */
+	private void setEditingPanelVisibility() {
+		setLineEditingVisibility();
+		
+		setArrowEditingVisibility();
+		
+		setFilledFaceVisibility();
+		
+		setGeomSymbolEditingVisibility();
+		
+		setEqualDistEditingVisibility();
+		
+		setEqualAnglEditingVisibility();
+		
+		setPleatCrimpEditingVisibility();
+	}
+	
+	/**
+	 * Sets the {@code changeLinePanel} to visible if a line is selected.
+	 */
+	private void setLineEditingVisibility() {
+		if (Globals.virtualFolding) {
+			//check edge lines
 			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
 				for (OriLine curL : p.lines) {
 					if (curL.isSelected()) {
@@ -851,6 +922,7 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 						}
 						break;
 					} else {
+						//check shared lines
 						for (OriLine sharedL : Origrammer.diagram.steps.get(Globals.currentStep).sharedLines.keySet()) {
 							if (sharedL.isSelected()) {
 								changeLinePanel.setVisible(true);
@@ -866,86 +938,131 @@ public class UITopPanel extends JPanel implements ActionListener, PropertyChange
 					}
 				}
 			}
-			
-			
-			for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
-				if (a.isSelected()) {
-					changeArrowPanel.setVisible(true);
-					arrowPanel.setVisible(true);
-					break;
-				} else {
-					changeArrowPanel.setVisible(false);
-					arrowPanel.setVisible(false);
-				}
-			}
-			for (OriFace f : Origrammer.diagram.steps.get(Globals.currentStep).filledFaces) {
-				if (f.isSelected()) {
-					faceDirectionPanel.setVisible(true);
-					break;
-				} else {
-					faceDirectionPanel.setVisible(false);
-				}
-			}
-			for (OriGeomSymbol gs : Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols) {
-				if (gs.isSelected()) {
-					if (gs.getType() == OriGeomSymbol.TYPE_ROTATION) {
-						rotationPanel.setVisible(true);
-						setRotationTextButton.setVisible(true);
-						break;
-					} else if (gs.getType() == OriGeomSymbol.TYPE_NEXT_VIEW_HERE) {
-						nextViewPanel.setVisible(true);
-						break;
-					} else if (gs.getType() == OriGeomSymbol.TYPE_HOLD) {
-						//TODO: show editingOptions for OriGeomSymbol.TYPE_HOLD
-						break;
-						
-					} else if (gs.getType() == OriGeomSymbol.TYPE_HOLD_AND_PULL){
-						//TODO: show editingOptions for OriGeomSymbol.TYPE_HOLD_AND_PULL
-						break;
-					} else if (gs.getType() == OriGeomSymbol.TYPE_CLOSED_SINK) {
-						//TODO: show editingOptions for OriGeomSymbol.TYPE_CLOSED_SINK
-						break;
-					} else if (gs.getType() == OriGeomSymbol.TYPE_LEADER
-							|| gs.getType() == OriGeomSymbol.TYPE_REPETITION) {
-						changeSymbolLeaderPanel.setVisible(true);
-						break;
+		} else  {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+				if (l.isSelected()) {
+					changeLinePanel.setVisible(true);
+					if (l.getType() == OriLine.CREASE) {
+						changeCreaseEndsPanel.setVisible(true);
 					}
-					
-				} else {
-					rotationPanel.setVisible(false);
-					setRotationTextButton.setVisible(false);
-					nextViewPanel.setVisible(false);
-					changeSymbolLeaderPanel.setVisible(false);
-				}
-			}
-			for (OriEqualDistSymbol eds : Origrammer.diagram.steps.get(Globals.currentStep).equalDistSymbols) {
-				if (eds.isSelected()) {
-					equalDistPanel.setVisible(true);
 					break;
 				} else {
-					equalDistPanel.setVisible(false);
-				}
-			}
-			for (OriEqualAnglSymbol eas : Origrammer.diagram.steps.get(Globals.currentStep).equalAnglSymbols) {
-				if (eas.isSelected()) {
-					equalAnglPanel.setVisible(true);
-					equalAnglSlider.setVisible(true);
-					break;
-				} else {
-					equalAnglPanel.setVisible(false);
-					equalAnglSlider.setVisible(false);
-				}
-			}
-			for (OriPleatCrimpSymbol pcs : Origrammer.diagram.steps.get(Globals.currentStep).pleatCrimpSymbols) {
-				if (pcs.isSelected()) {
-					pleatPanel.setVisible(true);
-					break;
-				} else {
-					pleatPanel.setVisible(false);
+					changeLinePanel.setVisible(false);
+					changeCreaseEndsPanel.setVisible(false);
 				}
 			}
 		}
-		screen.modeChanged();
+	}
+	
+	/**
+	 * Sets the {@code changeArrowPanel} to visible if an arrow is selected.
+	 */
+	private void setArrowEditingVisibility() {
+		for (OriArrow a : Origrammer.diagram.steps.get(Globals.currentStep).arrows) {
+			if (a.isSelected()) {
+				changeArrowPanel.setVisible(true);
+				arrowPanel.setVisible(true);
+				break;
+			} else {
+				changeArrowPanel.setVisible(false);
+				arrowPanel.setVisible(false);
+			}
+		}
+	}
+	
+	/**
+	 * Sets the {@code faceDirectionPanel} to visible if a filled face is selected.
+	 */
+	private void setFilledFaceVisibility() {
+		for (OriFace f : Origrammer.diagram.steps.get(Globals.currentStep).filledFaces) {
+			if (f.isSelected()) {
+				faceDirectionPanel.setVisible(true);
+				break;
+			} else {
+				faceDirectionPanel.setVisible(false);
+			}
+		}
+	}
+	
+	/**
+	 * Sets the editing panels of the geometry symbols to visible if one of them is selected.
+	 */
+	private void setGeomSymbolEditingVisibility() {
+		for (OriGeomSymbol gs : Origrammer.diagram.steps.get(Globals.currentStep).geomSymbols) {
+			if (gs.isSelected()) {
+				if (gs.getType() == OriGeomSymbol.TYPE_ROTATION) {
+					rotationPanel.setVisible(true);
+					setRotationTextButton.setVisible(true);
+					break;
+				} else if (gs.getType() == OriGeomSymbol.TYPE_NEXT_VIEW_HERE) {
+					nextViewPanel.setVisible(true);
+					break;
+				} else if (gs.getType() == OriGeomSymbol.TYPE_HOLD) {
+					//TODO: show editingOptions for OriGeomSymbol.TYPE_HOLD
+					break;
+				} else if (gs.getType() == OriGeomSymbol.TYPE_HOLD_AND_PULL){
+					//TODO: show editingOptions for OriGeomSymbol.TYPE_HOLD_AND_PULL
+					break;
+				} else if (gs.getType() == OriGeomSymbol.TYPE_CLOSED_SINK) {
+					//TODO: show editingOptions for OriGeomSymbol.TYPE_CLOSED_SINK
+					break;
+				} else if (gs.getType() == OriGeomSymbol.TYPE_LEADER
+						|| gs.getType() == OriGeomSymbol.TYPE_REPETITION) {
+					changeSymbolLeaderPanel.setVisible(true);
+					break;
+				}
+				
+			} else {
+				rotationPanel.setVisible(false);
+				setRotationTextButton.setVisible(false);
+				nextViewPanel.setVisible(false);
+				changeSymbolLeaderPanel.setVisible(false);
+			}
+		}
+	}
+	
+	/**
+	 * Sets the {@code equalDistPanel} to visible if an equal distance symbol is selected.
+	 */
+	private void setEqualDistEditingVisibility() {
+		for (OriEqualDistSymbol eds : Origrammer.diagram.steps.get(Globals.currentStep).equalDistSymbols) {
+			if (eds.isSelected()) {
+				equalDistPanel.setVisible(true);
+				break;
+			} else {
+				equalDistPanel.setVisible(false);
+			}
+		}
+	}
+	
+	/**
+	 * Sets the {@code equalAnglPanel} and {@code equalAnglSlider} to visible if an equal angle symbol is selected.
+	 */
+	private void setEqualAnglEditingVisibility() {
+		for (OriEqualAnglSymbol eas : Origrammer.diagram.steps.get(Globals.currentStep).equalAnglSymbols) {
+			if (eas.isSelected()) {
+				equalAnglPanel.setVisible(true);
+				equalAnglSlider.setVisible(true);
+				break;
+			} else {
+				equalAnglPanel.setVisible(false);
+				equalAnglSlider.setVisible(false);
+			}
+		}
+	}
+	
+	/**
+	 * Sets the {@code pleatPanel} to visible if a pleat or crimp symbol is selected.
+	 */
+	private void setPleatCrimpEditingVisibility() {
+		for (OriPleatCrimpSymbol pcs : Origrammer.diagram.steps.get(Globals.currentStep).pleatCrimpSymbols) {
+			if (pcs.isSelected()) {
+				pleatPanel.setVisible(true);
+				break;
+			} else {
+				pleatPanel.setVisible(false);
+			}
+		}
 	}
 
 	//source: http://esus.com/creating-a-jcombobox-with-a-divider-separator-line/
