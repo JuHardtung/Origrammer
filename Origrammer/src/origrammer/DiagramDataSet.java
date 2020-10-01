@@ -11,6 +11,7 @@ public class DiagramDataSet {
 	public int recPaperHeight;
 	public Color faceUpColor;
 	public Color faceDownColor;
+	public boolean isVirtualFolding;
 	public StepDataSet[] steps;
 	
 	
@@ -32,6 +33,7 @@ public class DiagramDataSet {
 		recPaperHeight = d.recPaperHeight;
 		faceUpColor = d.faceUpColor;
 		faceDownColor = d.faceDownColor;
+		isVirtualFolding = Globals.virtualFolding;
 		
 	}
 	
@@ -46,6 +48,7 @@ public class DiagramDataSet {
 		d.recPaperHeight = recPaperHeight;
 		d.faceUpColor = faceUpColor;
 		d.faceDownColor = faceDownColor;
+		Globals.virtualFolding = isVirtualFolding;
 	}
 
 	public int getRecPaperWidth() {

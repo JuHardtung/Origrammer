@@ -60,16 +60,16 @@ public class OriLine {
 	public Vector2d getTranslatedP0() {
 		Vector2d uv = GeometryUtil.getUnitVector(p0.p, p1.p);
 		
-		double newX = p0.p.x + uv.x * 25;
-		double newY = p0.p.y + uv.y * 25;
+		double newX = p0.p.x + uv.x * 20;
+		double newY = p0.p.y + uv.y * 20;
 		return new Vector2d(newX, newY);
 	}
 	
 	public Vector2d getTranslatedP1() {
 		Vector2d uv = GeometryUtil.getUnitVector(p0.p, p1.p);
 		
-		double newX = p1.p.x - uv.x * 25;
-		double newY = p1.p.y - uv.y * 25;
+		double newX = p1.p.x - uv.x * 20;
+		double newY = p1.p.y - uv.y * 20;
 		return new Vector2d(newX, newY);
 	}
 	

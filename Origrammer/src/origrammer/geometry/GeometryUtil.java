@@ -698,26 +698,46 @@ public class GeometryUtil {
 		double dist = 0;
 		double biggestDist = 0;
 		Vector2d bestCrossPoint = null;
-		int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
 		
-		for (int i=highestPolygon; i>=0; i--) {
-			for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
+		if (Globals.virtualFolding) {
+			int highestPolygon = Origrammer.diagram.steps.get(Globals.currentStep).getHighestPolygonHeight();
+			
+			for (int i=highestPolygon; i>=0; i--) {
+				for (OriPolygon p : Origrammer.diagram.steps.get(Globals.currentStep).polygons) {
 
-				if (p.getHeight() == i) {
-					for (OriLine l : p.lines) {
-						Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
-						if (crossPoint2 != null) {
-							if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
-									&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
-								if (l.getType() == OriLine.EDGE) {
-									return crossPoint2;
-								}
-								dist = GeometryUtil.Distance(p1, crossPoint2);
-								if (dist > biggestDist) {
-									biggestDist = dist;
-									bestCrossPoint = crossPoint2;
+					if (p.getHeight() == i) {
+						for (OriLine l : p.lines) {
+							Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+							if (crossPoint2 != null) {
+								if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
+										&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+									if (l.getType() == OriLine.EDGE) {
+										return crossPoint2;
+									}
+									dist = GeometryUtil.Distance(p1, crossPoint2);
+									if (dist > biggestDist) {
+										biggestDist = dist;
+										bestCrossPoint = crossPoint2;
+									}
 								}
 							}
+						}
+					}
+				}
+			}
+		} else {
+			for (OriLine l : Origrammer.diagram.steps.get(Globals.currentStep).lines) {
+				Vector2d crossPoint2 = GeometryUtil.getCrossPoint(l, new OriLine(new OriVertex(p1), new OriVertex(p1.x + uv.x * 900, p1.y + uv.y * 900), Globals.inputLineType));
+				if (crossPoint2 != null) {
+					if (!(GeometryUtil.closeCompare(p1.x, crossPoint2.x, Constants.EPSILON)
+							&& GeometryUtil.closeCompare(p1.y, crossPoint2.y, Constants.EPSILON))) {
+						if (l.getType() == OriLine.EDGE) {
+							return crossPoint2;
+						}
+						dist = GeometryUtil.Distance(p1, crossPoint2);
+						if (dist > biggestDist) {
+							biggestDist = dist;
+							bestCrossPoint = crossPoint2;
 						}
 					}
 				}

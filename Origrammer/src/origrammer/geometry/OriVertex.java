@@ -91,7 +91,7 @@ public class OriVertex {
 
 	@Override
 	public String toString() {
-		return "OriVertex [p=" + p + ", offset=" + offset + ", isEar=" + isEar
-				+ ", isSelected=" + isSelected + "]";
+		return "OriVertex [p=" + p + /*", offset=" + offset + ", isEar=" + isEar
+				+ ", isSelected=" + isSelected +*/ "]";
 	}
 }

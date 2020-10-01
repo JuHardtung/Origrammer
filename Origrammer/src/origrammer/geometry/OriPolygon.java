@@ -13,8 +13,6 @@ public class OriPolygon {
 	
 	public OriVertexList vertexList, vertexListCopy;
 	public OriDiagonalList diagList;
-	private int intCount = 0;			//counts intersections
-	private boolean diagDrawn = true;	//diag-s've been drawn after triang?
 	private boolean isSelected;
 	private int height;
 	public ArrayList<OriLine> lines = new ArrayList<OriLine>();
@@ -32,7 +30,15 @@ public class OriPolygon {
 		
 		diagList = new OriDiagonalList();
 		height = 0;
-		intCount = 0;
+	}
+	
+	public OriPolygon(OriVertexList vList, OriDiagonalList dList, ArrayList<OriLine> lList, int height) {
+		this.vertexList = vList;
+		this.diagList = dList;
+		this.lines = lList;
+		this.height = height;
+		vertexListCopy = new OriVertexList();
+
 	}
 	
 	public OriPolygon(OriPolygon p) {
@@ -44,9 +50,7 @@ public class OriPolygon {
 			lines.add(newL);
 		}
 		
-		
-		this.diagList = p.diagList;
-		this.intCount = p.intCount;
+		this.diagList = new OriDiagonalList(p.diagList);
 		this.height = p.height;
 	}
 
@@ -200,7 +204,6 @@ public class OriPolygon {
 				break;
 			} else {
 				earFound = false;
-				diagDrawn = false;
 			} //end outer while loop
 		}
 	}
@@ -608,7 +611,7 @@ public class OriPolygon {
 	@Override
 	public String toString() {
 		return "OriPolygon [vertexList=" + vertexList + ", diagList=" + diagList
-				+ ", intCount=" + intCount + ", height=" + height + "]";
+				+ ", height=" + height + "]";
 	}
 	  
 }

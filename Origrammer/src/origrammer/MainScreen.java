@@ -1760,33 +1760,34 @@ implements MouseListener, MouseMotionListener, MouseWheelListener, ActionListene
 		foldingLineDir = GeometryUtil.round(foldingLineDir, 10);
 		
 		//check first direction for farthest crossPoint
-		Vector2d crossPoint = GeometryUtil.round(GeometryUtil.getFarthestCrossPoint(middleP, foldingLineDir), 10);
+		Vector2d crossPoint = GeometryUtil.getFarthestCrossPoint(middleP, foldingLineDir);
 
 		//poly has to be split up as it has crossPoint
 		if (crossPoint != null) {
 			crossPoint = GeometryUtil.round(crossPoint, 10);
 			finalLineP0 = new OriVertex(crossPoint);
 		}
-		
+
 		//check the other direction of the middlePoint
 		foldingLineDir.negate();
-		crossPoint = GeometryUtil.round(GeometryUtil.getFarthestCrossPoint(middleP, foldingLineDir), 10);
+		crossPoint = GeometryUtil.getFarthestCrossPoint(middleP, foldingLineDir);
 		if (crossPoint != null) {
+			crossPoint = GeometryUtil.round(crossPoint, 10);
 			finalLineP1 = new OriVertex(crossPoint);
 		}
 		
-		
-		if (finalLineP0.p != null  && finalLineP1.p != null) {
+		if (finalLineP0.p != null && finalLineP1.p != null) {
 			OriLine inputLine = new OriLine(finalLineP0, finalLineP1, type);
 			Origrammer.diagram.steps.get(Globals.currentStep).addNewLine(inputLine);
 			Origrammer.mainFrame.uiBottomPanel.stepForth();
+			Origrammer.diagram.steps.get(Globals.currentStep).arrows.remove(Origrammer.diagram.steps.get(Globals.currentStep).arrows.size()-1);
+
 			//if the fold is being unfolded immediately, don't auto fold it
-			if (!isUnfold && Globals.automatedFolding) {
+			if (Globals.virtualFolding && !isUnfold && Globals.automatedFolding) {
 				makeAutoFold(arrow, inputLine);
+				Origrammer.diagram.steps.get(Globals.currentStep).updateTriangulationDiagonals();
 			}
 		}
-		Origrammer.diagram.steps.get(Globals.currentStep).arrows.remove(Origrammer.diagram.steps.get(Globals.currentStep).arrows.size()-1);
-		Origrammer.diagram.steps.get(Globals.currentStep).updateTriangulationDiagonals();
 	}
 
 	

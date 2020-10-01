@@ -75,7 +75,7 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 		uiBottomPanel = new UIBottomPanel(mainScreen);
 
 		try {
-			BufferedImage img = ImageIO.read(new File("Origrammer/images/origrammer.gif"));
+			BufferedImage img = ImageIO.read(new File("./images/origrammer.gif"));
 			this.setIconImage(img);
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -165,6 +165,11 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 			public void menuDeselected(MenuEvent e) {				
 			}
 		});
+		
+		for (int i = 0; i < Config.MRUFILE_NUM; i++) {
+			mruFilesMenuItem[i] = new JMenuItem();
+			mruFilesMenuItem[i].addActionListener(this);
+        }
 
 		//##### MENU BAR #####
 		JMenuBar menuBar = new JMenuBar();
@@ -191,16 +196,16 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 		menuFile.add(menuItemSave);
 		menuFile.add(menuItemExport);
 
-		//        for (int i=0; i<Config.MRUFILE_NUM; i++) {
-		//        	int index = mruFiles.size() - 1 - i;
-		//        	if (index >= 0) {
-		//        		String path = mruFiles.get(index);
-		//        		mruFilesMenuItem[i].setText(path);
-		//        		menuFile.add(mruFilesMenuItem[i]);
-		//        	} else {
-		//        		mruFilesMenuItem[i].setText("");
-		//        	}
-		//        }
+		        for (int i=0; i<Config.MRUFILE_NUM; i++) {
+		        	int index = mruFiles.size() - 1 - i;
+		        	if (index >= 0) {
+		        		String path = mruFiles.get(index);
+		        		mruFilesMenuItem[i].setText(path);
+		        		menuFile.add(mruFilesMenuItem[i]);
+		        	} else {
+		        		mruFilesMenuItem[i].setText("");
+		        	}
+		        }
 	}
 	
 	private void buildMenuEdit() {
@@ -246,7 +251,7 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 	}
 	
 	private void openFile() {
-		NewStepOptions lastNewStepoptions = Globals.newStepOptions;
+		NewStepOptions lastNewStepOptions = Globals.newStepOptions;
 		Globals.newStepOptions = Constants.NewStepOptions.EMPTY_STEP;
 		Globals.currentStep = 0;
 
@@ -263,11 +268,17 @@ public class MainFrame extends JFrame implements ActionListener, ComponentListen
 			String filePath = fd.getDirectory() + filename;
 			openFile(filePath);
 			updateMenu(filePath);
+			
+			for (int i=0; i<Origrammer.diagram.steps.size(); i++) {
+				Globals.currentStep = i;
+				uiStepOverviewPanel.createStepPreview();
+			}
+			uiStepOverviewPanel.updateStepOverViewPanel();
 			mainScreen.repaint();
 			uiBottomPanel.stepChanged();
 			lastPath = filePath;
 		}
-		Globals.newStepOptions = lastNewStepoptions;
+		Globals.newStepOptions = lastNewStepOptions;
 	}
 
 	private void openFile(String filePath) {

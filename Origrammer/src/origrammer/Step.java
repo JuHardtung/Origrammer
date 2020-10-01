@@ -881,7 +881,6 @@ public class Step {
 	 */
 	private ArrayList<Vector2d> splitInputLine(OriLine inputLine) {
 		
-		
 		ArrayList<Vector2d> points = new ArrayList<>();
 		//split up the inputLine where it crosses existing lines
 		for (OriLine line : lines) {

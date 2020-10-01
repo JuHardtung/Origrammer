@@ -1,16 +1,35 @@
 package origrammer.geometry;
 
+import origrammer.Constants;
+
 public class OriDiagonalList {
 
 	public int n;
 	public OriDiagonal head;
 	
-	OriDiagonalList() {
+	public OriDiagonalList() {
 		head = null;
 		n = 0;
 	}
 	
-	private void initHead(OriDiagonal diag) {
+	public OriDiagonalList(OriDiagonalList dList) {
+		if (dList.n > 0) {
+			OriDiagonal curD = dList.head;
+			initHead(curD);
+
+			if (dList.n > 1) {
+				curD = curD.next;
+				do {
+					insertBeforeHead(curD);
+					curD = curD.next;
+					System.out.println("curD: " + curD.toString());
+				} while (!curD.v1.p.epsilonEquals(dList.head.v1.p, Constants.EPSILON) 
+						&& !curD.v2.p.epsilonEquals(dList.head.v2.p,Constants.EPSILON));
+			}
+		}
+	}
+	
+	public void initHead(OriDiagonal diag) {
 		head = new OriDiagonal(diag.v1, diag.v2);
 		head.next = head.prev = head;
 		n = 1;
@@ -53,6 +72,6 @@ public class OriDiagonalList {
 	      i++;
 	    } while ( temp != head );
 
-	  }
+	  }  
 	
 }

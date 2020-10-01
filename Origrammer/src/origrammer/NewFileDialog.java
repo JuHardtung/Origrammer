@@ -46,7 +46,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	//MODEL
 	private JPanel modelPanel = new JPanel();
 	private JLabel titleLabel = new JLabel("Title:");
-	private JTextField titleTF = new JTextField();
+	private JTextField titleTF = new JTextField("Untitled");
 	private JLabel authorLabel = new JLabel("Author:");
 	private JTextField authorTF = new JTextField();
 	private JLabel commentsLabel = new JLabel("Comments:");
@@ -64,7 +64,7 @@ public class NewFileDialog  extends JDialog implements ActionListener, Component
 	//PAPER SIZE SQUARE
 	private JPanel paperSizePanel = new JPanel();
 	private JLabel paperSideSizeLabel = new JLabel("Side:");
-	private JTextField paperSizeTF = new JTextField();
+	private JTextField paperSizeTF = new JTextField("30");
 	
 	//PAPER SIZE RECTANGLE
 	private JPanel paperSizeRectPanel = new JPanel();
